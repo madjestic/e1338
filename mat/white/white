@@ -1,0 +1,10 @@
+{
+    "Material": {
+        "textures": [],
+        "Shaders": {
+            "fragment": "mat/white/src/shader.frag",
+            "vertex": "mat/white/src/shader.vert"
+        },
+        "name": "white"
+    }
+}

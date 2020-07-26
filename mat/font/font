@@ -1,0 +1,10 @@
+{
+    "Material": {
+        "textures": [],
+        "Shaders": {
+            "fragment": "./mat/font/src/shader.frag",
+            "vertex":   "./mat/font/src/shader.vert"
+        },
+        "name": "font"
+    }
+}

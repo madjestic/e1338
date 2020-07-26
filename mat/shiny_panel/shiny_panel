@@ -1,0 +1,10 @@
+{
+    "Material": {
+        "textures": [],
+        "Shaders": {
+            "fragment": "mat/shiny_panel/src/shader.frag",
+            "vertex": "mat/shiny_panel/src/shader.vert"
+        },
+        "name": "shiny_panel"
+    }
+}

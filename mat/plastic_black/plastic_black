@@ -1,0 +1,10 @@
+{
+    "Material": {
+        "textures": [],
+        "Shaders": {
+            "fragment": "mat/plastic_black/src/shader.frag",
+            "vertex": "mat/plastic_black/src/shader.vert"
+        },
+        "name": "plastic_black"
+    }
+}

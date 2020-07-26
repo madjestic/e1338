@@ -1,0 +1,10 @@
+{
+    "Material": {
+        "textures": [],
+        "Shaders": {
+            "fragment": "mat/ecostress_metal/src/shader.frag",
+            "vertex": "mat/ecostress_metal/src/shader.vert"
+        },
+        "name": "ecostress_metal"
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "Material": {
+        "textures": [],
+        "Shaders": {
+            "fragment": "mat/ISS_03_dull_002/src/shader.frag",
+            "vertex": "mat/ISS_03_dull_002/src/shader.vert"
+        },
+        "name": "ISS_03_dull_002"
+    }
+}

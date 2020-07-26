@@ -1,0 +1,10 @@
+{
+    "Material": {
+        "textures": [],
+        "Shaders": {
+            "fragment": "mat/base_metal/src/shader.frag",
+            "vertex": "mat/base_metal/src/shader.vert"
+        },
+        "name": "base_metal"
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "Material": {
+        "textures": [],
+        "Shaders": {
+            "fragment": "mat/foil_silver/src/shader.frag",
+            "vertex": "mat/foil_silver/src/shader.vert"
+        },
+        "name": "foil_silver"
+    }
+}

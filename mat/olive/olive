@@ -1,0 +1,10 @@
+{
+    "Material": {
+        "textures": [],
+        "Shaders": {
+            "fragment": "mat/olive/src/shader.frag",
+            "vertex": "mat/olive/src/shader.vert"
+        },
+        "name": "olive"
+    }
+}

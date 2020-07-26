@@ -1,0 +1,10 @@
+{
+    "Material": {
+        "textures": [],
+        "Shaders": {
+            "fragment": "mat/ISS_AO_06/src/shader.frag",
+            "vertex": "mat/ISS_AO_06/src/shader.vert"
+        },
+        "name": "ISS_AO_06"
+    }
+}

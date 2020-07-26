@@ -1,0 +1,10 @@
+{
+    "Material": {
+        "textures": [],
+        "Shaders": {
+            "fragment": "mat/ISS_02_dark/src/shader.frag",
+            "vertex": "mat/ISS_02_dark/src/shader.vert"
+        },
+        "name": "ISS_02_dark"
+    }
+}
