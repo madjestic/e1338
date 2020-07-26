@@ -5,17 +5,9 @@
 module Main where 
 
 import Control.Concurrent
--- import Control.Arrow.List.Class  --(arrL)
--- import Control.Lens       hiding (transform, indexed, ids)
--- import Data.Bifoldable           (biList)
 import Data.Text                 (pack)
--- import Data.IORef
--- import Data.Maybe
 import Foreign.C
 import FRP.Yampa          hiding (identity)
--- import FRP.Yampa.Switches
--- import FRP.Yampa.EventS
--- import Data.Functor              (($>))
 
 import SDL                hiding ( Point
                                  , M44
@@ -29,31 +21,14 @@ import SDL                hiding ( Point
 
 import Graphics.Rendering.OpenGL ( PrimitiveMode(..))
 
-
-
 import System.Environment       (getArgs)
--- import Linear.Matrix
--- import Linear.V4
 import Unsafe.Coerce
--- import Data.Vector              (slice)
-       
--- import LoadShaders
--- import Camera         as Cam
+
 import Game
 import Project
--- import Model
--- import Texture
 import Project.Parser
--- import Keyboard
--- import Object         as Obj
--- import Controllable
--- import PGeo
--- import VGeo
 import AppInput
 import Rendering      as R
--- import Material
--- import Solvable
--- import Utils
 
 -- import Debug.Trace    as DT
 
