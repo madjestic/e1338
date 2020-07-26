@@ -1,1 +1,125 @@
-/home/madjestic/Projects/Haskell/e1337/app/Main.hs.test
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE OverloadedStrings, Arrows #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+
+module Main where 
+
+import Control.Concurrent
+-- import Control.Arrow.List.Class  --(arrL)
+-- import Control.Lens       hiding (transform, indexed, ids)
+-- import Data.Bifoldable           (biList)
+import Data.Text                 (pack)
+-- import Data.IORef
+-- import Data.Maybe
+import Foreign.C
+import FRP.Yampa          hiding (identity)
+-- import FRP.Yampa.Switches
+-- import FRP.Yampa.EventS
+-- import Data.Functor              (($>))
+
+import SDL                hiding ( Point
+                                 , M44
+                                 , M33
+                                 , Event
+                                 , Mouse
+                                 , RenderDrivers
+                                 , (^+^)
+                                 , (*^)
+                                 , _xyz)
+
+import Graphics.Rendering.OpenGL ( PrimitiveMode(..))
+
+
+
+import System.Environment       (getArgs)
+-- import Linear.Matrix
+-- import Linear.V4
+import Unsafe.Coerce
+-- import Data.Vector              (slice)
+       
+-- import LoadShaders
+-- import Camera         as Cam
+import Game
+import Project
+-- import Model
+-- import Texture
+import Project.Parser
+-- import Keyboard
+-- import Object         as Obj
+-- import Controllable
+-- import PGeo
+-- import VGeo
+import AppInput
+import Rendering      as R
+-- import Material
+-- import Solvable
+-- import Utils
+
+-- import Debug.Trace    as DT
+
+-- -- < Animate > ------------------------------------------------------------
+type WinInput = Event SDL.EventPayload
+type WinOutput = (Game, Bool)
+
+animate :: SDL.Window
+        -> SF WinInput WinOutput  -- ^ signal function to animate
+        -> IO ()
+animate window sf =
+  do
+    reactimate (return NoEvent)
+               senseInput
+               renderOutput
+               sf
+    closeWindow window
+    
+      where
+        senseInput _ =
+          do
+            lastInteraction <- newMVar =<< SDL.time
+            currentTime <- SDL.time                          
+            dt <- (currentTime -) <$> swapMVar lastInteraction currentTime --dtime
+            mEvent <- SDL.pollEvent
+            
+            return (dt, Event . SDL.eventPayload <$> mEvent)
+            
+        renderOutput _ (game, shouldExit) =
+          do
+            -- lastInteraction <- newMVar =<< SDL.time
+            -- currentTime <- SDL.time                          
+            -- dt <- (currentTime -) <$> swapMVar lastInteraction currentTime --dtime
+            -- TODO: send dt to renderer to display FPS in game
+            
+            R.render
+              --dt
+              R.OpenGL
+              (BackendOptions { primitiveMode = Triangles})
+              --(BackendOptions { primitiveMode = Points})
+              window
+              game
+            return shouldExit
+
+-- < Main Function > -----------------------------------------------------------
+main :: IO ()
+main = do
+
+  args <- getArgs
+  proj <- Project.Parser.parse (unsafeCoerce (args!!0) :: FilePath)
+
+  let title = pack $ Project.name $ proj
+      resX  = (unsafeCoerce $ Project.resx $ proj) :: CInt
+      resY  = (unsafeCoerce $ Project.resy $ proj) :: CInt
+
+  window    <- openWindow
+               title
+               (resX, resY)
+
+  -- SDL Mouse Options
+  setMouseLocationMode RelativeLocation
+
+  game <- initGame initVAO initGlobalUniforms proj
+  print "Starting Game."
+  
+  animate
+    window
+    (parseWinInput >>> (mainGame game &&& handleExit))
+  return ()
