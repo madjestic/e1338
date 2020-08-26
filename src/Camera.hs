@@ -11,11 +11,14 @@ module Camera
 
 import Control.Lens
 import Linear                    (V3(..), V4 (..))
-import FRP.Yampa (SF, returnA)
+import FRP.Yampa -- (SF, returnA)
+import Data.Functor              (($>))
 
 import Controllable
 import Keyboard
 import AppInput
+
+import Debug.Trace as DT
 
 data Camera =
      Camera
@@ -68,7 +71,43 @@ updateCamera :: Camera -> SF AppInput Camera
 updateCamera cam0 = 
   proc input ->
     do
-      ctl' <- updateController (view controller cam0) -< input
+      ctl' <- updateController (view controller cam0) -< input -- add a switch for mouse moving / stopped, switch between integral and static
       let
         cam' = cam0 { Camera._controller = ctl' }
+      --returnA -< (DT.trace ("cam' :" ++ show cam') $ cam')
       returnA -< cam'
+
+-- updateCamera :: Camera -> SF AppInput Camera
+-- updateCamera cam0 =
+--   switch sf cont
+--   where
+--     sf =
+--       proc input ->
+--         do
+--           mev <- mouseMoving -< input
+--           ctl' <- updateController (view controller cam0) -< input -- add a switch for mouse moving / stopped, switch between integral and static
+--           let
+--             cam' = cam0 { Camera._controller = ctl' }
+--           --returnA -< (DT.trace ("cam' :" ++ show cam') $ cam')
+--           returnA -<
+--             ( cam'
+--             , mev $> cam' )
+--     cont c = updateCamera c
+
+-- updateCamera' :: Camera -> SF AppInput Camera
+-- updateCamera' cam0 =
+--   switch sf cont
+--   where
+--     sf =
+--       proc input ->
+--         do
+--           mev <- mouseStopped -< input
+--           ctl' <- updateController (view controller cam0) -< input -- add a switch for mouse moving / stopped, switch between integral and static
+--           let
+--             cam' = cam0 { Camera._controller = ctl' }
+--           --returnA -< (DT.trace ("cam' :" ++ show cam') $ cam')
+--           returnA -<
+--             ( cam'
+--             , mev $> cam' )
+--     cont c = updateCamera c
+    

@@ -59,13 +59,15 @@ animate window sf =
             
         renderOutput _ (game, shouldExit) =
           do
-            -- lastInteraction <- newMVar =<< SDL.time
+            lastInteraction <- newMVar =<< SDL.time
             -- currentTime <- SDL.time                          
             -- dt <- (currentTime -) <$> swapMVar lastInteraction currentTime --dtime
+            -- putStrLn $ "FPS :" ++ show (0.0001/dt)
             -- TODO: send dt to renderer to display FPS in game
             
             R.render
               --dt
+              lastInteraction
               R.OpenGL
               (BackendOptions { primitiveMode = Triangles})
               --(BackendOptions { primitiveMode = Points})

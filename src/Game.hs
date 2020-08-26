@@ -44,6 +44,8 @@ import Project
 import Descriptor
 import Material
 
+import Debug.Trace as DT
+
 data Stage =
      GameIntro
    | GamePlaying
@@ -51,7 +53,7 @@ data Stage =
    | GameMenu
    deriving Show
 
-loadDelay = 2.0  :: Double -- make it into Game options value
+loadDelay = 10.0  :: Double -- make it into Game options value
 
 data Game =
      Game
@@ -81,7 +83,7 @@ mainGame game0 =
   loopPre game0 $ 
   proc (input, game) -> do
     gs <- case _gStg game of
-            GameIntro   -> gameIntro   -< (input, game)
+            GameIntro   -> gameIntro      -< (input, game0)
             GamePlaying -> gamePlay game0 -< input
     returnA -< (gs, gs)
 
@@ -105,7 +107,7 @@ gamePlay game =
              proc input -> do
                game'   <- updateGame game -< input
                reset   <- keyInput SDL.ScancodeSpace "Pressed" -< input
-               returnA -< (game', reset $> game')
+               returnA -< (game', reset $> game)
            --cont = const mainGame game
 
 updateGame :: Game -> SF AppInput Game
@@ -116,6 +118,7 @@ updateGame game =
     --returnA  -< game { Game._objects = (DT.trace ("updateGame.objs :" ++ show objs)$ objs)
     returnA  -< game { Game._objects = objs
                      , Game._camera  = cam }
+                     -- , Game._camera  = (DT.trace ("cam: " ++ show cam) $ cam) }
     
 handleExit :: SF AppInput Bool
 handleExit = quitEvent >>^ isEvent

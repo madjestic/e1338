@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Utils
   ( toVAO
@@ -19,7 +20,9 @@ import Data.List                       (elemIndex)
 import Linear.V3
 import Linear.V4
 import Linear.Matrix -- (M44, M33, identity, translation, fromQuaternion, (!*!), mkTransformationMat)
-import Data.VectorSpace
+import Linear.Metric    as LM
+import Data.VectorSpace as DV
+import Control.Lens (view)
 
 --import Debug.Trace as DT
 
@@ -28,6 +31,22 @@ instance VectorSpace (V3 Double) Double where
   (*^) s (V3 x y z)            = (V3 (s*x) (s*y) (s*z))
   (^+^)  (V3 x y z) (V3 k l m) = (V3 (x+k) (y+l) (z+m))
   dot    (V3 x y z) (V3 k l m) = (x*k) + (y*l) + (z*m)
+
+instance VectorSpace (V4 (V4 Double)) Double where
+  zeroVector                   = identity :: M44 Double
+  (*^) s (m :: M44 Double)     = m !!* s
+  (^+^)  (m :: M44 Double) (n :: M44 Double) = 
+    mkTransformationMat
+    rot
+    tr
+     where
+      rot = LM.normalize $ (inv33 m') !*! (n')
+        where
+          m' = view _m33 m
+          n' = view _m33 n
+      tr = (view translation m) ^+^ (view translation n)
+          
+  dot    (m :: M44 Double) (n :: M44 Double) = DV.dot m n
 
 toVAO
   :: [[Int]]

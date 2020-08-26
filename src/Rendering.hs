@@ -17,6 +17,7 @@ module Rendering
   ) where
 
 import Control.Monad
+import Control.Concurrent
 import Data.Text                              (Text)
 import Foreign.C
 import Foreign.Marshal.Array                  (withArray)
@@ -165,8 +166,8 @@ fromObject mpos time res cam obj = drs
     xforms = concat $ replicate n $ view Object.transforms obj :: [M44 Double]
     ds     = view Object.descriptors obj :: [Descriptor]
 
-render :: Backend -> BackendOptions -> SDL.Window -> Game -> IO ()
-render Rendering.OpenGL opts window game =
+render :: (MVar Double) -> Backend -> BackendOptions -> SDL.Window -> Game -> IO ()
+render lastInteraction Rendering.OpenGL opts window game =
   do
     GL.clearColor $= Color4 0.0 0.0 0.0 1.0
     GL.clear [ColorBuffer, DepthBuffer]
@@ -181,9 +182,12 @@ render Rendering.OpenGL opts window game =
     --mapM_ (draw opts window) (drs ++ fps)
     mapM_ (draw opts window) (drs)
 
+    -- currentTime <- SDL.time                          
+    -- dt <- (currentTime -) <$> readMVar lastInteraction -- swapMVar lastInteraction currentTime --dtime
+    -- putStrLn $ "FPS :" ++ show (1/dt) ++ "\n"
     SDL.glSwapWindow window
     
-render Vulkan _ _ _ = undefined
+render _ Vulkan _ _ _ = undefined
 
 -- drawString :: String -> IO [Drawable]
 -- drawString s =

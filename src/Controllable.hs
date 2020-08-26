@@ -23,7 +23,7 @@ import Linear.V3
 import Linear.Quaternion
 
 import Control.Lens hiding (transform)
-import FRP.Yampa --(SF, Event, returnA, isEvent, lMerge, catEvents, )
+import FRP.Yampa hiding (identity)--(SF, Event, returnA, isEvent, lMerge, catEvents, )
 import SDL.Input.Keyboard.Codes as SDL
 import Data.Functor              (($>))
 
@@ -31,6 +31,8 @@ import Keyboard
 import Mouse
 import AppInput
 import Utils ()
+
+import Debug.Trace as DT
 
 data Controllable
   =  Controller
@@ -66,109 +68,89 @@ device'    = lens _device    (\controllable newDevice    -> Controller { _device
 $(makeLenses ''Device)
 $(makeLenses ''Controllable)
 
--- | foldrWith mtx0 keys - for every keyInput apply a folding transform to mtx0
--- | in case of keypress event - updateController' the set of keys and call new fold ^  
+-- | ~inspired by foldrWith mtx0 keys - for every keyInput apply a folding transform to mtx0
 updateController :: Controllable -> SF AppInput Controllable
 updateController ctl0 =
-  proc input -> do
-    (mrx,mry) <- mouseRelPos -< input
-    --ctl1      <- updateKeyboard (DT.trace ("ctl0 :" ++ show ctl0) $ ctl0) -< input
-    ctl1      <- updateKeyboard ctl0 -< input
-    let
-      keys1 = (keys._keyboard._device $ ctl1)
-      ypr1 :: V3 Double
-      ypr1  =
-        -- (1 * ) $
-        -- (((0.25 * ) (V3 dt dt dt)) * ) $
-        (((1500 * ) (V3 mry mrx 0.0)) + ) $
-        (15000 *) $
-        foldr1 (+) $
-        zipWith (*^) ((\x -> if x then (1.0::Double) else 0) . ($ keys1) <$>
-                      [ keyUp,  keyDown, keyLeft, keyRight, keyQ,  keyE ])
-                      [ pPitch, nPitch,  pYaw,    nYaw,     pRoll, nRoll ]
-    
-        where
-          pPitch = (keyVecs._keyboard._device $ ctl0)!!6  -- positive  pitch
-          nPitch = (keyVecs._keyboard._device $ ctl0)!!7  -- negative  pitch
-          pYaw   = (keyVecs._keyboard._device $ ctl0)!!8  -- positive  yaw
-          nYaw   = (keyVecs._keyboard._device $ ctl0)!!9  -- negative  yaw
-          pRoll  = (keyVecs._keyboard._device $ ctl0)!!10 -- positive  roll
-          nRoll  = (keyVecs._keyboard._device $ ctl0)!!11 -- negative  roll
+  switch sf cont
+  where
+    sf = 
+      proc input -> do
+        (mouse', mevs) <- updateMouse ctl0     -< input
+        (mrx,    mry)  <- mouseRelPos          -< input
+        (kbrd',  kevs) <- updateKeyboard ctl0 -< input
 
-    --ypr' <- ((V3 0 0 0) ^+^) ^<< integral -< (DT.trace ("ypr1 :" ++ show ypr1) $ ypr1)
-    ypr' <- ((V3 0 0 0) ^+^) ^<< integral -< ypr1
-    
-    let
-      mtx0 = view Controllable.transform ctl0
-      mtx1 = view Controllable.transform ctl1
-      rot = -- M33
-        (view _m33 mtx0)
-            -- !*! fromQuaternion (axisAngle (view _x (view _m33 mtx0)) (view _x (DT.trace ("ypr' :" ++ show ypr') $ ypr'))) -- yaw
-            -- !*! fromQuaternion (axisAngle (V3 1 0 0) (view _x ypr'))-- (view _x (DT.trace ("ypr' :" ++ show ypr') $ ypr'))) -- yaw-- (view _x ypr')) -- yaw
+        let
+          keyVecs1 = keyVecs kbrd'
+          ypr1  =
+            (150 *) $
+            foldr1 (+) $
+            zipWith (*^) ((\x -> if x then (1.0::Double) else 0) . ($ keys kbrd') <$>
+                          [ keyUp,  keyDown, keyLeft, keyRight, keyQ,  keyE ])
+                          [ pPitch, nPitch,  pYaw,    nYaw,     pRoll, nRoll ]
+            where
+              pPitch = (keyVecs1)!!6  -- positive  pitch
+              nPitch = (keyVecs1)!!7  -- negative  pitch
+              pYaw   = (keyVecs1)!!8  -- positive  yaw
+              nYaw   = (keyVecs1)!!9  -- negative  yaw
+              pRoll  = (keyVecs1)!!10 -- positive  roll
+              nRoll  = (keyVecs1)!!11 -- negative  roll
+        
+        ypr'           <- ((V3 0 0 0) ^+^) ^<< integral -< 150 * (5*(V3 mry mrx 0.0) + ypr1)
 
-            -- These 2 seem to be identical, which probably means that it's not right...
-            -- !*! fromQuaternion (axisAngle (V3 1 0 0) (view _x ypr')) -- yaw
-            -- !*! fromQuaternion (axisAngle (V3 0 1 0) (view _y ypr')) -- pitch
-            -- !*! fromQuaternion (axisAngle (V3 0 0 1) (view _z ypr')) -- roll
-
+        let
+          rot = -- identity :: M33 Double
+            (view _m33 mtx0)
             !*! fromQuaternion (axisAngle (view _x (view _m33 mtx0)) (view _x ypr')) -- yaw
             !*! fromQuaternion (axisAngle (view _y (view _m33 mtx0)) (view _y ypr')) -- pitch
             !*! fromQuaternion (axisAngle (view _z (view _m33 mtx0)) (view _z ypr')) -- roll
 
-      
-      tr1  = -- V3
-        --foldr (+) (view translation mtx0) $
-        --foldr (+) (view translation (view Controllable.transform ctl1)) $
-        foldr1 (+) $
-        fmap (5000000 *) $ -- <- make it keyboard controllabe: speed up/down
-        fmap (transpose (rot) !*) $
-        zipWith (*^) ((\x -> if x then (1::Double) else 0) . ($ keys1) <$>
-                      [keyW, keyS, keyA, keyD, keyZ, keyC])
-                      [fVel, bVel, lVel, rVel, uVel, dVel]
-
-        where fVel   = (keyVecs._keyboard._device $ ctl0)!!0  -- forwards  velocity
-              bVel   = (keyVecs._keyboard._device $ ctl0)!!1  -- backwards velocity
-              lVel   = (keyVecs._keyboard._device $ ctl0)!!2  -- left      velocity
-              rVel   = (keyVecs._keyboard._device $ ctl0)!!3  -- right     velocity
-              uVel   = (keyVecs._keyboard._device $ ctl0)!!4  -- right     velocity
-              dVel   = (keyVecs._keyboard._device $ ctl0)!!5  -- right     velocity
+          tr1  = -- V3
+            foldr1 (+) $
+            fmap (5000000 *) $ -- <- make it keyboard controllabe: speed up/down
+            fmap (transpose (rot) !*) $
+            zipWith (*^) ((\x -> if x then (1::Double) else 0) . ($ (keys kbrd')) <$>
+                          [keyW, keyS, keyA, keyD, keyZ, keyC])
+                          [fVel, bVel, lVel, rVel, uVel, dVel]
+       
+            where fVel   = (keyVecs1)!!0  -- forwards  velocity
+                  bVel   = (keyVecs1)!!1  -- backwards velocity
+                  lVel   = (keyVecs1)!!2  -- left      velocity
+                  rVel   = (keyVecs1)!!3  -- right     velocity
+                  uVel   = (keyVecs1)!!4  -- right     velocity
+                  dVel   = (keyVecs1)!!5  -- right     velocity
     
-    tr'  <- ((view translation (Controllable._transform ctl0)) ^+^) ^<< integral -< tr1
-    let
-      mtx = 
-        mkTransformationMat
-        --(DT.trace ("rot :" ++ show rot) $ rot)
-        rot
-        tr'
-        where -- TODO: Move into a separate function?, same for ypr?             
-
-      --ctl = ctl1 { Controllable._transform = (DT.trace ("mtx :" ++ show mtx) $ mtx)
-      ctl = ctl1 { Controllable._transform = mtx
-                 , Controllable._ypr = V3 0 0 0 }
-
-    --returnA -< (DT.trace ("ctl :" ++ show ctl) $ ctl)
-    returnA -< ctl
-
-updateKeyboard :: Controllable -> SF AppInput Controllable
-updateKeyboard ctl0 =
-  switch sf cont
-  where
-    sf =
-      proc input -> do
-        (kkeys,  kevs) <- updateKeys  ctl0 -< input
+        tr'  <- ((view translation (Controllable._transform ctl0)) ^+^) ^<< integral -< tr1
+               
         let
-          result = ctl0
-                   { _device =
-                       ( _device ctl0 )
-                       { _keyboard =
-                           (_keyboard._device $ ctl0)
-                           { keys = kkeys} } }
-          
+          mtx' = 
+            mkTransformationMat
+            rot
+            tr'
+            
+        let result =
+              ctl0
+              { Controllable._transform = mtx' -- DT.trace ("mtx' :" ++ show mtx') $ mtx'
+              , Controllable._ypr       = ypr'
+              , Controllable._device =
+                  (_device ctl0) {_mouse = mouse', _keyboard = kbrd' }
+              }
+     
         returnA -<
-          ( ctl0
-          , catEvents kevs $> result )
+          ( result
+          , catEvents (mevs ++ kevs) $> result ) 
+          where
+            mtx0 = view Controllable.transform ctl0
+    cont c = updateController c
 
-    cont c = updateKeyboard c
+updateKeyboard :: Controllable -> SF AppInput (Keyboard, [Event ()])
+updateKeyboard ctl0 =
+  proc input -> do
+        (kkeys, kevs) <- updateKeys  ctl0 -< input
+        let
+          events = [(catEvents kevs) $> ()]
+          keyboard = (_keyboard._device $ ctl0) { keys = kkeys}
+          
+        returnA -< (keyboard, events)
 
 updateKeys :: Controllable -> SF AppInput (Keys, [Event ()])
 updateKeys ctl0 = 

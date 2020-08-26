@@ -73,6 +73,8 @@ executable e1338
                 app
               , src
   ghc-options:         -threaded -O2
+  --ghc-options:         -threaded -O2 -fllvm
+  --ghc-options:         -threaded -O2 -fllvm -dynamic
   --cpp-options:         -DDEBUG
   build-depends:
                 e1338
@@ -89,7 +91,7 @@ executable e1338
               , sdl2       ^>= 2.5.1.0
               , store      ^>= 0.7.4
               , text       ^>= 1.2.2.2
-              , bearriver           ^>= 0.13.1.2
+              , bearriver  ^>= 0.13.1.2
               -- , Yampa      ^>= 0.13.1
               , simple-affine-space ^>= 0.1.1
 
