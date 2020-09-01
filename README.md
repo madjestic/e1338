@@ -7,8 +7,45 @@ a re-write of e1337 with BearRiver (and, maybe, MVars)
 
 clone repo, `cabal build`,
 
-wasd, qe, zc, arrow keys, mouse controls 
+wasd, qe, zc, arrow keys, mouse controls
+
 space - reset
+
 Esc - quit
 
+
 Enjoy!
+
+======================================================================================
+
+## Building and running:
+```bash
+$ cabal build
+$ gpu ./run.sh
+```
+or, if optirun works for you:
+```
+$ optirun ./rungl.hs
+```
+
+## Convert a Geo Model:
+```bash
+$ ./convertGeo.sh earth 
+```
+
+## Creating a new Material:
+```bash
+$ ./cabal run genMaterial mat/testMat01
+```
+(that generates a ./mat/testMat01 material directory with a default conent (constant shader material)
+
+## Working with REPL:
+- compiling:
+```bash
+$ cabal repl exe:e1337
+```
+
+
+
+
+
