@@ -13,12 +13,6 @@ space - reset
 
 Esc - quit
 
-
-Enjoy!
-
-/
-/
-
 ## Building and running:
 ```bash
 $ cabal build
