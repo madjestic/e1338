@@ -1,0 +1,20 @@
+{
+    "project":
+    {
+	"name"  : "Box",
+	"resx"  : 800,
+	"resy"  : 600,
+	"models":
+	[
+	    { "path": "models/box.bgeo" },
+	],
+	"textures":
+	[
+	    { "path": "textures/checkerboard.png" }
+	],
+	"camera": [1, 0, 0, 0,
+		   0, 1, 0, 0,
+		   0, 0, 1,-1,
+		   0, 0, 0, 1]	
+    }
+}

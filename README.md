@@ -15,7 +15,8 @@ Esc - quit
 
 ## Recent Progress:
 
-* Added mad camera.
+* Awesome camera.
+* Project file generator.
 + Working on basic solvers (spinners).
 
 ## Building and running:
