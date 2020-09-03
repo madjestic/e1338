@@ -53,7 +53,6 @@ library
               , Object
               , PGeo
               , Project
-              , Project.Parser
               , Rendering
               , Solvable
               , Texture
@@ -102,7 +101,6 @@ executable e1338
               , Project
               , Model
               , Texture
-              , Project.Parser
               , Object
               , Camera
               , Controllable
@@ -147,6 +145,31 @@ executable genMaterial
   default-language:
                 Haskell2010
 
+executable genProject
+  main-is:      genProject.hs
+  hs-source-dirs:
+                app
+              , src
+  ghc-options:         -threaded -O2
+--  cpp-options:         -DDEBUG
+  build-depends:
+                e1338
+              , base         ^>=4.13.0.0
+              , aeson        ^>= 1.4.7.1
+              , aeson-pretty ^>= 0.8.8
+              , bytestring   ^>= 0.10.8.2
+              , lens         ^>= 4.19.1
+              , text       ^>= 1.2.2.2
+
+  other-modules:
+                Paths_e1338
+              , Model
+              , Project
+              , Texture
+
+  default-language:
+                Haskell2010
+                
 executable geoIndexer
   main-is:       geoIndexer.hs
   hs-source-dirs:
@@ -180,4 +203,35 @@ executable geoIndexer
   default-language:
                 Haskell2010
                    
-                   
+executable rpcShuffler
+  main-is:       rpcShuffler.hs
+  hs-source-dirs:
+                app
+              , src
+  ghc-options:         -threaded -O2
+  --cpp-options:         -DDEBUG
+  build-depends:
+                e1338
+              , base       ^>= 4.13.0.0
+              , aeson      ^>= 1.4.7.1
+              , aeson-pretty ^>= 0.8.8
+              , bytestring ^>= 0.10.8.2
+              , containers ^>= 0.6.0.1
+              , text       ^>= 1.2.2.2
+              , OpenGL     ^>= 3.0.2.2
+              , ilist      ^>= 0.2.0.0
+              , extra      ^>= 1.7.3
+              , lens       ^>= 4.19.1
+              , store      ^>= 0.7.4
+              , simple-affine-space ^>= 0.1.1
+              , linear     ^>= 1.20.8                        
+              
+  other-modules:
+                Paths_e1338
+              , FromVector
+              , Material
+              , PGeo
+              , VGeo
+              , Utils
+  default-language:
+                Haskell2010                   

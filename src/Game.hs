@@ -18,7 +18,7 @@ module Game
   , Game.resx
   , Game.resy
   , objects
-  , camera
+  , Game.camera
   , mainGame
   , gameIntro
   , gamePlay
@@ -34,13 +34,14 @@ import Data.Functor              (($>))
 import Control.Lens
 import FRP.Yampa --(SF, returnA, isEvent, (>>^), switch)
 import SDL.Input.Keyboard.Codes as SDL
+import Linear.Matrix
 
 import Controllable
 import Camera
 import Object
 import AppInput
 import Utils
-import Project
+import Project     as Prj
 import Descriptor
 import Material
 
@@ -146,7 +147,8 @@ initGame initVAO initGlobalUniforms project =
     _ <- initGlobalUniforms project
     objs  <- (loadObjects initVAO project)
     fonts <- loadFonts
-    let camPos = fromList $ view cameraP project
+    let camPos = fromList $ view Prj.camera project -- :: [Float]
+    --let camPos = undefined :: M44 Double
     --pc <- fromVGeo $ fromPGeo pCloud
     --let objs = [pc]
     let game =
@@ -165,6 +167,6 @@ initGame initVAO initGlobalUniforms project =
           (Camera  initCamController { Controllable._transform = camPos })
     return game
       where        
-        name' = Project.name  $ project
-        resX' = (unsafeCoerce $ Project.resx $ project) :: CInt
-        resY' = (unsafeCoerce $ Project.resy $ project) :: CInt
+        name' = view Prj.name project
+        resX' = (unsafeCoerce $ view Prj.resx project) :: CInt
+        resY' = (unsafeCoerce $ view Prj.resy project) :: CInt

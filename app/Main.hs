@@ -1,10 +1,12 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE OverloadedStrings, Arrows #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module Main where 
 
 import Control.Concurrent
+import Control.Lens
 import Data.Text                 (pack)
 import Foreign.C
 import FRP.Yampa          hiding (identity)
@@ -25,8 +27,7 @@ import System.Environment       (getArgs)
 import Unsafe.Coerce
 
 import Game
-import Project
-import Project.Parser
+import Project        as Prj
 import AppInput
 import Rendering      as R
 
@@ -80,18 +81,18 @@ main :: IO ()
 main = do
 
   args <- getArgs
-  proj <- Project.Parser.parse (unsafeCoerce (args!!0) :: FilePath)
+  proj <- Prj.parse (unsafeCoerce (args!!0) :: FilePath)
 
-  let title = pack $ Project.name $ proj
-      resX  = (unsafeCoerce $ Project.resx $ proj) :: CInt
-      resY  = (unsafeCoerce $ Project.resy $ proj) :: CInt
+  let title = pack $ view Prj.name proj
+      resX  = (unsafeCoerce $ view Prj.resx proj) :: CInt
+      resY  = (unsafeCoerce $ view Prj.resy proj) :: CInt
 
   window    <- openWindow
                title
                (resX, resY)
 
   -- SDL Mouse Options
-  setMouseLocationMode RelativeLocation
+  -- setMouseLocationMode RelativeLocation
 
   game <- initGame initVAO initGlobalUniforms proj
   print "Starting Game."

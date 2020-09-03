@@ -63,6 +63,19 @@ loadShaders infos =
 linkAndCheck :: Program -> IO ()
 linkAndCheck = checked linkProgram linkStatus programInfoLog "link"
 
+-- loadPreProcessCompileAttach :: Program -> [ShaderInfo] -> IO ()
+-- loadPreProcessCompileAttach _ [] = return ()
+-- loadPreProcessCompileAttach program (ShaderInfo shType source : infos) =
+--    createShader shType `bracketOnError` deleteObjectName $ \shader -> do
+--       src <- getSource source
+--       shaderSourceBS shader $= preProcess src
+--       compileAndCheck shader
+--       attachShader program shader
+--       loadPreProcessCompileAttach program infos
+--         where
+--           preProcess src = undefined -- TODO : parse the shader source and add common
+
+
 loadCompileAttach :: Program -> [ShaderInfo] -> IO ()
 loadCompileAttach _ [] = return ()
 loadCompileAttach program (ShaderInfo shType source : infos) =

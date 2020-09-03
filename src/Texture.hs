@@ -6,6 +6,9 @@ module Texture
   ) where
 
 import Control.Lens
+import Data.Aeson
+import Data.Aeson.TH
+
 
 data Texture
   =  Texture
@@ -14,3 +17,4 @@ data Texture
      } deriving Show
 
 $(makeLenses ''Texture)
+deriveJSON defaultOptions {fieldLabelModifier = drop 1} ''Texture

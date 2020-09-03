@@ -113,7 +113,7 @@ loadObjects initVAO project =
                       do { vgeo <- readBGeo modelPath :: IO VGeo
                          ; return vgeo
                          }
-                  ) $ toListOf (models . traverse . Model.path) project :: IO [VGeo]
+                  ) $ toListOf (models . traverse . path) project :: IO [VGeo]
     objs <- mapM (initObject initVAO) objVGeos :: IO [Object] -- object per vgeo
     print "Finished loading models."
     
@@ -143,7 +143,7 @@ initObject initVAO vgeo =
           -- , _pivot       = view _xyz offset
           -- , _solvers     =
           --   [(Rotate (view _xyz offset) (V3 0 0 1000))] -- TODO: a solver per ()transform) object
-          , _solvers = [] -- fmap (\offset' -> (Rotate (view _xyz offset') (V3 0 0 1000))) offset
+          , _solvers = [(Rotate (V3 0 0 0) (V3 0 0 1000))] -- fmap (\offset' -> (Rotate (view _xyz offset') (V3 0 0 1000))) offset
           } :: Object
 
     return obj
@@ -175,7 +175,7 @@ solve :: Object -> SF () Object
 solve obj =
   proc () -> do
 -- TODO: read pivot from the object preTransforms
-    mtxs <- (parB . fmap (\mtx -> spin (V3 0 0 0) (V3 0 (0) (0*1000)) mtx)) (_transforms obj) -< ()
+    mtxs <- (parB . fmap (\mtx -> spin (V3 0 0 0) (V3 0 (0) (1*1000)) mtx)) (_transforms obj) -< ()
     --obj' <- mapM (\pv0' -> solver (Rotate (pv0') (V3 0 0 1000)) obj) pv0 -< ()
     returnA -< obj { _transforms = mtxs }
     --returnA -< obj-- { _transforms = mtxs }

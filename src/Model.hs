@@ -6,6 +6,9 @@ module Model
   ) where
 
 import Control.Lens
+import Data.Aeson
+import Data.Aeson.TH
+
 
 data Model
   =  Model
@@ -14,3 +17,4 @@ data Model
      } deriving Show
 
 $(makeLenses ''Model)
+deriveJSON defaultOptions {fieldLabelModifier = drop 1} ''Model

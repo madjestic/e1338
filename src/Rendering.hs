@@ -244,6 +244,10 @@ initUniforms (Uniforms u_mat' u_prog' u_mouse' u_time' u_res' u_cam' u_xform') =
     programDebug <- loadShaders
                [ ShaderInfo VertexShader   (FileSource (_vertShader u_mat' ))
                , ShaderInfo FragmentShader (FileSource (_fragShader u_mat' )) ]
+    -- programDebug <- loadShaders
+    --            [ ShaderInfo VertexShader   (FileSource ("./mat/constant/src/shader.vert"))
+    --            , ShaderInfo FragmentShader (FileSource ("./mat/constant/src/shader.frag")) ]
+    
     let program = case debug of
                     True  -> programDebug
                     False -> u_prog'
@@ -252,10 +256,10 @@ initUniforms (Uniforms u_mat' u_prog' u_mouse' u_time' u_res' u_cam' u_xform') =
     -- | Set Uniforms
     -- TODO: fix mouse reading
     -- u_m <- getAbsoluteMouseLocation --getRelativeMouseLocation
-    let u_mouse       = Vector2 (realToFrac $ fst u_mouse') (realToFrac $ snd u_mouse') :: Vector2 GLfloat
     -- let u_mouse'      = Vector2 (realToFrac $ u_m ^. _x) (realToFrac $ u_m ^. _y) :: Vector2 GLfloat
     -- _ <- DT.trace ("u_mouse  :" ++ show (u_mouse )) $ return ()
     -- _ <- DT.trace ("u_mouse' :" ++ show (u_mouse')) $ return ()
+    let u_mouse       = Vector2 (realToFrac $ fst u_mouse') (realToFrac $ snd u_mouse') :: Vector2 GLfloat
     location0         <- get (uniformLocation program "u_mouse'")
     uniform location0 $= u_mouse
 

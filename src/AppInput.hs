@@ -504,17 +504,11 @@ nextAppInput inp (SDL.MouseButtonEvent ev)
                 _ -> id
 -- nextAppInput inp (SDL.KeyModifier ev)
 --   = undefined
--- nextAppInput inp _ =
---   inp { inpMouseMoving  = Nothing
---       , inpMouseStopped = True
---       , inpMouseRelPos  = (0,0)
---       }
 
 nextAppInput inp _ = --inp
   inp { inpMouseMoving  = Nothing
       , inpMouseStopped = True
       , inpMouseRelPos  = (0,0)
       }
-
 
 --nextAppInput inp _ = inp

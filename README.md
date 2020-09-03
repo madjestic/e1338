@@ -16,7 +16,7 @@ Esc - quit
 ## Recent Progress:
 
 * Added mad camera.
-+ Workgin on basic solvers (spinners).
++ Working on basic solvers (spinners).
 
 ## Building and running:
 ```bash

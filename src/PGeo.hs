@@ -12,10 +12,11 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE TemplateHaskell #-}
+
 module PGeo
   ( PGeo(..)
   , Vec3(..)
---  , getJSON
   , readPGeo
   , readVGeo
   , readBGeo
@@ -23,7 +24,8 @@ module PGeo
   ) where
 
 import Control.Monad (mzero)
-import Data.Aeson                             
+import Data.Aeson
+import Data.Aeson.TH
 import Data.Maybe                             (fromMaybe)
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.ByteString      as BS
@@ -35,6 +37,10 @@ import VGeo
 import Utils
 
 -- import Debug.Trace   as DT
+
+-- | TODO : replace Vec3 -> Vec4
+type Vec3 = (Double, Double, Double)
+type Vec4 = (Double, Double, Double, Double)
 
 instance FromVector Vec3 where
   toVertex4 :: Vec3 -> Vertex4 Double
@@ -54,29 +60,7 @@ data PGeo
      }
   deriving Show
 
--- class FromPGeo a where
---   fromPGeo :: PGeo -> a
---   fromPGeo' :: PGeo -> [a]
-
--- | TODO : replace Vec3 -> Vec4
-type Vec3 = (Double, Double, Double)
-type Vec4 = (Double, Double, Double, Double)
-                     
-instance FromJSON PGeo where
-  parseJSON (Object o) =
-     PGeo
-       <$> ((o .: "PGeo") >>= (.: "indices"))
-       <*> ((o .: "PGeo") >>= (.: "Alpha"))
-       <*> ((o .: "PGeo") >>= (.: "Cd"))
-       <*> ((o .: "PGeo") >>= (.: "N"))
-       <*> ((o .: "PGeo") >>= (.: "uv"))
-       <*> ((o .: "PGeo") >>= (.: "position"))
-       <*> ((o .: "PGeo") >>= (.: "material"))
-       <*> ((o .: "PGeo") >>= (.: "xform"))
-  parseJSON _ = mzero
-
--- getJSON :: FilePath -> IO BL.ByteString
--- getJSON  = BL.readFile
+deriveJSON defaultOptions ''PGeo
 
 readBGeo :: FilePath -> IO VGeo
 readBGeo file = 
@@ -97,7 +81,6 @@ readVGeo file =
 readPGeo :: FilePath -> IO PGeo
 readPGeo jsonFile =
   do
-    --_ <- DT.trace ("trace 1_0_1: " ++ show jsonFile) $ return ()
     d <- (eitherDecode <$> BL.readFile jsonFile) :: IO (Either String PGeo)
     --print d
     let ids'  = (ids   . fromEitherDecode) d
@@ -108,8 +91,6 @@ readPGeo jsonFile =
         ps'   = (ps    . fromEitherDecode) d
         ms'   = (mats  . fromEitherDecode) d
         xf'   = (xform . fromEitherDecode) d
-    -- _ <- DT.trace ("trace 1_0_2: ids':" ++ show ids') $ return ()
-    -- _ <- DT.trace ("trace 1_0_2: ps':" ++ show ps') $ return ()
     return $ PGeo ids' as' cs' ns' uvws' ps' ms' xf'
 
       where
@@ -121,17 +102,8 @@ readPGeo jsonFile =
 
 fromPGeo :: PGeo -> VGeo
 fromPGeo (PGeo idx' as' cs' ns' uvw' ps' ms' xf') = (VGeo idxs st vaos ms' xf')
--- fromPGeo (PGeo idx' as' cs' ns' uvw' ps' ms' xf') = (VGeo (DT.trace ("fromPGeo.idxs :" ++ show idxs) $ idxs) st (DT.trace ("fromPGeo.vaos :" ++ show vaos) $ vaos) ms' xf')
   where
     stride = 13 -- TODO: make it more elegant, right now VBO's are hard-coded to be have stride = 13...
     vao = (toVAO idx' as' cs' ns' uvw' ps')
     (idxs, vaos) = unzip $ fmap (toIdxVAO stride) vao -- that already outputs [[]], but vao, I think,is still a single element list?
-    -- (idxs, vaos) = unzip $ fmap (toIdxVAO stride) (toVAO
-    --                                                (DT.trace ("fromPGeo.idx' :" ++ show idx') $ idx')
-    --                                                (DT.trace ("fromPGeo.as' :" ++ show as') $ as')
-    --                                                (DT.trace ("fromPGeo.cs' :" ++ show cs') $ cs')
-    --                                                (DT.trace ("fromPGeo.ns' :" ++ show ns') $ ns')
-    --                                                (DT.trace ("fromPGeo.uvw' :" ++ show uvw') $ uvw')
-    --                                                (DT.trace ("fromPGeo.ps' :" ++ show ps') $ ps'))
-    -- (idxs, vaos) = unzip $ fmap (toIdxVAO stride) (toVAO idx' as' cs' ns' uvw' ps')
     st           = take (length vaos) $ repeat stride

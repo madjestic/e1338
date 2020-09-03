@@ -12,11 +12,11 @@ convertGeo(){
     if [ -e "$SOURCE" ]
     then
 	python ./resources/geoParser.py $SOURCE $PDG
-	cabal new-run geoIndexer $PDG $TARGET
+	cabal run geoIndexer $PDG $TARGET
 	cp $PDG $PDGCPY
     else
 	python geoParser.py # generates a ./resources/models/model.pgeo
-	cabal new-run geoIndexer ./resources/models/model.pgeo ./models/model.bgeo
+	cabal run geoIndexer ./resources/models/model.pgeo ./models/model.bgeo
 	cp 
     fi
 }

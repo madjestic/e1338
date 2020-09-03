@@ -1,3 +1,5 @@
+*backup
+*/*backup
 dist
 dist-*
 cabal-dev

@@ -21,7 +21,7 @@ void main()
 {
 	mat4 viewM44 =
 		mat4( camera[0]
-			, camera[1]
+     	   , camera[1]
 			, camera[2]
 			, vec4(0,0,0,1));
 

@@ -1,6 +1,5 @@
 module Main where
 
-import Material
 import Data.Aeson
 import System.Directory
 import Unsafe.Coerce
@@ -8,17 +7,14 @@ import System.Environment        (getArgs)
 import Data.Char (toUpper)
 import Data.List.Split
 
+import Material
+
 import Debug.Trace as DT
 
 -- | This script generates a file structure for a material
 --   example:
---   $ ./genMaterial.hs mat/ISS/ISS_AO_04 -- that's formatted i.a.w. the error message from e1337 in case a material is missing
---   > ./Bar/Foo ...
-
--- TODO: fix so that it works like:
---   $ ./genMaterial.hs dir/file
---   $ splitOn "/" "suka/nah"
---   > ["suka","nah"]
+--   $ cabal run genMaterial mat/foobar -- that's formatted i.a.w. the error message from e1337 in case a material is missing
+--   > ./mat/foobar ...
 
 main :: IO ()
 main =
