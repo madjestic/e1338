@@ -7,6 +7,7 @@ a re-write of e1337 with BearRiver (and, maybe, MVars)
 
 clone repo, `cabal build`,
 
+```
 w,a,s,d,z,c - 6-axis movement
 qe - roll
 arrow keys, mouse controls - yaw, pitch
@@ -17,6 +18,7 @@ LCtrl + LShift - very fast
 Space - reset
 
 Esc - quit
+```
 
 ## Recent Progress:
 
