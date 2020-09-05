@@ -7,9 +7,14 @@ a re-write of e1337 with BearRiver (and, maybe, MVars)
 
 clone repo, `cabal build`,
 
-wasd, qe, zc, arrow keys, mouse controls
+w,a,s,d,z,c - 6-axis movement
+qe - roll
+arrow keys, mouse controls - yaw, pitch
+LCtrl          - slow
+LShift         - fast
+LCtrl + LShift - very fast
 
-space - reset
+Space - reset
 
 Esc - quit
 
@@ -17,6 +22,7 @@ Esc - quit
 
 * Awesome camera.
 * Project file generator.
+* Speed controls for keyboard movement.
 + Working on basic solvers (spinners).
 
 ## Building and running:
