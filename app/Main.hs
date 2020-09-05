@@ -91,8 +91,8 @@ main = do
                title
                (resX, resY)
 
-  -- SDL Mouse Options
-  -- setMouseLocationMode RelativeLocation
+  -- | SDL Mouse Options
+  setMouseLocationMode RelativeLocation
 
   game <- initGame initVAO initGlobalUniforms proj
   print "Starting Game."

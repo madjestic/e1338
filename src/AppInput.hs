@@ -334,7 +334,8 @@ nextAppInput inp (SDL.KeyboardEvent ev)
                     , inpKeySpaceReleased = Just $ SDL.keysymScancode $ SDL.keyboardEventKeysym ev }
 
     | (scancode ev) == SDL.ScancodeW
-      = if | SDL.keyboardEventKeyMotion ev == SDL.Pressed
+      = if | SDL.keyboardEventKeyMotion ev == SDL.Pressed ||
+             SDL.keyboardEventRepeat    ev == True
              -> inp { inpKeyWPressed  = Just $ SDL.keysymScancode $ SDL.keyboardEventKeysym ev
                     , inpKeyWReleased = Nothing }
            | otherwise       
@@ -342,7 +343,8 @@ nextAppInput inp (SDL.KeyboardEvent ev)
                     , inpKeyWReleased = Just $ SDL.keysymScancode $ SDL.keyboardEventKeysym ev }
 
     | (scancode ev) == SDL.ScancodeS
-      = if | SDL.keyboardEventKeyMotion ev == SDL.Pressed
+      = if | SDL.keyboardEventKeyMotion ev == SDL.Pressed ||
+             SDL.keyboardEventRepeat    ev == True
              -> inp { inpKeySPressed  = Just $ SDL.keysymScancode $ SDL.keyboardEventKeysym ev
                     , inpKeySReleased = Nothing }
            | otherwise
@@ -350,7 +352,8 @@ nextAppInput inp (SDL.KeyboardEvent ev)
                     , inpKeySReleased = Just $ SDL.keysymScancode $ SDL.keyboardEventKeysym ev }
                 
     | (scancode ev) == SDL.ScancodeA
-      = if | SDL.keyboardEventKeyMotion ev == SDL.Pressed
+      = if | SDL.keyboardEventKeyMotion ev == SDL.Pressed ||
+             SDL.keyboardEventRepeat    ev == True
              -> inp { inpKeyAPressed  = Just $ SDL.keysymScancode $ SDL.keyboardEventKeysym ev
                     , inpKeyAReleased = Nothing }
            | otherwise
@@ -358,7 +361,8 @@ nextAppInput inp (SDL.KeyboardEvent ev)
                     , inpKeyAReleased = Just $ SDL.keysymScancode $ SDL.keyboardEventKeysym ev }
 
     | (scancode ev) == SDL.ScancodeD
-      = if | SDL.keyboardEventKeyMotion ev == SDL.Pressed
+      = if | SDL.keyboardEventKeyMotion ev == SDL.Pressed ||
+             SDL.keyboardEventRepeat    ev == True
              -> inp { inpKeyDPressed  = Just $ SDL.keysymScancode $ SDL.keyboardEventKeysym ev
                     , inpKeyDReleased = Nothing }
            | otherwise
@@ -366,7 +370,8 @@ nextAppInput inp (SDL.KeyboardEvent ev)
                     , inpKeyDReleased = Just $ SDL.keysymScancode $ SDL.keyboardEventKeysym ev }
 
     | (scancode ev) == SDL.ScancodeQ
-      = if | SDL.keyboardEventKeyMotion ev == SDL.Pressed
+      = if | SDL.keyboardEventKeyMotion ev == SDL.Pressed ||
+             SDL.keyboardEventRepeat    ev == True
              -> inp { inpKeyQPressed  = Just $ SDL.keysymScancode $ SDL.keyboardEventKeysym ev
                     , inpKeyQReleased = Nothing }
            | otherwise
@@ -374,7 +379,8 @@ nextAppInput inp (SDL.KeyboardEvent ev)
                     , inpKeyQReleased = Just $ SDL.keysymScancode $ SDL.keyboardEventKeysym ev }
 
     | (scancode ev) == SDL.ScancodeE
-      = if | SDL.keyboardEventKeyMotion ev == SDL.Pressed
+      = if | SDL.keyboardEventKeyMotion ev == SDL.Pressed ||
+             SDL.keyboardEventRepeat    ev == True
              -> inp { inpKeyEPressed  = Just $ SDL.keysymScancode $ SDL.keyboardEventKeysym ev
                     , inpKeyEReleased = Nothing }
            | otherwise      
@@ -502,6 +508,7 @@ nextAppInput inp (SDL.MouseButtonEvent ev)
                 -- (SDL.Released, SDL.ButtonMiddle) -> second (const Nothing)
                 -- (SDL.Pressed,  SDL.ButtonMiddle) -> second (const (Just pos))
                 _ -> id
+                
 -- nextAppInput inp (SDL.KeyModifier ev)
 --   = undefined
 

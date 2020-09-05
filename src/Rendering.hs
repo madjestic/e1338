@@ -144,16 +144,6 @@ fromObject mpos time res cam obj = drs
       (\u_mats' u_prog' u_mouse' u_time' u_res' u_cam' u_xform' ds' ps'
         -> (Drawable (Uniforms u_mats' u_prog' u_mouse' u_time' u_res' u_cam' u_xform') ds' ps'))
       <$.> mats <*.> progs <*.> mpos_ <*.> time_ <*.> res_ <*.> cam_ <*.> xforms <*.> ds <*.> progs
-      -- DEBUG code, see what gets rendered
-      -- <$.> (DT.trace ("mats  :" ++ show mats)   $ mats  )
-      -- <*.> (DT.trace ("progs :" ++ show progs ) $ progs ) 
-      -- <*.> (DT.trace ("mpos_ :" ++ show mpos_ ) $ mpos_ ) 
-      -- <*.> (DT.trace ("time_ :" ++ show time_ ) $ time_ ) 
-      -- <*.> (DT.trace ("res_  :" ++ show res_  ) $ res_  ) 
-      -- <*.> (DT.trace ("cam_  :" ++ show cam_  ) $ cam_  ) 
-      -- <*.> (DT.trace ("xforms:" ++ show xforms) $ xforms) 
-      -- <*.> (DT.trace ("ds    :" ++ show ds    ) $ ds    ) 
-      -- <*.> (DT.trace ("progs :" ++ show progs ) $ progs ) 
 
     n      = length $ view descriptors obj:: Int
     mpos_  = replicate n $ mpos :: [(Double, Double)]
@@ -207,7 +197,6 @@ draw opts window (Drawable
     initUniforms unis
     
     bindVertexArrayObject $= Just vao'
-    --drawElements Triangles numIndices' GL.UnsignedInt nullPtr
     drawElements (primitiveMode opts) numIndices' GL.UnsignedInt nullPtr
     
     GL.pointSize $= 10
@@ -253,12 +242,6 @@ initUniforms (Uniforms u_mat' u_prog' u_mouse' u_time' u_res' u_cam' u_xform') =
                     False -> u_prog'
     currentProgram $= Just program
 
-    -- | Set Uniforms
-    -- TODO: fix mouse reading
-    -- u_m <- getAbsoluteMouseLocation --getRelativeMouseLocation
-    -- let u_mouse'      = Vector2 (realToFrac $ u_m ^. _x) (realToFrac $ u_m ^. _y) :: Vector2 GLfloat
-    -- _ <- DT.trace ("u_mouse  :" ++ show (u_mouse )) $ return ()
-    -- _ <- DT.trace ("u_mouse' :" ++ show (u_mouse')) $ return ()
     let u_mouse       = Vector2 (realToFrac $ fst u_mouse') (realToFrac $ snd u_mouse') :: Vector2 GLfloat
     location0         <- get (uniformLocation program "u_mouse'")
     uniform location0 $= u_mouse
@@ -287,11 +270,8 @@ initUniforms (Uniforms u_mat' u_prog' u_mouse' u_time' u_res' u_cam' u_xform') =
     location4         <- get (uniformLocation program "camera")
     uniform location4 $= camera
 
-    -- let testM44 = (V4 (V4 1 0 0 0) (V4 0 2 0 0) (V4 0 0 1 0) (V4 0 0 0 1)) :: M44 Double
     let mtx =
-          --fmap realToFrac . concat $ fmap DF.toList . DF.toList $ (DT.trace ("u_xform' :" ++ show u_xform') $ u_xform')
           fmap realToFrac . concat $ fmap DF.toList . DF.toList $ u_xform'
-          --(identity::M44 Double) :: [GLfloat]
     transform         <- GL.newMatrix RowMajor mtx :: IO (GLmatrix GLfloat)
     location5         <- get (uniformLocation program "transform")
     uniform location5 $= transform --u_xform'

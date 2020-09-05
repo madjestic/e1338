@@ -82,7 +82,8 @@ updateController ctl0 =
         let
           keyVecs1 = keyVecs kbrd'
           ypr1  =
-            (150 *) $
+            (1500 * (V3 mry mrx 0.0) +) $
+            (50000 *) $ 
             foldr1 (+) $
             zipWith (*^) ((\x -> if x then (1.0::Double) else 0) . ($ keys kbrd') <$>
                           [ keyUp,  keyDown, keyLeft, keyRight, keyQ,  keyE ])
@@ -95,7 +96,7 @@ updateController ctl0 =
               pRoll  = (keyVecs1)!!10 -- positive  roll
               nRoll  = (keyVecs1)!!11 -- negative  roll
         
-        ypr'           <- ((V3 0 0 0) ^+^) ^<< integral -< 150 * (5*(V3 mry mrx 0.0) + ypr1)
+        ypr'     <- ((V3 0 0 0) ^+^) ^<< integral -< ypr1
 
         let
           rot = -- identity :: M33 Double
@@ -106,7 +107,7 @@ updateController ctl0 =
 
           tr1  = -- V3
             foldr1 (+) $
-            fmap (5000000 *) $ -- <- make it keyboard controllabe: speed up/down
+            fmap ((scalar) *) $ -- <- make it keyboard controllabe: speed up/down
             fmap (transpose (rot) !*) $
             zipWith (*^) ((\x -> if x then (1::Double) else 0) . ($ (keys kbrd')) <$>
                           [keyW, keyS, keyA, keyD, keyZ, keyC])
@@ -116,8 +117,18 @@ updateController ctl0 =
                   bVel   = (keyVecs1)!!1  -- backwards velocity
                   lVel   = (keyVecs1)!!2  -- left      velocity
                   rVel   = (keyVecs1)!!3  -- right     velocity
-                  uVel   = (keyVecs1)!!4  -- right     velocity
-                  dVel   = (keyVecs1)!!5  -- right     velocity
+                  uVel   = (keyVecs1)!!4  -- up        velocity
+                  dVel   = (keyVecs1)!!5  -- down      velocity
+                  
+                  baseSpeed     = 5000000
+                  shift  = keyLShift $ (keys kbrd')
+                  ctl    = keyLCtrl  $ (keys kbrd')
+                  scalar = s shift ctl
+                  s shift ctl
+                    | shift && ctl = baseSpeed*baseSpeed*0.5
+                    | shift     = baseSpeed * 10000
+                    | ctl       = baseSpeed * 0.01
+                    | otherwise = baseSpeed
     
         tr'  <- ((view translation (Controllable._transform ctl0)) ^+^) ^<< integral -< tr1
                

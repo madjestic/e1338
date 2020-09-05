@@ -49,7 +49,7 @@ initCamController =
     mvs0   = [] --undefined
     -- mvs0 - mouse vectors
     keys0  = ( Keys False False False False False False False False False False False False False False False False )
-    -- kvs0 - key vectors
+    -- kvs0 - key vectors keyVecs
     kvs0   = [ fVel, bVel, lVel, rVel, uVel, dVel, pPitch, nPitch, pYaw, nYaw, pRoll, nRoll ]
     fVel   = V3 ( 0  )( 0  )( 0.1)   -- forwards  velocity
     bVel   = V3 ( 0  )( 0  )(-0.1)   -- backwards velocity
