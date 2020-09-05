@@ -5,7 +5,7 @@ a re-write of e1337 with BearRiver (and, maybe, MVars)
 
 [a youtube demo](https://youtu.be/vLVI2mkBmlw)
 
-clone repo, `cabal build`,
+clone repo, `cabal build`, `./run.sh`
 
 ```
 w,a,s,d,z,c - 6-axis movement
