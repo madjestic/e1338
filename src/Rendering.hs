@@ -35,7 +35,8 @@ import Controllable
 import Descriptor
 import Material
 import Mouse
-import Project (Project)
+import Project                 (Project, textures)
+import Texture                 (path)
 
 import Data.Foldable     as DF (toList)
 import Linear.Projection as LP (perspective)
@@ -206,22 +207,21 @@ draw opts window (Drawable
 
 initGlobalUniforms :: Project -> IO ()
 initGlobalUniforms project =
--- TODO: add bindless texture array support.
--- (so that texture paths are sourced from the project file).
--- TODO: or add case for paths: length (texture.paths) 1 -> ... 2 -> ... etc.
   do
     print "Loading Textures..."
-    -- | Assign Textures
-    activeTexture            $= TextureUnit 0
-    texture Texture2D        $= Enabled
-    tx0 <- loadTex "textures/4096_earth_daymap.jpg"
-    textureBinding Texture2D $= Just tx0
-
-    activeTexture            $= TextureUnit 1
-    texture Texture2D        $= Enabled
-    tx1 <- loadTex "textures/256_moon.jpg"
-    textureBinding Texture2D $= Just tx1
+    _ <- mapM bindTexture $ zip ids txs
     print "Finished loading textures."
+      where
+        txs = toListOf (textures . traverse . path) project
+        ids = take (length txs) [0..]
+
+bindTexture :: (GLuint, FilePath) -> IO ()
+bindTexture (txid, tx) =
+  do
+    texture Texture2D        $= Enabled
+    activeTexture            $= TextureUnit txid
+    tx0 <-loadTex tx
+    textureBinding Texture2D $= Just tx0
 
 initUniforms :: Uniforms -> IO ()
 initUniforms (Uniforms u_mat' u_prog' u_mouse' u_time' u_res' u_cam' u_xform') = 

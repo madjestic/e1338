@@ -127,7 +127,7 @@ updateController ctl0 =
                   s shift ctl
                     | shift && ctl = baseSpeed*baseSpeed*0.5
                     | shift     = baseSpeed * 10000
-                    | ctl       = baseSpeed * 0.01
+                    | ctl       = baseSpeed * 0.1
                     | otherwise = baseSpeed
     
         tr'  <- ((view translation (Controllable._transform ctl0)) ^+^) ^<< integral -< tr1

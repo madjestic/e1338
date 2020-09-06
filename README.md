@@ -51,7 +51,7 @@ $ ./cabal run genMaterial mat/testMat01
 ## Working with REPL:
 - compiling:
 ```bash
-$ cabal repl exe:e1337
+$ cabal repl exe:e1338
 ```
 
 

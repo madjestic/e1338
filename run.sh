@@ -1,5 +1,13 @@
 #!/bin/sh
 
+# Font
+# cabal build
+# cabal run e1338 ./projects/font
+
+# Test
+# cabal build
+# cabal run e1338 ./projects/box
+
 # Test
 # cabal build
 # cabal run e1338 ./projects/box
