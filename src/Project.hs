@@ -7,7 +7,6 @@ module Project
   , resx
   , resy
   , models
-  , textures
   , camera
   , parse
   , writeProject
@@ -34,7 +33,7 @@ data Project
      , _resy     :: Int
      , _models   :: [Model]
      , _fonts    :: [Model]
-     , _textures :: [Texture]
+--     , _textures :: [Texture]
      , _camera   :: [Float]
      } deriving Show
 
@@ -43,7 +42,7 @@ deriveJSON defaultOptions {fieldLabelModifier = drop 1} ''Project
 
 emptyProject :: Project
 emptyProject =
-  Project "foobar" (-1) (-1) [] [] [] []
+  Project "foobar" (-1) (-1) [] [] []
 
 defaultProject :: Project
 defaultProject =
@@ -53,7 +52,6 @@ defaultProject =
   600
   [(Model   "models/box.bgeo")]
   []
-  [(Texture "textures/checkerboard.png")]
   [1, 0, 0, 0,
    0, 1, 0, 0,
    0, 0, 1,-1,
@@ -77,9 +75,8 @@ parse filePath =
         resy'     = (_resy     . fromEitherDecode) d
         models'   = (_models   . fromEitherDecode) d
         fonts'    = (_fonts    . fromEitherDecode) d
-        textures' = (_textures . fromEitherDecode) d
         camera'   = (_camera   . fromEitherDecode) d
-    return $ Project name' resx' resy' models' fonts' textures' camera'
+    return $ Project name' resx' resy' models' fonts' camera'
       where
         fromEitherDecode = fromMaybe emptyProject . fromEither
         fromEither d =

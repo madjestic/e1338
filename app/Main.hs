@@ -27,6 +27,7 @@ import System.Environment       (getArgs)
 import Unsafe.Coerce
 
 import Game
+import Object         as Obj
 import Project        as Prj
 import AppInput
 import Rendering      as R
@@ -94,9 +95,13 @@ main = do
   -- | SDL Mouse Options
   setMouseLocationMode RelativeLocation
 
-  game <- initGame initVAO initGlobalUniforms proj
-  print "Starting Game."
+  print "Initializing Game"
+  game <- initGame initVAO proj
   
+  print "Initializing Resources"
+  _ <- initGlobalUniforms $ view objects game
+  
+  print "Starting Game."
   animate
     window
     (parseWinInput >>> (mainGame game &&& handleExit))

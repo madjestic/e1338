@@ -137,15 +137,16 @@ loadFonts =
 -- TODO: initGame could be loaded from a file, similar to "Save Game" feature.
 initGame ::
      (([Int], Int, [Float], Material) -> IO Descriptor)
-  -> (Project -> IO ())
+--  -> (Project -> IO ())
   -> Project
   -> IO Game
-initGame initVAO initGlobalUniforms project =
+--initGame initVAO initGlobalUniforms project =
+initGame initVAO project =
   do
     --_ <- DT.trace ("initializing game resources...") $ return ()
     print "initializing game resources..."
     objs  <- (loadObjects initVAO project)
-    _ <- initGlobalUniforms project -- TODO: textures <- objs
+    -- _ <- initGlobalUniforms project -- TODO: textures <- objs
     fonts <- loadFonts -- TODO: fonts are specia objects
     let camPos = fromList $ view Prj.camera project -- :: [Float]
     --pc <- fromVGeo $ fromPGeo pCloud  -- PCloud Point Cloud

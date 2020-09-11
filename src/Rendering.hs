@@ -36,7 +36,7 @@ import Controllable
 import Descriptor
 import Material
 import Mouse
-import Project                 (Project, textures)
+import Project                 (Project)
 import Texture                 (path)
 
 import Data.Foldable     as DF (toList)
@@ -212,8 +212,8 @@ draw
     cullFace  $= Just Back
     depthFunc $= Just Less
 
-initGlobalUniforms' :: [Object] -> IO ()
-initGlobalUniforms' objs =
+initGlobalUniforms :: [Object] -> IO ()
+initGlobalUniforms objs =
   do
     print "Loading Textures..."
     _ <- mapM bindTexture $ zip ids txs
@@ -222,15 +222,15 @@ initGlobalUniforms' objs =
         txs = concat $ concat $ fmap (toListOf (materials . traverse . Material.textures)) objs
         ids = take (length txs) [0..]
 
-initGlobalUniforms :: Project -> IO ()
-initGlobalUniforms project =
-  do
-    print "Loading Textures..."
-    _ <- mapM bindTexture $ zip ids txs
-    print "Finished loading textures."
-      where
-        txs = toListOf (Project.textures . traverse . path) project
-        ids = take (length txs) [0..]
+-- initGlobalUniforms :: Project -> IO ()
+-- initGlobalUniforms project =
+--   do
+--     print "Loading Textures..."
+--     _ <- mapM bindTexture $ zip ids txs
+--     print "Finished loading textures."
+--       where
+--         txs = toListOf (Project.textures . traverse . path) project
+--         ids = take (length txs) [0..]
 
 bindTexture :: (GLuint, FilePath) -> IO ()
 bindTexture (txid, tx) =
