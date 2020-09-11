@@ -7,6 +7,7 @@
 	{ "path": "models/moon.bgeo" }
      ],
     "fonts": [
+        { "path": "models/fnt_0.bgeo" }
     ],
     "camera": [1, 0, 0, 0,
                0, 1, 0, 0,

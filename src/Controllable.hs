@@ -75,8 +75,8 @@ updateController ctl0 =
   where
     sf = 
       proc input -> do
-        (mouse', mevs) <- updateMouse ctl0     -< input
-        (mrx,    mry)  <- mouseRelPos          -< input
+        (mouse', mevs) <- updateMouse ctl0    -< input
+        (mrx,    mry)  <- mouseRelPos         -< input
         (kbrd',  kevs) <- updateKeyboard ctl0 -< input
 
         let
