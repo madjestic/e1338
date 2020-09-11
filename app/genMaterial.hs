@@ -20,7 +20,7 @@ main :: IO ()
 main =
   do
     args <- getArgs
-    print  args
+    print $ "args: " ++ show args
     let
       cmdArgs    = splitOn "/" (unsafeCoerce (args!!0) :: String)
     putStrLn $ "cmdArgs: " ++ show cmdArgs

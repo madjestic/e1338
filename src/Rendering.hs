@@ -19,6 +19,7 @@ module Rendering
 import Control.Monad
 import Control.Concurrent
 import Data.Text                              (Text)
+import Data.List.Split                        (splitOn)
 import Foreign.C
 import Foreign.Marshal.Array                  (withArray)
 import Foreign.Ptr                            (plusPtr, nullPtr)
@@ -44,7 +45,7 @@ import Linear.Projection as LP (perspective)
 import Unsafe.Coerce
 
 import Control.Lens       hiding (transform, indexed)
--- import Debug.Trace as DT
+import Debug.Trace as DT
 
 #ifdef DEBUG
 debug = True
@@ -166,12 +167,14 @@ render lastInteraction Rendering.OpenGL opts window game =
     ticks   <- SDL.ticks
     -- dfps    <- drawString "0"
     let currentTime = fromInteger (unsafeCoerce ticks :: Integer) :: Float
-        drs  = fromGame game currentTime :: [Drawable]
+        drs         = fromGame game currentTime :: [Drawable]
+        texPaths     = concat $ toListOf (objects . traverse . materials . traverse . Material.textures ) game :: [FilePath]
         -- fps  = ticks
         --dfps = drawString fps :: [Drawable]
 
     --mapM_ (draw opts window) (drs ++ fps)
-    mapM_ (draw opts window) (drs)
+    
+    mapM_ (draw texPaths opts window) (drs)
 
     -- currentTime <- SDL.time                          
     -- dt <- (currentTime -) <$> readMVar lastInteraction -- swapMVar lastInteraction currentTime --dtime
@@ -189,13 +192,17 @@ render _ Vulkan _ _ _ = undefined
 -- drawChar :: Char -> IO Drawable
 -- drawChar = undefined
 
-draw :: BackendOptions -> SDL.Window -> Drawable -> IO ()
-draw opts window (Drawable
-                   unis
-                   (Descriptor vao' numIndices')
-                   prog) =
+draw :: [FilePath] -> BackendOptions -> SDL.Window -> Drawable -> IO ()
+draw
+  texPaths
+  opts
+  window
+  (Drawable
+    unis
+    (Descriptor vao' numIndices')
+    prog) =
   do
-    initUniforms unis
+    initUniforms texPaths unis
     
     bindVertexArrayObject $= Just vao'
     drawElements (primitiveMode opts) numIndices' GL.UnsignedInt nullPtr
@@ -205,6 +212,16 @@ draw opts window (Drawable
     cullFace  $= Just Back
     depthFunc $= Just Less
 
+initGlobalUniforms' :: [Object] -> IO ()
+initGlobalUniforms' objs =
+  do
+    print "Loading Textures..."
+    _ <- mapM bindTexture $ zip ids txs
+    print "Finished loading textures."
+      where
+        txs = concat $ concat $ fmap (toListOf (materials . traverse . Material.textures)) objs
+        ids = take (length txs) [0..]
+
 initGlobalUniforms :: Project -> IO ()
 initGlobalUniforms project =
   do
@@ -212,7 +229,7 @@ initGlobalUniforms project =
     _ <- mapM bindTexture $ zip ids txs
     print "Finished loading textures."
       where
-        txs = toListOf (textures . traverse . path) project
+        txs = toListOf (Project.textures . traverse . path) project
         ids = take (length txs) [0..]
 
 bindTexture :: (GLuint, FilePath) -> IO ()
@@ -223,8 +240,11 @@ bindTexture (txid, tx) =
     tx0 <-loadTex tx
     textureBinding Texture2D $= Just tx0
 
-initUniforms :: Uniforms -> IO ()
-initUniforms (Uniforms u_mat' u_prog' u_mouse' u_time' u_res' u_cam' u_xform') = 
+initUniforms :: [FilePath] -> Uniforms -> IO ()
+initUniforms
+  texPaths
+  (Uniforms u_mat' u_prog' u_mouse' u_time' u_res' u_cam' u_xform') =
+  
   do
     -- | Shaders
     -- _ <- DT.trace ("vertShader: " ++ show (_vertShader u_mat')) $ return ()
@@ -276,17 +296,27 @@ initUniforms (Uniforms u_mat' u_prog' u_mouse' u_time' u_res' u_cam' u_xform') =
     location5         <- get (uniformLocation program "transform")
     uniform location5 $= transform --u_xform'
 
-    location6 <- get (uniformLocation program "tex_00")
-    uniform location6 $= (TextureUnit 0)
-    location7 <- get (uniformLocation program "tex_01")
-    uniform location7 $= (TextureUnit 1)
+    -- | Allocate Textures
+    let texNames = fmap getTexName texPaths
+    _ <- mapM (allocateTextures program) $ zip texNames [0..]
     
     -- | Unload buffers
     --bindVertexArrayObject         $= Nothing
     --bindBuffer ElementArrayBuffer $= Nothing
 
-    return ()      
+    return ()
 
+getTexName :: FilePath -> String
+getTexName f = (splitOn "." $ (splitOn "/" f)!!1)!!0
+
+allocateTextures :: Program -> (String, GLuint) -> IO ()
+allocateTextures program (tx, txU) =
+  do
+    -- _ <- DT.trace ("tx :" ++ show tx) $ return ()
+    -- _ <- DT.trace ("txU :" ++ show txU) $ return ()
+    location <- get (uniformLocation program tx)
+    uniform location $= (TextureUnit txU)
+    
        -- | Indices -> Stride -> ListOfFloats -> Material -> Descriptor
 initVAO :: ([Int], Int, [Float], Material) -> IO Descriptor
 initVAO (idx', st', vs', matPath) =

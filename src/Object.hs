@@ -69,7 +69,7 @@ instance Solvable Object where
     proc () -> do
       --ypr' <- ((V3 0 0 0) ^+^) ^<< integral -< ypr0
       ypr' <- ((V3 0 0 0) ^+^) ^<< integral -< ypr0
-      _ <- DT.trace ("Object._transforms obj0 :" ++ show (Object._transforms obj0)) $ returnA -< ()
+      -- _ <- DT.trace ("Object._transforms obj0 :" ++ show (Object._transforms obj0)) $ returnA -< ()
       let mtx0 = Object._transforms obj0
           mtx = undefined :: [M44 Double]
             -- mkTransformationMat
@@ -107,7 +107,7 @@ defaultObj =
 loadObjects :: (([Int], Int, [Float], Material) -> IO Descriptor) -> Project -> IO [Object]
 loadObjects initVAO project = 
   do
-    -- _ <- DT.trace ("project :" ++ show project) $ return ()
+    -- _ <- Dt.trace ("project :" ++ show project) $ return ()
     print "Loading Models..."
     objVGeos <- mapM (\modelPath ->
                       do { vgeo <- readBGeo modelPath :: IO VGeo
@@ -122,6 +122,7 @@ loadObjects initVAO project =
 initObject :: (([Int], Int, [Float], Material) -> IO Descriptor) -> VGeo -> IO Object
 initObject initVAO vgeo =
   do
+    print "Loading Materials..."
     mats  <- mapM readMaterial $ ms vgeo :: IO [Material]
     let (VGeo is_ st_ vs_ ms_ xf_) = vgeo
         vaoArgs = (\idx' st' vao' mat' ->  (idx', st', vao', mat')) <$.> is_ <*.> st_ <*.> vs_ <*.> mats

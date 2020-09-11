@@ -29,6 +29,7 @@ library
               , aeson-pretty        ^>= 0.8.8
               , bytestring          ^>= 0.10.8.2
               , containers          ^>= 0.6.0.1
+              , split      ^>= 0.2.3.4
               , GLUtil              ^>= 0.10.3
               , ilist               ^>= 0.2.0.0
               , lens                ^>= 4.19.1
@@ -88,6 +89,7 @@ executable e1338
               , linear     ^>= 1.20.8
               , OpenGL     ^>= 3.0.2.2
               , sdl2       ^>= 2.5.1.0
+              , split      ^>= 0.2.3.4
               , store      ^>= 0.7.4
               , text       ^>= 1.2.2.2
               , bearriver  ^>= 0.13.1.2

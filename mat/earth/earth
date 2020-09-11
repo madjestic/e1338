@@ -5,6 +5,6 @@
       "vertex":   "mat/earth/Earth/shader.vert",
       "fragment": "mat/earth/Earth/shader.frag"
     },
-    "textures": [""]
+    "textures": ["textures/earth_daymap_4096.jpg"]
   }
 }

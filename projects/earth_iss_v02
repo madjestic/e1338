@@ -8,6 +8,8 @@
 	{ "path": "models/iss_L1.bgeo" },
 	{ "path": "models/fnt_0.bgeo" }
     ],
+    "fonts": [
+    ],
     "textures": [
         { "path": "textures/4096_earth_daymap.jpg"},
         { "path": "textures/256_moon.jpg"}

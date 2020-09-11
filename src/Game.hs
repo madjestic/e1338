@@ -144,12 +144,11 @@ initGame initVAO initGlobalUniforms project =
   do
     --_ <- DT.trace ("initializing game resources...") $ return ()
     print "initializing game resources..."
-    _ <- initGlobalUniforms project
     objs  <- (loadObjects initVAO project)
-    fonts <- loadFonts
+    _ <- initGlobalUniforms project -- TODO: textures <- objs
+    fonts <- loadFonts -- TODO: fonts are specia objects
     let camPos = fromList $ view Prj.camera project -- :: [Float]
-    --let camPos = undefined :: M44 Double
-    --pc <- fromVGeo $ fromPGeo pCloud
+    --pc <- fromVGeo $ fromPGeo pCloud  -- PCloud Point Cloud
     --let objs = [pc]
     let game =
           Game

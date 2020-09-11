@@ -3,6 +3,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module Material
   ( Material (..)
@@ -10,11 +11,13 @@ module Material
   , defaultMat
   , readMaterial
   , writeMaterial
+  , textures
   ) where  
 
 import Control.Monad         (mzero)
 import Data.Aeson
 import Data.Aeson.Encode.Pretty
+import Data.Aeson.TH
 import Data.Maybe            (fromMaybe)
 import qualified Data.ByteString.Lazy as B
 import Control.Lens hiding ((.=))
@@ -28,17 +31,20 @@ data Material
      , _textures   :: [FilePath] -- paths to texture bindings
      } deriving Show
 
-name :: Lens' Material String
-name = lens _name (\material newName -> Material { _name = newName })
+$(makeLenses ''Material)
+-- deriveJSON defaultOptions ''Material
 
-vertShader :: Lens' Material FilePath
-vertShader = lens _vertShader (\material newVertShader -> Material { _vertShader = newVertShader })
+-- name :: Lens' Material String
+-- name = lens _name (\material newName -> Material { _name = newName })
 
-fragShader :: Lens' Material FilePath
-fragShader = lens _fragShader (\material newFragShader -> Material { _fragShader = newFragShader })
+-- vertShader :: Lens' Material FilePath
+-- vertShader = lens _vertShader (\material newVertShader -> Material { _vertShader = newVertShader })
 
-textures :: Lens' Material [FilePath]
-textures = lens _textures (\material newTextures -> Material { _textures = newTextures })
+-- fragShader :: Lens' Material FilePath
+-- fragShader = lens _fragShader (\material newFragShader -> Material { _fragShader = newFragShader })
+
+-- textures :: Lens' Material [FilePath]
+-- textures = lens _textures (\material newTextures -> Material { _textures = newTextures })
 
 defaultMat
   = Material

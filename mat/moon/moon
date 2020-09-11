@@ -5,6 +5,6 @@
       "vertex":   "mat/moon/Moon/shader.vert",
       "fragment": "mat/moon/Moon/shader.frag"
     },
-    "textures": [""]
+    "textures": ["textures/moon_256.jpg"]
   }
 }
