@@ -1,0 +1,16 @@
+{
+    "name": "Font",
+    "resx": 800,
+    "resy": 600,
+    "models": [
+    	{ "path": "models/earth.bgeo" },
+	{ "path": "models/moon.bgeo" }
+     ],
+    "fonts": [
+    ],
+    "camera": [1, 0, 0, 0,
+               0, 1, 0, 0,
+               0, 0, 1,-10,
+               0, 0, 0, 1]	
+
+}
