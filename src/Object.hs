@@ -109,11 +109,16 @@ loadObjects initVAO project =
   do
     -- _ <- Dt.trace ("project :" ++ show project) $ return ()
     print "Loading Models..."
-    objVGeos <- mapM (\modelPath ->
+    objVGeos  <- mapM (\modelPath ->
                       do { vgeo <- readBGeo modelPath :: IO VGeo
                          ; return vgeo
                          }
                   ) $ toListOf (models . traverse . path) project :: IO [VGeo]
+    fontVGeos <- mapM (\modelPath ->
+                      do { vgeo <- readBGeo modelPath :: IO VGeo
+                         ; return vgeo
+                         }
+                  ) $ toListOf (fonts . traverse . path) project :: IO [VGeo]                                                                  
     objs <- mapM (initObject initVAO) objVGeos :: IO [Object] -- object per vgeo
     print "Finished loading models."
     

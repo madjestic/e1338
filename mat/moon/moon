@@ -1,10 +1,6 @@
 {
-  "Material": {
-    "name":"moon",
-    "Shaders": {
-      "vertex":   "mat/moon/Moon/shader.vert",
-      "fragment": "mat/moon/Moon/shader.frag"
-    },
+    "name":"Moon",
+    "vertShader": "./mat/moon/Moon/shader.vert",
+    "fragShader": "./mat/moon/Moon/shader.frag",
     "textures": ["textures/moon_256.jpg"]
-  }
 }

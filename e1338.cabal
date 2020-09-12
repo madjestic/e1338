@@ -138,6 +138,7 @@ executable genMaterial
               , split        ^>= 0.2.3.4
               , lens         ^>= 4.19.1
               , OpenGL       ^>= 3.0.2.2
+              , text       ^>= 1.2.2.2
 
   other-modules:
                 Paths_e1338

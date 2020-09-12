@@ -1,10 +1,6 @@
 {
-  "Material": {
-    "name":"earth",
-    "Shaders": {
-      "vertex":   "mat/earth/Earth/shader.vert",
-      "fragment": "mat/earth/Earth/shader.frag"
-    },
+    "name": "Earth",
+    "vertShader": "./mat/earth/Earth/shader.vert",
+    "fragShader": "./mat/earth/Earth/shader.frag",
     "textures": ["textures/earth_daymap_4096.jpg"]
-  }
 }

@@ -7,6 +7,7 @@ module Project
   , resx
   , resy
   , models
+  , fonts
   , camera
   , parse
   , writeProject

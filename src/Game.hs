@@ -129,18 +129,11 @@ centerView = centerEvent >>^ isEvent
 
 -- -- < Init Game State > ------------------------------------------------------
 
-loadFonts :: IO [Object]
-loadFonts =
-  do
-    return undefined
-
 -- TODO: initGame could be loaded from a file, similar to "Save Game" feature.
 initGame ::
      (([Int], Int, [Float], Material) -> IO Descriptor)
---  -> (Project -> IO ())
   -> Project
   -> IO Game
---initGame initVAO initGlobalUniforms project =
 initGame initVAO project =
   do
     --_ <- DT.trace ("initializing game resources...") $ return ()
@@ -170,3 +163,8 @@ initGame initVAO project =
         name' = view Prj.name project
         resX' = (unsafeCoerce $ view Prj.resx project) :: CInt
         resY' = (unsafeCoerce $ view Prj.resy project) :: CInt
+
+loadFonts :: IO [Object]
+loadFonts =
+  do
+    return undefined

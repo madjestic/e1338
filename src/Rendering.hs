@@ -131,6 +131,7 @@ fromGame :: Game -> Float -> [Drawable]
 fromGame game time = drs
   where
     objs = (view objects game) :: [Object]
+    -- fonts = (view  game) :: [Object]
     mpos = unsafeCoerce $ view (camera . controller . device' . mouse . pos) game -- :: (Double, Double)
     resX = fromEnum $ view (options . resx) game :: Int
     resY = fromEnum $ view (options . resy) game :: Int
