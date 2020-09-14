@@ -131,15 +131,13 @@ fromGame :: Game -> Float -> [Drawable]
 fromGame game time = drs -- (drs, drs')
   where
     objs = (view objects game) :: [Object]
-    -- fnts = (view fonts   game) :: [Object]
     mpos = unsafeCoerce $ view (camera . controller . device' . mouse . pos) game -- :: (Double, Double)
     resX = fromEnum $ view (options . resx) game :: Int
     resY = fromEnum $ view (options . resy) game :: Int
     res  = ((toEnum resX), (toEnum resY)) :: (CInt, CInt)
     cam  = view (camera . controller . Controllable.transform) game :: M44 Double
     drs  = concat $ fmap (fromObject mpos time res cam) objs :: [Drawable]
-    --drs' = concat $ fmap (fromObject mpos time res cam) fnts :: [Drawable]
-
+              
 fromObject :: (Double, Double) -> Float -> (CInt, CInt) -> M44 Double -> Object -> [Drawable]
 --fromObject mpos time res cam obj = (DT.trace ("drs :" ++ show drs) $  drs)
 fromObject mpos time res cam obj = drs
@@ -171,14 +169,16 @@ render lastInteraction Rendering.OpenGL opts window game =
     let currentTime = fromInteger (unsafeCoerce ticks :: Integer) :: Float
         drs  = fromGame game currentTime :: [Drawable]
         fDiv = 1
-        fnts = take fDiv drs  -- fDiv - font objects slice in the array of objects
-        objs = drop fDiv drs
+        fnts = take fDiv drs :: [Drawable] -- | fDiv - font objects slice in the array of objects
+        objs = drop fDiv drs :: [Drawable]
         texPaths = concat $ toListOf (objects . traverse . materials . traverse . Material.textures ) game :: [FilePath]
+        drawCmds = (draw texPaths opts window) :: Drawable -> IO ()
+        
+    _ <- drawObjects drawCmds objs    
+    _ <- drawText    drawCmds fnts "0"
+        
         --fps  = ticks
         --dfps = drawString fps :: [Drawable]
-
-    mapM_ (draw texPaths opts window) (objs)
-    mapM_ (draw texPaths opts window) (fnts)
 
     -- currentTime <- SDL.time                          
     -- dt <- (currentTime -) <$> readMVar lastInteraction -- swapMVar lastInteraction currentTime --dtime
@@ -187,14 +187,15 @@ render lastInteraction Rendering.OpenGL opts window game =
     
 render _ Vulkan _ _ _ = undefined
 
--- drawString :: String -> IO [Drawable]
--- drawString s =
---   do
---     ds <- mapM drawChar s
---     return ds
+drawObjects :: (Drawable -> IO ()) -> [Drawable] -> IO ()
+drawObjects cmds objs = 
+  do
+    mapM_ cmds objs
 
--- drawChar :: Char -> IO Drawable
--- drawChar = undefined
+drawText :: (Drawable -> IO ()) -> [Drawable] -> String -> IO ()
+drawText cmds fnts txt =
+  do
+    mapM_ cmds fnts
 
 draw :: [FilePath] -> BackendOptions -> SDL.Window -> Drawable -> IO ()
 draw
