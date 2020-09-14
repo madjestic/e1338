@@ -22,10 +22,10 @@ Esc - quit
 
 ## Recent Progress:
 
-* Awesome camera.
+* Improved camera controls.
 * Project file generator.
 * Speed controls for keyboard movement.
-+ Working on basic solvers (spinners).
++ Working on basic solvers (spinners, lodders, physics).
 
 ## Building and running:
 ```bash

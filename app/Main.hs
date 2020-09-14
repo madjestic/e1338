@@ -99,7 +99,7 @@ main = do
   game <- initGame initVAO proj
   
   print "Initializing Resources"
-  _ <- initGlobalUniforms $ view objects game
+  _ <- bindTexureUniforms $ view objects game
   
   print "Starting Game."
   animate

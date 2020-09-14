@@ -7,7 +7,6 @@ module Project
   , resx
   , resy
   , models
-  , fonts
   , camera
   , parse
   , writeProject
@@ -33,8 +32,6 @@ data Project
      , _resx     :: Int
      , _resy     :: Int
      , _models   :: [Model]
-     , _fonts    :: [Model]
---     , _textures :: [Texture]
      , _camera   :: [Float]
      } deriving Show
 
@@ -43,7 +40,7 @@ deriveJSON defaultOptions {fieldLabelModifier = drop 1} ''Project
 
 emptyProject :: Project
 emptyProject =
-  Project "foobar" (-1) (-1) [] [] []
+  Project "foobar" (-1) (-1) [] []
 
 defaultProject :: Project
 defaultProject =
@@ -52,7 +49,6 @@ defaultProject =
   800
   600
   [(Model   "models/box.bgeo")]
-  []
   [1, 0, 0, 0,
    0, 1, 0, 0,
    0, 0, 1,-1,
@@ -65,7 +61,7 @@ writeProject prj fileOut =
     config = defConfig { confCompare = comp }
 
 comp :: Text -> Text -> Ordering
-comp = keyOrder . (fmap pack) $ ["name", "resx", "resy", "models", "fonts", "textures", "camera"]
+comp = keyOrder . (fmap pack) $ ["name", "resx", "resy", "models", "camera"]
 
 parse :: FilePath -> IO Project
 parse filePath =
@@ -75,9 +71,8 @@ parse filePath =
         resx'     = (_resx     . fromEitherDecode) d
         resy'     = (_resy     . fromEitherDecode) d
         models'   = (_models   . fromEitherDecode) d
-        fonts'    = (_fonts    . fromEitherDecode) d
         camera'   = (_camera   . fromEitherDecode) d
-    return $ Project name' resx' resy' models' fonts' camera'
+    return $ Project name' resx' resy' models' camera'
       where
         fromEitherDecode = fromMaybe emptyProject . fromEither
         fromEither d =

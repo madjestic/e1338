@@ -10,7 +10,7 @@ module Rendering
   , draw
   , initVAO
   , initUniforms
-  , initGlobalUniforms
+  , bindTexureUniforms
   , render
   , Backend (..)
   , BackendOptions (..)
@@ -128,16 +128,17 @@ data Drawable
 (<*.>) = zipWith ($)
 
 fromGame :: Game -> Float -> [Drawable]
-fromGame game time = drs
+fromGame game time = drs -- (drs, drs')
   where
     objs = (view objects game) :: [Object]
-    -- fonts = (view  game) :: [Object]
+    -- fnts = (view fonts   game) :: [Object]
     mpos = unsafeCoerce $ view (camera . controller . device' . mouse . pos) game -- :: (Double, Double)
     resX = fromEnum $ view (options . resx) game :: Int
     resY = fromEnum $ view (options . resy) game :: Int
     res  = ((toEnum resX), (toEnum resY)) :: (CInt, CInt)
     cam  = view (camera . controller . Controllable.transform) game :: M44 Double
     drs  = concat $ fmap (fromObject mpos time res cam) objs :: [Drawable]
+    --drs' = concat $ fmap (fromObject mpos time res cam) fnts :: [Drawable]
 
 fromObject :: (Double, Double) -> Float -> (CInt, CInt) -> M44 Double -> Object -> [Drawable]
 --fromObject mpos time res cam obj = (DT.trace ("drs :" ++ show drs) $  drs)
@@ -168,14 +169,16 @@ render lastInteraction Rendering.OpenGL opts window game =
     ticks   <- SDL.ticks
     -- dfps    <- drawString "0"
     let currentTime = fromInteger (unsafeCoerce ticks :: Integer) :: Float
-        drs         = fromGame game currentTime :: [Drawable]
-        texPaths     = concat $ toListOf (objects . traverse . materials . traverse . Material.textures ) game :: [FilePath]
-        -- fps  = ticks
+        drs  = fromGame game currentTime :: [Drawable]
+        fDiv = 1
+        fnts = take fDiv drs  -- fDiv - font objects slice in the array of objects
+        objs = drop fDiv drs
+        texPaths = concat $ toListOf (objects . traverse . materials . traverse . Material.textures ) game :: [FilePath]
+        --fps  = ticks
         --dfps = drawString fps :: [Drawable]
 
-    --mapM_ (draw opts window) (drs ++ fps)
-    
-    mapM_ (draw texPaths opts window) (drs)
+    mapM_ (draw texPaths opts window) (objs)
+    mapM_ (draw texPaths opts window) (fnts)
 
     -- currentTime <- SDL.time                          
     -- dt <- (currentTime -) <$> readMVar lastInteraction -- swapMVar lastInteraction currentTime --dtime
@@ -213,8 +216,8 @@ draw
     cullFace  $= Just Back
     depthFunc $= Just Less
 
-initGlobalUniforms :: [Object] -> IO ()
-initGlobalUniforms objs =
+bindTexureUniforms :: [Object] -> IO ()
+bindTexureUniforms objs =
   do
     print "Loading Textures..."
     _ <- mapM bindTexture $ zip ids txs
@@ -222,16 +225,6 @@ initGlobalUniforms objs =
       where
         txs = concat $ concat $ fmap (toListOf (materials . traverse . Material.textures)) objs
         ids = take (length txs) [0..]
-
--- initGlobalUniforms :: Project -> IO ()
--- initGlobalUniforms project =
---   do
---     print "Loading Textures..."
---     _ <- mapM bindTexture $ zip ids txs
---     print "Finished loading textures."
---       where
---         txs = toListOf (Project.textures . traverse . path) project
---         ids = take (length txs) [0..]
 
 bindTexture :: (GLuint, FilePath) -> IO ()
 bindTexture (txid, tx) =

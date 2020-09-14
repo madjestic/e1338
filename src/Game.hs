@@ -63,7 +63,6 @@ data Game =
      , _options  :: Options
      , _gStg     :: Stage
      , _objects  :: [Object]
-     , _fonts    :: [Object] 
      , _camera   :: Camera
      } deriving Show
 
@@ -136,11 +135,9 @@ initGame ::
   -> IO Game
 initGame initVAO project =
   do
-    --_ <- DT.trace ("initializing game resources...") $ return ()
     print "initializing game resources..."
     objs  <- (loadObjects initVAO project)
-    -- _ <- initGlobalUniforms project -- TODO: textures <- objs
-    fonts <- loadFonts -- TODO: fonts are specia objects
+    
     let camPos = fromList $ view Prj.camera project -- :: [Float]
     --pc <- fromVGeo $ fromPGeo pCloud  -- PCloud Point Cloud
     --let objs = [pc]
@@ -155,9 +152,8 @@ initGame initVAO project =
           GamePlaying
           --(DT.trace ("initGame.objs :" ++ show objs) $ objs)
           objs
-          fonts
-          --initCam -- TODO: read campos from project file
           (Camera  initCamController { Controllable._transform = camPos })
+    print "finished initializing game resources..."          
     return game
       where        
         name' = view Prj.name project
