@@ -39,7 +39,7 @@ $ optirun ./rungl.hs
 
 ## Convert a Geo Model:
 ```bash
-$ ./convertGeo.sh earth 
+$ ./resources/convertGeo.sh earth
 ```
 
 ## Creating a new Material:
