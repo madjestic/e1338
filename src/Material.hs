@@ -45,7 +45,10 @@ defaultMat
 readMaterial :: FilePath -> IO Material
 readMaterial jsonFile =
   do
+    -- print $ "jsonFile :" ++ jsonFile
     d <- (eitherDecode <$> B.readFile jsonFile) :: IO (Either String Material)
+    -- print "readMaterial :"
+    -- print d
     let name'       = (_name       . fromEitherDecode) d
         vertShader' = (_vertShader . fromEitherDecode) d
         fragShader' = (_fragShader . fromEitherDecode) d

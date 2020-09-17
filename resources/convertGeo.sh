@@ -12,8 +12,11 @@ PDGCPY="./models/$1.pgeo"
 convertGeo(){
     if [ -e "$SOURCE" ]
     then
+	echo "Running geoParser.py..."
 	python ./resources/geoParser.py $SOURCE $PDG
+	echo "Running geoIndexer..."
 	cabal run geoIndexer $PDG $TARGET
+	echo "Copying files..."
 	cp $PDG $PDGCPY
     else
 	python ./resources/geoParser.py

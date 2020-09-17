@@ -166,6 +166,7 @@ render lastInteraction Rendering.OpenGL opts window game =
 
     ticks   <- SDL.ticks
     -- dfps    <- drawString "0"
+    -- _ <- DT.trace ("suka") $ return ()
     let currentTime = fromInteger (unsafeCoerce ticks :: Integer) :: Float
         drs  = fromGame game currentTime :: [Drawable]
         fDiv = 1
@@ -292,6 +293,7 @@ initUniforms
     uniform location5 $= transform --u_xform'
 
     -- | Allocate Textures
+    -- _ <- DT.trace "suka" $ return ()
     let texNames = fmap getTexName texPaths
     _ <- mapM (allocateTextures program) $ zip texNames [0..]
     

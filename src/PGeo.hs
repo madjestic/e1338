@@ -36,7 +36,7 @@ import FromVector
 import VGeo
 import Utils
 
--- import Debug.Trace   as DT
+import Debug.Trace   as DT
 
 -- | TODO : replace Vec3 -> Vec4
 type Vec3 = (Double, Double, Double)
@@ -65,8 +65,10 @@ deriveJSON defaultOptions ''PGeo
 readBGeo :: FilePath -> IO VGeo
 readBGeo file = 
   do
+    -- _ <- DT.trace "trace" $ return ()
     bs <- BS.readFile file
     return $ case (DS.decode bs) of
+               --Right d@(idxs, st, vaos, mats, xform) -> DT.trace ("d :" ++ show d)$ VGeo idxs st vaos mats xform
                Right d@(idxs, st, vaos, mats, xform) -> VGeo idxs st vaos mats xform
                Left _ -> VGeo [[]] [] [[]] [] [[]]
 
@@ -82,7 +84,7 @@ readPGeo :: FilePath -> IO PGeo
 readPGeo jsonFile =
   do
     d <- (eitherDecode <$> BL.readFile jsonFile) :: IO (Either String PGeo)
-    --print d
+    -- print d
     let ids'  = (ids   . fromEitherDecode) d
         as'   = (as    . fromEitherDecode) d
         cs'   = (cs    . fromEitherDecode) d
