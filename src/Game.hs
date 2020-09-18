@@ -18,6 +18,7 @@ module Game
   , Game.resx
   , Game.resy
   , objects
+  , coobject
   , Game.camera
   , mainGame
   , gameIntro
@@ -62,7 +63,8 @@ data Game =
        _debug    :: (Double, Double)
      , _options  :: Options
      , _gStg     :: Stage
-     , _objects  :: [Object]
+     , _objects  :: [Object] -- TODO: let game know about alphabet offset in objects
+     , _coobject :: Int
      , _camera   :: Camera
      } deriving Show
 
@@ -138,7 +140,8 @@ initGame initVAO project =
     print "initializing game resources..."
     objs  <- (loadObjects initVAO project)
     
-    let camPos = fromList $ view Prj.camera project -- :: [Float]
+    let camPos = fromList $ view Prj.camera project
+        fdiv   = length $ view fonts project
     --pc <- fromVGeo $ fromPGeo pCloud  -- PCloud Point Cloud
     --let objs = [pc]
     let game =
@@ -152,6 +155,7 @@ initGame initVAO project =
           GamePlaying
           --(DT.trace ("initGame.objs :" ++ show objs) $ objs)
           objs
+          fdiv
           (Camera  initCamController { Controllable._transform = camPos })
     print "finished initializing game resources..."          
     return game

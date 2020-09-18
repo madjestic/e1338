@@ -130,7 +130,7 @@ data Drawable
 fromGame :: Game -> Float -> [Drawable]
 fromGame game time = drs -- (drs, drs')
   where
-    objs = (view objects game) :: [Object]
+    objs = (view objects game) -- :: [Object]
     mpos = unsafeCoerce $ view (camera . controller . device' . mouse . pos) game -- :: (Double, Double)
     resX = fromEnum $ view (options . resx) game :: Int
     resY = fromEnum $ view (options . resy) game :: Int
@@ -169,7 +169,7 @@ render lastInteraction Rendering.OpenGL opts window game =
     -- _ <- DT.trace ("suka") $ return ()
     let currentTime = fromInteger (unsafeCoerce ticks :: Integer) :: Float
         drs  = fromGame game currentTime :: [Drawable]
-        fDiv = 1
+        fDiv = view coobject game
         fnts = take fDiv drs :: [Drawable] -- | fDiv - font objects slice in the array of objects
         objs = drop fDiv drs :: [Drawable]
         texPaths = concat $ toListOf (objects . traverse . materials . traverse . Material.textures ) game :: [FilePath]

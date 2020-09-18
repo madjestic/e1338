@@ -113,7 +113,7 @@ loadObjects initVAO project =
                       do { vgeo <- readBGeo modelPath :: IO VGeo
                          ; return vgeo
                          }
-                  ) $ toListOf (models . traverse . path) project :: IO [VGeo]
+                  ) $ (toListOf (fonts . traverse . path) project) ++ (toListOf (models . traverse . path) project) :: IO [VGeo]
     objs <- mapM (initObject initVAO) objVGeos :: IO [Object] -- object per vgeo
     print "Finished loading models."
     
