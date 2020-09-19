@@ -1,3 +1,4 @@
+{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE TypeSynonymInstances #-}
@@ -39,6 +40,9 @@ import Mouse
 import Project                 (Project)
 import Texture                 (path)
 
+import Linear.Vector
+import Utils                   ()
+
 import Data.Foldable     as DF (toList)
 import Linear.Projection as LP (perspective)
 
@@ -62,6 +66,29 @@ data BackendOptions
      {
        primitiveMode :: PrimitiveMode
      } deriving Show
+
+data Drawable
+  =  Drawable
+     { _uniforms   :: Uniforms
+     , _descriptor :: Descriptor
+     , _program    :: Program
+     } deriving Show
+
+data Uniforms
+  =  Uniforms
+     {
+       _u_mats  :: Material 
+     , _u_prog  :: Program
+     , _u_mouse :: (Double, Double)
+     , _u_time  :: Float
+     , _u_res   :: (CInt, CInt)
+     --, u_proj  :: M44 Double --GLmatrix GLfloat
+     , _u_cam   :: M44 Double 
+     , _u_xform :: M44 Double 
+     } deriving Show
+
+$(makeLenses ''Drawable)
+$(makeLenses ''Uniforms)
 
 openWindow :: Text -> (CInt, CInt) -> IO SDL.Window
 openWindow title (sizex,sizey) =
@@ -99,28 +126,6 @@ closeWindow window =
     SDL.destroyWindow window
     SDL.quit
 
--- -- < OpenGL > -------------------------------------------------------------
-
-data Uniforms
-  =  Uniforms
-     {
-       u_mats  :: Material 
-     , u_prog  :: Program
-     , u_mouse :: (Double, Double)
-     , u_time  :: Float
-     , u_res   :: (CInt, CInt)
-     --, u_proj  :: M44 Double --GLmatrix GLfloat
-     , u_cam   :: M44 Double 
-     , u_xform :: M44 Double 
-     } deriving Show
-
-data Drawable
-  =  Drawable
-     { uniforms   :: Uniforms
-     , descriptor :: Descriptor
-     , program    :: Program
-     } deriving Show
-
 (<$.>) :: (a -> b) -> [a] -> [b]
 (<$.>) = map
 
@@ -139,7 +144,6 @@ fromGame game time = drs -- (drs, drs')
     drs  = concat $ fmap (fromObject mpos time res cam) objs :: [Drawable]
               
 fromObject :: (Double, Double) -> Float -> (CInt, CInt) -> M44 Double -> Object -> [Drawable]
---fromObject mpos time res cam obj = (DT.trace ("drs :" ++ show drs) $  drs)
 fromObject mpos time res cam obj = drs
   where
     drs      = --undefined :: [Drawable]
@@ -165,38 +169,77 @@ render lastInteraction Rendering.OpenGL opts window game =
     GL.clear [ColorBuffer, DepthBuffer]
 
     ticks   <- SDL.ticks
-    -- dfps    <- drawString "0"
-    -- _ <- DT.trace ("suka") $ return ()
     let currentTime = fromInteger (unsafeCoerce ticks :: Integer) :: Float
         drs  = fromGame game currentTime :: [Drawable]
         fDiv = view coobject game
         fnts = take fDiv drs :: [Drawable] -- | fDiv - font objects slice in the array of objects
         objs = drop fDiv drs :: [Drawable]
         texPaths = concat $ toListOf (objects . traverse . materials . traverse . Material.textures ) game :: [FilePath]
-        drawCmds = (draw texPaths opts window) :: Drawable -> IO ()
-        
-    _ <- drawObjects drawCmds objs    
-    _ <- drawText    drawCmds fnts "0"
-        
-        --fps  = ticks
-        --dfps = drawString fps :: [Drawable]
+        fps  = show (unsafeCoerce ticks :: Int)
 
-    -- currentTime <- SDL.time                          
-    -- dt <- (currentTime -) <$> readMVar lastInteraction -- swapMVar lastInteraction currentTime --dtime
+    _ <- mapM_      (draw texPaths opts window) objs
+        
+    currentTime <- SDL.time                          
+    dt <- (currentTime -) <$> readMVar lastInteraction -- swapMVar lastInteraction currentTime --dtime
     -- putStrLn $ "FPS :" ++ show (1/dt) ++ "\n"
+    _ <- drawString (draw texPaths opts window) fnts $ show $ round (1/dt)
+    
     SDL.glSwapWindow window
     
 render _ Vulkan _ _ _ = undefined
 
-drawObjects :: (Drawable -> IO ()) -> [Drawable] -> IO ()
-drawObjects cmds objs = 
-  do
-    mapM_ cmds objs
+-- | given a string of drawables, return a formatted string (e.g. add offsets for drawable chars)
+format :: [Drawable] -> [Drawable]
+format drs = drw
+  where
+    drw = fmap offsetChar (zip drs [0..])
 
-drawText :: (Drawable -> IO ()) -> [Drawable] -> String -> IO ()
-drawText cmds fnts txt =
+offsetChar :: (Drawable, Int) -> Drawable
+offsetChar (drw, offset) = drw'
+  where
+    uns  = view uniforms drw
+    rot0 = view _m33 (view (uniforms . u_xform) drw)
+    tr0  = view translation (view (uniforms . u_xform) drw)
+    s    = 5 -- scale
+    offsetM44 = mkTransformationMat rot0 (tr0 ^+^ (V3 (-10 + fromIntegral offset*s) 0 0))
+    drw' = set (uniforms . u_xform) offsetM44 drw
+    
+-- | Alphabet of drawables -> String -> String of drawables
+drawableString :: [Drawable] -> String -> [Drawable]
+drawableString drs str = drws
+  where
+    drws = fmap (drawableChar drs) str
+
+-- | Alphabet of drawables -> Char -> a drawable char
+drawableChar :: [Drawable] -> Char -> Drawable
+drawableChar drs chr =
+  case chr of
+    '0' -> drs!!0
+    '1' -> drs!!1
+    '2' -> drs!!2
+    '3' -> drs!!3
+    '4' -> drs!!4
+    '5' -> drs!!5
+    '6' -> drs!!6
+    '7' -> drs!!7
+    '8' -> drs!!8
+    '9' -> drs!!9
+    _   -> drs!!0
+
+-- -- | Alphabet of drawables -> a drawable character with an offset
+-- formatCharacter :: [Drawable] -> Char -> Int -> Drawable
+-- formatCharacter = undefined
+
+drawString :: (Drawable -> IO ()) -> [Drawable] -> String -> IO ()
+drawString cmds fnts str =
   do
-    mapM_ cmds fnts
+    mapM_ cmds $ format $ drawableString fnts str
+
+-- drawChar :: (Drawable -> IO ()) -> [Drawable] -> Char -> IO ()
+-- drawChar cmds fnts chr = 
+  -- do
+  --   cmds fnts
+    
 
 draw :: [FilePath] -> BackendOptions -> SDL.Window -> Drawable -> IO ()
 draw
