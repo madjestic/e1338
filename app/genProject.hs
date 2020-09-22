@@ -11,7 +11,8 @@ import Debug.Trace as DT
 
 -- | This script generates a project file
 --   example:
---   $ cabal run genProject Foo 800 600 "models/model.bgeo" "textures/texture.jpg" 0 0 0
+--   $ cabal run genProject Test
+-- --   $ cabal run genProject Foo 800 600 "models/model.bgeo" "textures/texture.jpg" 0 0 0
 
 main :: IO ()
 main = getArgs >>= parse' >>= writeProject defaultProject

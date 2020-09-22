@@ -4,8 +4,9 @@
 
 module Solvable
   ( Solver (..)
-  , Solvable (..)
+--  , Solvable (..)
   , spin
+  , fromString
   ) where
 
 import Linear.Matrix
@@ -37,8 +38,26 @@ data Solver =
   --   }
   deriving Show
 
-class Solvable a where
-  solver :: Solver -> a -> SF () a
+-- class Solvable a where
+--   solver :: Solver -> a -> SF () a
+
+-- solve :: String -> [Int] -> M44 Double -> SF () (M44 Double)
+-- solve solver parms mtx0 =
+--   proc () -> do
+--     state <- case solver of
+--       "spin" -> spin (V3 0 0 0) (V3 0 (0) (1*1000)) mtx0 -< ()
+-- --      _ -> returnA mtx0 -< ()
+--     returnA -< state
+
+fromString :: (String, [Int]) -> Solver
+fromString = undefined
+
+solve :: Solver -> M44 Double -> SF () (M44 Double)
+solve solver mtx0 =
+  proc () -> do
+    state <- case solver of
+      Rotate pv0 ypr0 -> returnA -< mtx0
+    returnA -< state
 
 spin :: V3 Double -> V3 Double -> M44 Double -> SF () (M44 Double)
 spin pv0 ypr0 mtx0 =

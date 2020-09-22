@@ -1,0 +1,4 @@
+profiling:            True
+executable-profiling: True
+library-profiling:    True
+library-profiling:    True

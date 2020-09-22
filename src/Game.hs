@@ -17,7 +17,7 @@ module Game
   , Game.name
   , Game.resx
   , Game.resy
-  , objects
+  , Game.objects
   , coobject
   , Game.camera
   , mainGame
@@ -116,7 +116,7 @@ updateGame :: Game -> SF AppInput Game
 updateGame game = 
   proc input -> do
     cam  <- updateCamera  $ Game._camera  game -< input
-    objs <- updateObjects $ _objects game -< ()
+    objs <- updateObjects $ (Game._objects) game -< ()
     --returnA  -< game { Game._objects = (DT.trace ("updateGame.objs :" ++ show objs)$ objs)
     returnA  -< game { Game._objects = objs
                      , Game._camera  = cam }

@@ -48,6 +48,11 @@ $ ./cabal run genMaterial mat/testMat01
 ```
 (that generates a ./mat/testMat01 material directory with a default conent (constant shader material)
 
+## Generate a new Project:
+```bash
+$ cabal run genProject ./projects/test
+```
+
 ## Working with REPL:
 - compiling:
 ```bash
