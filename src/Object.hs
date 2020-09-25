@@ -25,6 +25,7 @@ import Linear (V3(..))
 import Control.Lens hiding (transform)
 import FRP.Yampa    hiding (identity)
 import Graphics.Rendering.OpenGL (Program (..), ShaderType (..))
+import Data.List as DL (transpose)
 
 import LoadShaders
 import Material
@@ -176,17 +177,77 @@ fromVGeo initVAO (VGeo idxs st vaos matPaths xform) =
     return object
     
 -- TODO : Object -> Solver -> SF () Object
+-- solve :: Object -> SF () Object
+-- solve obj =
+--   proc () -> do
+
+--     mtxs <- (parB . fmap (\mtx -> spin (V3 0 0 0) (V3 0 (0) (-1*1000)) mtx))
+--             (_transforms obj) -< ()
+
+--     -- mtxs <- (parB . fmap (\(x, y)-> transform x y)) $ zip slvs0 mtxs0 -< ()
+--     returnA -< obj { _transforms = mtxs }
+--       where
+--         slvs0 = view Object.solvers obj
+--         mtxs0 = view transforms     obj
+
 solve :: Object -> SF () Object
 solve obj =
   proc () -> do
--- TODO: read pivot from the object preTransforms
-    --mtxs <- (parB . fmap (\mtx -> spin (V3 0 0 0) (V3 0 (0) (1*1000)) mtx)) (_transforms obj) -< ()
-    mtxs <- (parB . fmap (\mtx -> spin (V3 0 0 0) (V3 0 (0) (1*1000)) mtx))
-            (_transforms obj) -< ()
-    --obj' <- mapM (\pv0' -> solver (Rotate (pv0') (V3 0 0 1000)) obj) pv0 -< ()
-    returnA -< obj { _transforms = mtxs }
-      -- where
-      --   pv0 = toListOf (Obj.transform . traverse . _w . _xyz) obj
+    mtxs <- (parB . fmap (\mtx -> spin (V3 0 0 0) (V3 0 (0) (-1*1000)) mtx))
+            mtxs0 -< ()
+    returnA -< obj { _transforms =  mtxs }            
+    -- mtxs <- (parB . fmap (transform obj)) slvs0 -< ()
+    -- returnA -< obj { _transforms = vectorizedCompose mtxs }
+      where
+        slvs0 = view Object.solvers obj
+        mtxs0 = view transforms     obj
+
+transform :: Object -> Solver -> SF () ([M44 Double])
+transform obj0 slv0 = 
+  proc () ->
+    do
+      mtxs <- (parB . fmap (transform' slv0)) mtxs0 -< ()
+      returnA -< mtxs
+        where
+          mtxs0 = view transforms obj0 :: [M44 Double]
+          func  = undefined
+
+transform' :: Solver -> M44 Double -> SF () (M44 Double)
+transform' solver mtx0 =
+  proc () -> do
+    state <- case solver of
+      Rotate pv0 ypr0 -> returnA -< mtx0
+    returnA -< mtx0          
+
+vectorizedCompose :: [[M44 Double]] -> [M44 Double]
+vectorizedCompose mtxss = 
+  fmap (foldr1 (^*^)) $ DL.transpose mtxss
+
+(^*^) :: M44 Double -> M44 Double -> M44 Double
+(^*^) mtx0 mtx1 = mkTransformationMat rot tr
+  where
+    rot = (view _m33 mtx0) !*! (view _m33 mtx1) :: M33 Double
+    tr  = (view translation mtx0) ^+^ (view translation mtx1)
+
+-- solve' :: Object -> Solver -> SF () Object
+-- solve' obj0 slv0 =
+--   proc () -> do
+--     result <- case slv0 of
+--       Rotate pv0 ypr0 ->
+--         do
+--           mtxs <- (parB . fmap (spin pv0 ypr0)) trs0 -< ()
+--           returnA -< obj0 { _transforms = mtxs }
+--     returnA -< result
+--       where
+--         pv0  = _pivot slv0 :: V3 Double
+--         ypr0 = _ypr   slv0 :: V3 Double
+--         trs0 = view transforms obj0 :: [M44 Double]
+
+-- foreach object:
+--            \
+--        foreach solver:
+--              \
+--           foreach transform
 
 -- TODO: [Object] -> [Solver] -> SF () [Object]
 updateObjects :: [Object] -> SF () [Object]

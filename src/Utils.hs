@@ -10,6 +10,7 @@ module Utils
   , Utils.fromList
   , (<$.>)
   , (<*.>)
+  , toV3
   ) where
 
 import Graphics.Rendering.OpenGL as GL (GLfloat)
@@ -116,3 +117,5 @@ fromList xs' = V4 x y z w
 (<*.>) :: [a -> b] -> [a] -> [b]
 (<*.>) = zipWith ($)
 
+toV3 :: [a] -> V3 a
+toV3 xs = V3 (xs!!0) (xs!!1) (xs!!2)

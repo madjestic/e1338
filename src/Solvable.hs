@@ -6,6 +6,7 @@ module Solvable
   ( Solver (..)
 --  , Solvable (..)
   , spin
+--  , transform
   , fromString
   ) where
 
@@ -16,7 +17,7 @@ import Linear.Quaternion
 import Control.Lens hiding (transform)
 import FRP.Yampa
 
-import Utils ()
+import Utils (toV3)
 
 data Solver =
      Translate
@@ -29,9 +30,13 @@ data Solver =
      , _ypr   :: V3 Double
      }
   |  Scale
-    {
-      _sxyz   :: V3 Double
-    }
+     {
+       _sxyz   :: V3 Double
+     }
+  |  LOD
+     {
+       _models :: [FilePath]
+     }
   -- |  Gravity
   --   {
   --     _G :: Double
@@ -50,14 +55,24 @@ data Solver =
 --     returnA -< state
 
 fromString :: (String, [Int]) -> Solver
-fromString = undefined
+fromString (x, ys) =
+  case x of
+    "spin" -> Rotate (toV3 $ take 3 (fmap toEnum ys :: [Double])) (toV3 $ drop 3 (fmap toEnum ys :: [Double]))
+    _ -> undefined
 
-solve :: Solver -> M44 Double -> SF () (M44 Double)
-solve solver mtx0 =
-  proc () -> do
-    state <- case solver of
-      Rotate pv0 ypr0 -> returnA -< mtx0
-    returnA -< state
+-- transform :: Solver -> M44 Double -> SF () (M44 Double)
+-- transform solver mtx0 =
+--   proc () -> do
+--     state <- case solver of
+--       Rotate pv0 ypr0 -> returnA -< mtx0
+--     returnA -< mtx0
+
+-- solve :: Solver -> M44 Double -> SF () (M44 Double)
+-- solve solver mtx0 =
+--   proc () -> do
+--     state <- case solver of
+--       Rotate pv0 ypr0 -> returnA -< mtx0
+--     returnA -< state
 
 spin :: V3 Double -> V3 Double -> M44 Double -> SF () (M44 Double)
 spin pv0 ypr0 mtx0 =
