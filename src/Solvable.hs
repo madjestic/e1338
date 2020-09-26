@@ -5,8 +5,8 @@
 module Solvable
   ( Solver (..)
 --  , Solvable (..)
+  , transformer
   , spin
---  , transform
   , fromString
   ) where
 
@@ -43,36 +43,23 @@ data Solver =
   --   }
   deriving Show
 
--- class Solvable a where
---   solver :: Solver -> a -> SF () a
-
--- solve :: String -> [Int] -> M44 Double -> SF () (M44 Double)
--- solve solver parms mtx0 =
---   proc () -> do
---     state <- case solver of
---       "spin" -> spin (V3 0 0 0) (V3 0 (0) (1*1000)) mtx0 -< ()
--- --      _ -> returnA mtx0 -< ()
---     returnA -< state
-
 fromString :: (String, [Int]) -> Solver
 fromString (x, ys) =
   case x of
     "spin" -> Rotate (toV3 $ take 3 (fmap toEnum ys :: [Double])) (toV3 $ drop 3 (fmap toEnum ys :: [Double]))
     _ -> undefined
 
--- transform :: Solver -> M44 Double -> SF () (M44 Double)
--- transform solver mtx0 =
---   proc () -> do
---     state <- case solver of
---       Rotate pv0 ypr0 -> returnA -< mtx0
---     returnA -< mtx0
-
--- solve :: Solver -> M44 Double -> SF () (M44 Double)
--- solve solver mtx0 =
---   proc () -> do
---     state <- case solver of
---       Rotate pv0 ypr0 -> returnA -< mtx0
---     returnA -< state
+transformer :: Solver -> M44 Double -> SF () (M44 Double)
+transformer solver mtx0 =
+  proc () -> do
+    state <- case solver of
+      Rotate pv0 ypr0 ->
+        do
+          mtx' <- spin pv0 ypr0 mtx0 -< ()
+          returnA -< mtx'
+    returnA -< state
+      where
+        Rotate pv0 ypr0 = solver
 
 spin :: V3 Double -> V3 Double -> M44 Double -> SF () (M44 Double)
 spin pv0 ypr0 mtx0 =
