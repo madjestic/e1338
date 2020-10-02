@@ -14,7 +14,15 @@ module Object
   , transforms
   , solve
   , Object.solvers
+  , ObjectTree (..)
+  , gui
+  , foreground
+  , background
   , loadObjects
+  , GUI (..)
+  , Object.fonts
+  , icons
+-- | utility functions:  
   , initObject
   , updateObjects
   ) where
@@ -36,6 +44,7 @@ import VGeo
 import Project
 import Model
 import Utils
+--import GUI
 
 import Debug.Trace    as DT
   
@@ -61,6 +70,27 @@ data Object
 
 $(makeLenses ''Object)
 
+data GUI =
+     GUI
+     {
+       _fonts :: [Object]
+     , _icons :: [Object]
+     } deriving Show
+
+$(makeLenses ''GUI)
+
+-- defaultGUI :: GUI
+-- defaultGUI = GUI [] []
+
+data ObjectTree =
+  ObjectTree
+  {
+    _gui :: GUI
+  , _foreground :: [Object]
+  , _background :: [Object]
+  } deriving Show
+
+$(makeLenses ''ObjectTree)
 
 -- -- TODO : take translation (pivot offset) into account
 -- instance Solvable Object where
@@ -104,21 +134,34 @@ defaultObj =
     (0.0)
     []
 
-loadObjects :: (([Int], Int, [Float], Material) -> IO Descriptor) -> Project -> IO [Object]
+loadObjects :: (([Int], Int, [Float], Material) -> IO Descriptor) -> Project -> IO ObjectTree
 loadObjects initVAO project = 
   do
     -- _ <- Dt.trace ("project :" ++ show project) $ return ()
     print "Loading Models..."
-    objVGeos  <- mapM (\modelPath ->
+    objsVGeos  <- mapM (\modelPath ->
                       do { vgeo <- readBGeo modelPath :: IO VGeo
                          ; return vgeo
                          }
-                  ) $ (toListOf (fonts . traverse . path) project) ++ (toListOf (models . traverse . path) project) :: IO [VGeo]
-    objs <- mapM (initObject project initVAO) objVGeos :: IO [Object] -- object per vgeo
+                  ) $ (toListOf (models . traverse . path) project) :: IO [VGeo]
+                                                                                                                            
+    fontsVGeos  <- mapM (\modelPath ->
+                      do { vgeo <- readBGeo modelPath :: IO VGeo
+                         ; return vgeo
+                         }
+                  ) $ (toListOf (Project.fonts . traverse . path) project) :: IO [VGeo]
+                                                                                                                            
+    objs  <- mapM (initObject project initVAO) objsVGeos :: IO [Object] -- object per vgeo
+    fonts <- mapM (initObject project initVAO) fontsVGeos :: IO [Object] -- font object per vgeo
+    let result =
+          ObjectTree
+          ( GUI fonts [] )
+          objs
+          []
     -- TODO : Here somewhere add solver inits <- read project file
     print "Finished loading models."
     
-    return (objs)
+    return (result)
 
 initObject :: Project -> (([Int], Int, [Float], Material) -> IO Descriptor) -> VGeo -> IO Object
 initObject project initVAO vgeo =

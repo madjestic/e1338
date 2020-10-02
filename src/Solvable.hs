@@ -53,13 +53,18 @@ transformer :: Solver -> M44 Double -> SF () (M44 Double)
 transformer solver mtx0 =
   proc () -> do
     state <- case solver of
-      Rotate pv0 ypr0 ->
+      Rotate _ _ ->
         do
           mtx' <- spin pv0 ypr0 mtx0 -< ()
+          returnA -< mtx'
+      Translate _ ->
+        do
+          mtx' <- undefined -< ()
           returnA -< mtx'
     returnA -< state
       where
         Rotate pv0 ypr0 = solver
+        Translate _txyz = solver
 
 spin :: V3 Double -> V3 Double -> M44 Double -> SF () (M44 Double)
 spin pv0 ypr0 mtx0 =

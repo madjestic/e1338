@@ -18,7 +18,6 @@ module Game
   , Game.resx
   , Game.resy
   , Game.objects
-  , coobject
   , Game.camera
   , mainGame
   , gameIntro
@@ -29,22 +28,22 @@ module Game
   , initGame
   ) where
 
-import Foreign.C                              (CInt)
-import Unsafe.Coerce
-import Data.Functor              (($>))
 import Control.Lens
+import Data.Functor              (($>))
 import FRP.Yampa --(SF, returnA, isEvent, (>>^), switch)
-import SDL.Input.Keyboard.Codes as SDL
+import Foreign.C                              (CInt)
 import Linear.Matrix
+import SDL.Input.Keyboard.Codes as SDL
+import Unsafe.Coerce
 
-import Controllable
-import Camera
-import Object
 import AppInput
-import Utils
-import Project     as Prj
+import Camera
+import Controllable
 import Descriptor
 import Material
+import Object
+import Project     as Prj
+import Utils
 
 import Debug.Trace as DT
 
@@ -55,16 +54,22 @@ data Stage =
    | GameMenu
    deriving Show
 
-loadDelay = 10.0  :: Double -- make it into Game options value
-
 data Game =
      Game
      {
        _debug    :: (Double, Double)
      , _options  :: Options
      , _gStg     :: Stage
-     , _objects  :: [Object] -- TODO: let game know about alphabet offset in objects
-     , _coobject :: Int
+     , _objects  :: ObjectTree -- [Object] -- TODO: a tree of objects per game stage,
+                               -- a branch per render pass, i.e. GUI, backgground, foreground, etc.
+-- | Maybe a better sollution is:
+--   , _objects  :: [[Object]]
+--                  [[GUI],[
+-- it needs to be a tree-like structure:
+-- GUI Objects: font, icons, buttons
+-- Forground Objects : planets, spaceships, etc.
+-- Background Objects: stars     
+--     , _coobject :: Int -- shape of the [Object] data
      , _camera   :: Camera
      } deriving Show
 
@@ -75,8 +80,8 @@ data Options
    , _resy  :: CInt
    } deriving Show
 
-$(makeLenses ''Game)
 $(makeLenses ''Options)
+$(makeLenses ''Game)
 
 -- < Game Logic > ---------------------------------------------------------
 
@@ -88,6 +93,8 @@ mainGame game0 =
             GameIntro   -> gameIntro      -< (input, game0)
             GamePlaying -> gamePlay game0 -< input
     returnA -< (gs, gs)
+
+loadDelay = 10.0  :: Double -- make it into Game options value                           
 
 gameIntro :: SF (AppInput, Game) Game
 gameIntro =
@@ -115,12 +122,13 @@ gamePlay game =
 updateGame :: Game -> SF AppInput Game
 updateGame game = 
   proc input -> do
-    cam  <- updateCamera  $ Game._camera  game -< input
-    objs <- updateObjects $ (Game._objects) game -< ()
-    --returnA  -< game { Game._objects = (DT.trace ("updateGame.objs :" ++ show objs)$ objs)
-    returnA  -< game { Game._objects = objs
-                     , Game._camera  = cam }
-                     -- , Game._camera  = (DT.trace ("cam: " ++ show cam) $ cam) }
+    -- gui  <- updateGUI     $ Game._gui       game -< ()
+    cam  <- updateCamera  $ Game._camera    game -< input
+    objs <- updateObjects $ _foreground (Game._objects game) -< ()
+              
+    returnA  -< set (Game.objects . foreground) objs
+              $ set Game.camera cam
+              $ game
     
 handleExit :: SF AppInput Bool
 handleExit = quitEvent >>^ isEvent
@@ -141,7 +149,7 @@ initGame initVAO project =
     objs  <- (loadObjects initVAO project)
     
     let camPos = fromList $ view Prj.camera project
-        fdiv   = length $ view fonts project
+        fdiv   = length $ view Prj.fonts project
     --pc <- fromVGeo $ fromPGeo pCloud  -- PCloud Point Cloud
     --let objs = [pc]
     let game =
@@ -155,7 +163,6 @@ initGame initVAO project =
           GamePlaying
           --(DT.trace ("initGame.objs :" ++ show objs) $ objs)
           objs
-          fdiv
           (Camera  initCamController { Controllable._transform = camPos })
     print "finished initializing game resources..."          
     return game

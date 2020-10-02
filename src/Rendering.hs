@@ -64,7 +64,7 @@ data Backend
 data BackendOptions
   =  BackendOptions
      {
-       primitiveMode :: PrimitiveMode
+       primitiveMode :: PrimitiveMode -- Triangles | Points
      } deriving Show
 
 data Drawable
@@ -132,16 +132,17 @@ closeWindow window =
 (<*.>) :: [a -> b] -> [a] -> [b]
 (<*.>) = zipWith ($)
 
-fromGame :: Game -> Float -> [Drawable]
-fromGame game time = drs -- (drs, drs')
+fromGame :: Game -> [Object] -> Float -> [Drawable]
+fromGame game objs time = drs -- (drs, drs')
   where
-    objs = (view objects game) -- :: [Object]
+    -- objsDrs = (view objects game) -- :: [Object]
     mpos = unsafeCoerce $ view (camera . controller . device' . mouse . pos) game -- :: (Double, Double)
     resX = fromEnum $ view (options . resx) game :: Int
     resY = fromEnum $ view (options . resy) game :: Int
     res  = ((toEnum resX), (toEnum resY)) :: (CInt, CInt)
     cam  = view (camera . controller . Controllable.transform) game :: M44 Double
     drs  = concat $ fmap (fromObject mpos time res cam) objs :: [Drawable]
+    --drs  = concat $ fmap (fromObject mpos time res cam) (DT.trace ("objs :" ++ show objs) $ objs) :: [Drawable]
               
 fromObject :: (Double, Double) -> Float -> (CInt, CInt) -> M44 Double -> Object -> [Drawable]
 fromObject mpos time res cam obj = drs
@@ -170,19 +171,23 @@ render lastInteraction Rendering.OpenGL opts window game =
 
     ticks   <- SDL.ticks
     let currentTime = fromInteger (unsafeCoerce ticks :: Integer) :: Float
-        drs  = fromGame game currentTime :: [Drawable]
-        fDiv = view coobject game
-        fnts = take fDiv drs :: [Drawable] -- | fDiv - font objects slice in the array of objects
-        objs = drop fDiv drs :: [Drawable]
-        texPaths = concat $ toListOf (objects . traverse . materials . traverse . Material.textures ) game :: [FilePath]
+        fntObjs = concat $ toListOf (objects . gui . fonts) game :: [Object]
+        fgrObjs = concat $ toListOf (objects . foreground)  game :: [Object]
+        
+        --fntsDrs = fromGame game (DT.trace ("fntObjs :" ++ show fntObjs) $ fntObjs) currentTime :: [Drawable]
+        fntsDrs = fromGame game fntObjs currentTime :: [Drawable]
+        objsDrs = fromGame game fgrObjs currentTime :: [Drawable]
+
+        --texPaths = concat $ toListOf (foreground . traverse . materials . traverse . Material.textures) (view objects game) :: [FilePath]
+        texPaths = concat $ toListOf ( traverse . materials . traverse . Material.textures) (fgrObjs ++ fntObjs) :: [FilePath]
         fps  = show (unsafeCoerce ticks :: Int)
 
-    _ <- mapM_      (draw texPaths opts window) objs
+    _ <- mapM_ (draw texPaths (opts { primitiveMode = Triangles }) window) objsDrs
         
     currentTime <- SDL.time                          
     dt <- (currentTime -) <$> readMVar lastInteraction -- swapMVar lastInteraction currentTime --dtime
     -- putStrLn $ "FPS :" ++ show (1/dt) ++ "\n"
-    _ <- drawString (draw texPaths opts window) fnts $ show $ round (1/dt) -- render FPS
+    _ <- drawString (draw texPaths opts window) fntsDrs $ show $ round (1/dt) -- render FPS
     
     SDL.glSwapWindow window
     
@@ -212,33 +217,33 @@ drawableString drs str = drws
 
 -- | Alphabet of drawables -> Char -> a drawable char
 drawableChar :: [Drawable] -> Char -> Drawable
-drawableChar drs chr =
-  case chr of
-    '0' -> drs!!0
-    '1' -> drs!!1
-    '2' -> drs!!2
-    '3' -> drs!!3
-    '4' -> drs!!4
-    '5' -> drs!!5
-    '6' -> drs!!6
-    '7' -> drs!!7
-    '8' -> drs!!8
-    '9' -> drs!!9
-    _   -> drs!!0
+drawableChar drs chr = drs!!7
+  -- case chr of
+  --   '0' -> drs!!0
+  --   '1' -> drs!!1
+  --   '2' -> drs!!2
+  --   '3' -> drs!!3
+  --   '4' -> drs!!4
+  --   '5' -> drs!!5
+  --   '6' -> drs!!6
+  --   '7' -> drs!!7
+  --   '8' -> drs!!8
+  --   '9' -> drs!!9
+  --   _   -> drs!!0
 
 -- -- | Alphabet of drawables -> a drawable character with an offset
 -- formatCharacter :: [Drawable] -> Char -> Int -> Drawable
 -- formatCharacter = undefined
 
 drawString :: (Drawable -> IO ()) -> [Drawable] -> String -> IO ()
-drawString cmds fnts str =
+drawString cmds fntsDrs str =
   do
-    mapM_ cmds $ format $ drawableString fnts str
+    mapM_ cmds $ format $ drawableString fntsDrs str
 
 -- drawChar :: (Drawable -> IO ()) -> [Drawable] -> Char -> IO ()
--- drawChar cmds fnts chr = 
+-- drawChar cmds fntsDrs chr = 
   -- do
-  --   cmds fnts
+  --   cmds fntsDrs
     
 
 draw :: [FilePath] -> BackendOptions -> SDL.Window -> Drawable -> IO ()
@@ -262,13 +267,13 @@ draw
     depthFunc $= Just Less
 
 bindTexureUniforms :: [Object] -> IO ()
-bindTexureUniforms objs =
+bindTexureUniforms objsDrs =
   do
     print "Loading Textures..."
     _ <- mapM bindTexture $ zip ids txs
     print "Finished loading textures."
       where
-        txs = concat $ concat $ fmap (toListOf (materials . traverse . Material.textures)) objs
+        txs = concat $ concat $ fmap (toListOf (materials . traverse . Material.textures)) objsDrs
         ids = take (length txs) [0..]
 
 bindTexture :: (GLuint, FilePath) -> IO ()

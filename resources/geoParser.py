@@ -180,7 +180,7 @@ def parseJSON(jsonFile):
     # print("shuffled value :", value)
     # print("source_order :", source_order)
     target_order = []
-    for elem in (array(source_order)):
+    for elem in (array(source_order)): # for elem in (array(source_order, dtype=object)):
         target_order.append((array(idx)[elem]).tolist())
         #print("target_order :", target_order)
     value = target_order  #value.tolist()

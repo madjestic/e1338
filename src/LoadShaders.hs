@@ -22,6 +22,7 @@ import Control.Exception
 import Control.Monad
 import qualified Data.ByteString as B
 import Graphics.Rendering.OpenGL
+import Debug.Trace as DT
 
 --------------------------------------------------------------------------------
 
@@ -56,6 +57,7 @@ data ShaderInfo = ShaderInfo ShaderType ShaderSource
 loadShaders :: [ShaderInfo] -> IO Program
 loadShaders infos =
    createProgram `bracketOnError` deleteObjectName $ \program -> do
+      --_ <- DT.trace ("Loading Shader Program" ++ show infos) $ return ()
       loadCompileAttach program infos
       linkAndCheck program
       return program
@@ -63,23 +65,11 @@ loadShaders infos =
 linkAndCheck :: Program -> IO ()
 linkAndCheck = checked linkProgram linkStatus programInfoLog "link"
 
--- loadPreProcessCompileAttach :: Program -> [ShaderInfo] -> IO ()
--- loadPreProcessCompileAttach _ [] = return ()
--- loadPreProcessCompileAttach program (ShaderInfo shType source : infos) =
---    createShader shType `bracketOnError` deleteObjectName $ \shader -> do
---       src <- getSource source
---       shaderSourceBS shader $= preProcess src
---       compileAndCheck shader
---       attachShader program shader
---       loadPreProcessCompileAttach program infos
---         where
---           preProcess src = undefined -- TODO : parse the shader source and add common
-
-
 loadCompileAttach :: Program -> [ShaderInfo] -> IO ()
 loadCompileAttach _ [] = return ()
 loadCompileAttach program (ShaderInfo shType source : infos) =
    createShader shType `bracketOnError` deleteObjectName $ \shader -> do
+      -- _ <- DT.trace ("Loading Shader Program" ++ show program ++ show source) $ return ()
       src <- getSource source
       shaderSourceBS shader $= src
       compileAndCheck shader

@@ -32,7 +32,7 @@ import Project        as Prj
 import AppInput
 import Rendering      as R
 
--- import Debug.Trace    as DT
+import Debug.Trace    as DT
 
 -- -- < Animate > ------------------------------------------------------------
 type WinInput = Event SDL.EventPayload
@@ -93,13 +93,17 @@ main = do
                (resX, resY)
 
   -- | SDL Mouse Options
-  setMouseLocationMode RelativeLocation
+  -- setMouseLocationMode RelativeLocation
 
   print "Initializing Game"
   game <- initGame initVAO proj
   
   print "Initializing Resources"
-  _ <- bindTexureUniforms $ view (Game.objects) game
+  let fntObjs = concat $ toListOf (Game.objects . gui . Obj.fonts) game :: [Object]
+      fgrObjs = concat $ toListOf (Game.objects . foreground)  game :: [Object]
+
+  _ <- bindTexureUniforms $ fgrObjs ++ fntObjs
+  --_ <- bindTexureUniforms $ view (Game.objects) game
   
   print "Starting Game."
   animate

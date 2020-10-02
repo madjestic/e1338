@@ -59,6 +59,7 @@ library
               , Texture
               , Utils
               , VGeo
+--              , GUI                
   other-modules:
                 Paths_e1338
               , LoadShaders
@@ -117,7 +118,7 @@ executable e1338
               , Material
               , Solvable
               , Utils
-              
+--              , GUI              
   default-language:
                 Haskell2010
 

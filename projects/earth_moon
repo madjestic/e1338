@@ -1,0 +1,79 @@
+{
+    "name": "Earth Test",
+    "resx": 800,
+    "resy": 600,
+    "models": [
+        { "path": "models/earth.bgeo" },
+	{ "path": "models/moon.bgeo"  }
+    ],
+    "objects": [
+        {
+            "pname": "Earth",
+            "modelIDXs": [
+                0
+            ],
+            "solvers": [
+                "spin"
+            ],
+            "solverAttrs": [
+                [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    100
+                ]
+            ]
+        },
+        {
+            "pname": "Moon",
+            "modelIDXs": [
+                1
+            ],
+            "solvers": [
+                "spin"
+            ],
+            "solverAttrs": [
+                [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    -100
+                ]
+            ]
+        }
+    ],
+    "fonts": [
+        { "path": "models/fnt_0.bgeo" },
+        { "path": "models/fnt_1.bgeo" },
+        { "path": "models/fnt_2.bgeo" },
+        { "path": "models/fnt_3.bgeo" },
+        { "path": "models/fnt_4.bgeo" },
+        { "path": "models/fnt_5.bgeo" },
+        { "path": "models/fnt_6.bgeo" },
+        { "path": "models/fnt_7.bgeo" },
+        { "path": "models/fnt_8.bgeo" },
+        { "path": "models/fnt_9.bgeo" }
+    ],
+    "camera": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        -1,
+        0,
+        0,
+        0,
+        1
+    ]
+}

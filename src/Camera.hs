@@ -29,8 +29,7 @@ data Camera =
 $(makeLenses ''Camera)
 
 initCam :: Camera
-initCam
-  = Camera initCamController
+initCam = Camera initCamController
 
 initCamController :: Controllable
 initCamController =

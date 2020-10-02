@@ -2,5 +2,5 @@
 
 # Earth Test: testing solvers and new project format
 cabal build
-cabal run e1338 ./projects/earth_test
+cabal run e1338 ./projects/earth_moon
 # cabal run +RTS -sstderr -RTS e1338 ./projects/earth_test
