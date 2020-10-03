@@ -52,10 +52,10 @@ void main()
 
 	// To logarithmic Depth Buffer.
 	float Near = 0.5; //  Near Clippng  Plane
-	float Far  = 1000.0; // Far  Clipping Plane
+	float Far  = 100000000.0; // Far  Clipping Plane
 	// Logarithmic Depth
 	gl_Position.z = (2*log(Near*gl_Position.z + 1) / log(Near*Far + 1) - 1) * gl_Position.z;
-
+	//gl_Position.z = log(pow(gl_Position.z/Far, 1.0)+1.0);
 	// Linear Depth
 	//gl_Position.z = gl_Position.z/Far;
 }

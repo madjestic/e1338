@@ -205,8 +205,8 @@ offsetChar (drw, offset) = drw'
     uns  = view uniforms drw
     rot0 = view _m33 (view (uniforms . u_xform) drw)
     tr0  = view translation (view (uniforms . u_xform) drw)
-    s    = 5 -- scale
-    offsetM44 = mkTransformationMat rot0 (tr0 ^+^ (V3 (-10 + fromIntegral offset*s) 0 0))
+    s    = 0.07 -- scale
+    offsetM44 = mkTransformationMat rot0 (tr0 ^+^ (V3 (-0.105 + fromIntegral offset*s) 0 0))
     drw' = set (uniforms . u_xform) offsetM44 drw
     
 -- | Alphabet of drawables -> String -> String of drawables
@@ -217,19 +217,19 @@ drawableString drs str = drws
 
 -- | Alphabet of drawables -> Char -> a drawable char
 drawableChar :: [Drawable] -> Char -> Drawable
-drawableChar drs chr = drs!!7
-  -- case chr of
-  --   '0' -> drs!!0
-  --   '1' -> drs!!1
-  --   '2' -> drs!!2
-  --   '3' -> drs!!3
-  --   '4' -> drs!!4
-  --   '5' -> drs!!5
-  --   '6' -> drs!!6
-  --   '7' -> drs!!7
-  --   '8' -> drs!!8
-  --   '9' -> drs!!9
-  --   _   -> drs!!0
+drawableChar drs chr =
+  case chr of
+    '0' -> drs!!0
+    '1' -> drs!!1
+    '2' -> drs!!2
+    '3' -> drs!!3
+    '4' -> drs!!4
+    '5' -> drs!!5
+    '6' -> drs!!6
+    '7' -> drs!!7
+    '8' -> drs!!8
+    '9' -> drs!!9
+    _   -> drs!!0
 
 -- -- | Alphabet of drawables -> a drawable character with an offset
 -- formatCharacter :: [Drawable] -> Char -> Int -> Drawable

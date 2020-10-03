@@ -57,7 +57,7 @@ data ShaderInfo = ShaderInfo ShaderType ShaderSource
 loadShaders :: [ShaderInfo] -> IO Program
 loadShaders infos =
    createProgram `bracketOnError` deleteObjectName $ \program -> do
-      --_ <- DT.trace ("Loading Shader Program" ++ show infos) $ return ()
+      --_ <- DT.trace ("loadShaders.hs: Loading Shader Program :" ++ show infos) $ return ()
       loadCompileAttach program infos
       linkAndCheck program
       return program

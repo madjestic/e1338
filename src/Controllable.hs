@@ -125,8 +125,8 @@ updateController ctl0 =
                   ctl    = keyLCtrl  $ (keys kbrd')
                   scalar = s shift ctl
                   s shift ctl
-                    | shift && ctl = baseSpeed*baseSpeed*0.5
-                    | shift     = baseSpeed * 1000  -- super fast
+                    | shift && ctl = baseSpeed*baseSpeed*0.5 -- superfast
+                    | shift     = baseSpeed * 10000  -- fast
                     | ctl       = baseSpeed * 0.1   -- slow
                     | otherwise = baseSpeed         -- base speed
     
