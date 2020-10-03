@@ -3,7 +3,7 @@ a re-write of e1337 with BearRiver (and, maybe, MVars)
 
 ![](https://github.com/madjestic/e1338/blob/master/output.png)
 
-[a youtube demo](https://youtu.be/vLVI2mkBmlw)
+[a youtube demo](https://www.youtube.com/watch?v=6iLBqUD_HEU)
 
 clone repo, `cabal build`, `./run.sh`
 
