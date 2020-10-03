@@ -173,6 +173,7 @@ render lastInteraction Rendering.OpenGL opts window game =
     let currentTime = fromInteger (unsafeCoerce ticks :: Integer) :: Float
         fntObjs = concat $ toListOf (objects . gui . fonts) game :: [Object]
         fgrObjs = concat $ toListOf (objects . foreground)  game :: [Object]
+        --bgrObjs = concat $ toListOf (objects . background)  game :: [Object]
         
         --fntsDrs = fromGame game (DT.trace ("fntObjs :" ++ show fntObjs) $ fntObjs) currentTime :: [Drawable]
         fntsDrs = fromGame game fntObjs currentTime :: [Drawable]

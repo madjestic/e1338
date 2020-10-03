@@ -139,11 +139,18 @@ loadObjects initVAO project =
   do
     -- _ <- Dt.trace ("project :" ++ show project) $ return ()
     print "Loading Models..."
-    objsVGeos  <- mapM (\modelPath ->
+    fgrVGeos  <- mapM (\modelPath ->
                       do { vgeo <- readBGeo modelPath :: IO VGeo
                          ; return vgeo
                          }
                   ) $ (toListOf (models . traverse . path) project) :: IO [VGeo]
+
+    -- TODO : project needs to know somehow about background/forground...
+    -- bgrVGeos  <- mapM (\modelPath ->
+    --                   do { vgeo <- readBGeo modelPath :: IO VGeo
+    --                      ; return vgeo
+    --                      }
+    --               ) $ (toListOf (models . traverse . path) project) :: IO [VGeo]
                                                                                                                             
     fontsVGeos  <- mapM (\modelPath ->
                       do { vgeo <- readBGeo modelPath :: IO VGeo
@@ -151,7 +158,7 @@ loadObjects initVAO project =
                          }
                   ) $ (toListOf (Project.fonts . traverse . path) project) :: IO [VGeo]
                                                                                                                             
-    objs  <- mapM (initObject project initVAO) objsVGeos :: IO [Object] -- object per vgeo
+    objs  <- mapM (initObject project initVAO) fgrVGeos :: IO [Object] -- object per vgeo
     fonts <- mapM (initObject project initVAO) fontsVGeos :: IO [Object] -- font object per vgeo
     let result =
           ObjectTree

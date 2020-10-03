@@ -101,6 +101,7 @@ main = do
   print "Initializing Resources"
   let fntObjs = concat $ toListOf (Game.objects . gui . Obj.fonts) game :: [Object]
       fgrObjs = concat $ toListOf (Game.objects . foreground)  game :: [Object]
+      --bgrObjs = concat $ toListOf (Game.objects . background)  game :: [Object]
 
   _ <- bindTexureUniforms $ fgrObjs ++ fntObjs
   --_ <- bindTexureUniforms $ view (Game.objects) game
