@@ -28,6 +28,7 @@
             ]
         }
     ],
+    "background": [],
     "fonts": [
         {
             "path": "models/fnt_0.bgeo"

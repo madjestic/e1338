@@ -17,11 +17,12 @@ module Object
   , ObjectTree (..)
   , gui
   , foreground
-  , background
+  , Object.background
   , loadObjects
   , GUI (..)
   , Object.fonts
   , icons
+  , ObjectClass (..)
 -- | utility functions:  
   , initObject
   , updateObjects
@@ -90,6 +91,8 @@ data ObjectTree =
   , _background :: [Object]
   } deriving Show
 
+data ObjectClass = Foreground | Background | Font
+
 $(makeLenses ''ObjectTree)
 
 -- -- TODO : take translation (pivot offset) into account
@@ -134,41 +137,61 @@ defaultObj =
     (0.0)
     []
 
+
+loadPreObjects :: ObjectClass -> Project -> [String]
+loadPreObjects cls project = modelList
+  where
+    modelSet  = toListOf (models . traverse . path) project :: [String]
+    modelList =
+      
+      case cls of
+        Foreground -> (modelSet!!) <$> (concat $ toListOf ( objects . traverse . modelIDXs ) project)
+        Background -> (modelSet!!) <$> (concat $ toListOf ( Project.background . traverse . modelIDXs ) project)
+        Font       -> (toListOf (Project.fonts . traverse . path) project)
+        _ -> undefined
+
+
 loadObjects :: (([Int], Int, [Float], Material) -> IO Descriptor) -> Project -> IO ObjectTree
 loadObjects initVAO project = 
   do
     -- _ <- Dt.trace ("project :" ++ show project) $ return ()
     print "Loading Models..."
-    fgrVGeos  <- mapM (\modelPath ->
-                      do { vgeo <- readBGeo modelPath :: IO VGeo
-                         ; return vgeo
-                         }
-                  ) $ (toListOf (models . traverse . path) project) :: IO [VGeo]
 
-    -- TODO : project needs to know somehow about background/forground...
-    -- bgrVGeos  <- mapM (\modelPath ->
-    --                   do { vgeo <- readBGeo modelPath :: IO VGeo
-    --                      ; return vgeo
-    --                      }
-    --               ) $ (toListOf (models . traverse . path) project) :: IO [VGeo]
+    fgrVGeos  <-
+      mapM (\modelPath ->
+               do { vgeo <- readBGeo modelPath :: IO VGeo
+                  ; return vgeo
+                  }
+           ) $ (loadPreObjects Foreground project ) :: IO [VGeo]
+
+    bgrVGeos  <-
+      mapM (\modelPath ->
+               do { vgeo <- readBGeo modelPath :: IO VGeo
+                  ; return vgeo
+                  }
+           ) $ (loadPreObjects Background project ) :: IO [VGeo]
                                                                                                                             
-    fontsVGeos  <- mapM (\modelPath ->
-                      do { vgeo <- readBGeo modelPath :: IO VGeo
-                         ; return vgeo
-                         }
-                  ) $ (toListOf (Project.fonts . traverse . path) project) :: IO [VGeo]
+    fontsVGeos  <-
+      mapM (\modelPath ->
+               do { vgeo <- readBGeo modelPath :: IO VGeo
+                  ; return vgeo
+                  }
+           ) $ (loadPreObjects Font project ) :: IO [VGeo]
                                                                                                                             
-    objs  <- mapM (initObject project initVAO) fgrVGeos :: IO [Object] -- object per vgeo
-    fonts <- mapM (initObject project initVAO) fontsVGeos :: IO [Object] -- font object per vgeo
+    objs  <- mapM (initObject project initVAO) fgrVGeos   :: IO [Object]
+    bgrs  <- mapM (initObject project initVAO) bgrVGeos   :: IO [Object]
+    fonts <- mapM (initObject project initVAO) fontsVGeos :: IO [Object]
+    
     let result =
           ObjectTree
           ( GUI fonts [] )
           objs
-          []
+          bgrs
     -- TODO : Here somewhere add solver inits <- read project file
     print "Finished loading models."
     
     return (result)
+
 
 initObject :: Project -> (([Int], Int, [Float], Material) -> IO Descriptor) -> VGeo -> IO Object
 initObject project initVAO vgeo =
@@ -196,7 +219,7 @@ initObject project initVAO vgeo =
           -- , _solvers     =
           --   [(Rotate (view _xyz offset) (V3 0 0 1000))] -- TODO: a solver per ()transform) object
           --, _solvers = [(Rotate (V3 0 0 0) (V3 0 0 1000))] -- fmap (\offset' -> (Rotate (view _xyz offset') (V3 0 0 1000))) offset
-          , _solvers = fmap fromString $
+          , Object._solvers = fmap fromString $
                          zip (concat $ toListOf (objects . traverse . (Project.solvers)) project :: [String])
                              (concat $ toListOf (objects . traverse . solverAttrs) project :: [[Int]])
           -- TODO : ^ init solvers <- read project file
@@ -220,7 +243,7 @@ fromVGeo initVAO (VGeo idxs st vaos matPaths xform) =
           , _materials   = mats
           --, _transforms   = preTransform
           --, _pivot       = offset
-          , _solvers     =
+          , Object._solvers     =
             [(Rotate (view _xyz offset) (V3 0 0 1000))]
           }
 

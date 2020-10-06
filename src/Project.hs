@@ -8,6 +8,8 @@ module Project
   , resy
   , models
   , objects
+  , background
+  , PreObject (..)
   , pname
   , modelIDXs
   , solvers
@@ -51,6 +53,9 @@ data Project
      , _resy    :: Int
      , _models  :: [Model]
      , _objects :: [PreObject]
+     -- TODO: 
+     --, _foreground :: [PreObject] 
+     , _background :: [PreObject]
      , _fonts   :: [Model]
      , _camera  :: [Float]
      } deriving Show
@@ -60,7 +65,7 @@ deriveJSON defaultOptions {fieldLabelModifier = drop 1} ''Project
 
 emptyProject :: Project
 emptyProject =
-  Project "foobar" (-1) (-1) [] [] [] []
+  Project "foobar" (-1) (-1) [] [] [] [] []
 
 defaultProject :: Project
 defaultProject =
@@ -75,6 +80,7 @@ defaultProject =
     ["spin"]
     [[0,0,0,0,0,1000]]
    )]
+  []
   [(Model   "models/fnt_0.bgeo")
   ,(Model   "models/fnt_1.bgeo")
   ,(Model   "models/fnt_2.bgeo")
@@ -98,7 +104,7 @@ writeProject prj fileOut =
     config = defConfig { confCompare = comp }
 
 comp :: Text -> Text -> Ordering
-comp = keyOrder . (fmap pack) $ ["name", "resx", "resy", "models", "objects", "pname", "modelIDXs", "solvers", "solverAttrs", "fonts", "camera" ]
+comp = keyOrder . (fmap pack) $ ["name", "resx", "resy", "models", "objects", "background", "pname", "modelIDXs", "solvers", "solverAttrs", "fonts", "camera" ]
 
 parse :: FilePath -> IO Project
 parse filePath =
@@ -109,9 +115,10 @@ parse filePath =
         resy'     = (_resy     . fromEitherDecode) d
         models'   = (_models   . fromEitherDecode) d
         objects'  = (_objects  . fromEitherDecode) d
+        background'  = (_background . fromEitherDecode) d
         fonts'    = (_fonts    . fromEitherDecode) d
         camera'   = (_camera   . fromEitherDecode) d
-    return $ Project name' resx' resy' models' objects' fonts' camera'
+    return $ Project name' resx' resy' models' objects' background' fonts' camera'
       where
         fromEitherDecode = fromMaybe emptyProject . fromEither
         fromEither d =

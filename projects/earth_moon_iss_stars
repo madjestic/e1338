@@ -38,7 +38,9 @@
             "solverAttrs": [
                 [ 0,0,0,0,0,-100 ]
             ]
-        },
+        }
+    ],
+    "background": [
         {
             "pname": "Stars",
             "modelIDXs": [ 3 ],

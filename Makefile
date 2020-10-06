@@ -6,12 +6,14 @@ run:
 
 prof:
 	cabal clean
+	mvlink cabal.project.local cabal.project.local.prof
 	mvlink e1338.cabal e1338.cabal.prof
 	mvlink run.sh run.sh.prof
 	cabal build
 
 current:
 	cabal clean
+	mvlink cabal.project.local cabal.project.local.current
 	mvlink e1338.cabal e1338.cabal.current
 	mvlink run.sh run.sh.current
 	cabal build

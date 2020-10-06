@@ -1,0 +1,6 @@
+{
+    "name": "stars",
+    "fragShader": "./mat/stars/src/shader.frag",
+    "vertShader": "./mat/stars/src/shader.vert",
+    "textures": []
+}

@@ -171,19 +171,22 @@ render lastInteraction Rendering.OpenGL opts window game =
 
     ticks   <- SDL.ticks
     let currentTime = fromInteger (unsafeCoerce ticks :: Integer) :: Float
+
         fntObjs = concat $ toListOf (objects . gui . fonts) game :: [Object]
         fgrObjs = concat $ toListOf (objects . foreground)  game :: [Object]
-        --bgrObjs = concat $ toListOf (objects . background)  game :: [Object]
+        bgrObjs = concat $ toListOf (objects . background)  game :: [Object]
         
         --fntsDrs = fromGame game (DT.trace ("fntObjs :" ++ show fntObjs) $ fntObjs) currentTime :: [Drawable]
         fntsDrs = fromGame game fntObjs currentTime :: [Drawable]
         objsDrs = fromGame game fgrObjs currentTime :: [Drawable]
+        bgrsDrs = fromGame game bgrObjs currentTime :: [Drawable]
 
         --texPaths = concat $ toListOf (foreground . traverse . materials . traverse . Material.textures) (view objects game) :: [FilePath]
         texPaths = concat $ toListOf ( traverse . materials . traverse . Material.textures) (fgrObjs ++ fntObjs) :: [FilePath]
         fps  = show (unsafeCoerce ticks :: Int)
 
     _ <- mapM_ (draw texPaths (opts { primitiveMode = Triangles }) window) objsDrs
+    _ <- mapM_ (draw texPaths (opts { primitiveMode = Points }) window) bgrsDrs
         
     currentTime <- SDL.time                          
     dt <- (currentTime -) <$> readMVar lastInteraction -- swapMVar lastInteraction currentTime --dtime
@@ -262,7 +265,7 @@ draw
     bindVertexArrayObject $= Just vao'
     drawElements (primitiveMode opts) numIndices' GL.UnsignedInt nullPtr
     
-    GL.pointSize $= 10
+    GL.pointSize $= 1
 
     cullFace  $= Just Back
     depthFunc $= Just Less

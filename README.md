@@ -44,7 +44,7 @@ $ ./resources/convertGeo.sh earth
 
 ## Creating a new Material:
 ```bash
-$ ./cabal run genMaterial mat/testMat01
+$ cabal run genMaterial mat/testMat01
 ```
 (that generates a ./mat/testMat01 material directory with a default conent (constant shader material)
 

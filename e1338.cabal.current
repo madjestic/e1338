@@ -118,7 +118,6 @@ executable e1338
               , Material
               , Solvable
               , Utils
---              , GUI
   default-language:
                 Haskell2010
 
@@ -237,5 +236,6 @@ executable rpcShuffler
               , PGeo
               , VGeo
               , Utils
+              
   default-language:
                 Haskell2010                   
