@@ -85,33 +85,35 @@ $(makeLenses ''Game)
 
 -- < Game Logic > ---------------------------------------------------------
 
-mainGame :: Game -> SF AppInput Game
-mainGame game0 =
+mainGame :: Game -> Game -> SF AppInput Game
+mainGame game0 game1 =
   loopPre game0 $ 
-  proc (input, game) -> do
-    gs <- case _gStg game of
-            GameIntro   -> gameIntro      -< (input, game0)
-            GamePlaying -> gamePlay game0 -< input
+  proc (input, gameState) -> do
+    gs <- case _gStg gameState of
+            GameIntro   -> gameIntro            -< (input, gameState)
+            GamePlaying -> gamePlay game1 game1 -< input
     returnA -< (gs, gs)
 
-loadDelay = 10.0  :: Double -- make it into Game options value                           
+loadDelay = 1.0  :: Double -- make it into Game options value                           
 
 gameIntro :: SF (AppInput, Game) Game
 gameIntro =
-  switch sf cont        
+  switch sf cont
      where sf =
-             proc (input, game) -> do
-               introState <- returnA -< game
-               playState  <- returnA -< game { _gStg =  GamePlaying }
+             proc (input, gameState) -> do
+               introState <- returnA -< gameState
+               playState  <- returnA -< gameState { _gStg =  GamePlaying }
                skipE      <- keyInput SDL.ScancodeSpace "Pressed" -< input
-               waitE      <- after loadDelay () -< ()
+               waitE      <- after 0.001 () -< ()
+               --waitE      <-  now () -< ()
                returnA    -< (introState, (skipE `lMerge` waitE) $> playState)
+               --returnA    -< (introState, (waitE) $> playState)
            cont game  = 
              proc input -> returnA -< game
 
-gamePlay :: Game -> SF AppInput Game
-gamePlay game =
-  switch sf (const (mainGame game)) --cont       
+gamePlay :: Game -> Game -> SF AppInput Game
+gamePlay intro game =
+  switch sf (const (mainGame intro game)) --cont       
      where sf =
              proc input -> do
                game'   <- updateGame game -< input
@@ -160,7 +162,8 @@ initGame initVAO project =
             resX'
             resY'
           )
-          GamePlaying
+          --GamePlaying
+          GameIntro
           --(DT.trace ("initGame.objs :" ++ show objs) $ objs)
           objs
           (Camera  initCamController { Controllable._transform = camPos })

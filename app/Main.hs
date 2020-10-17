@@ -82,7 +82,8 @@ main :: IO ()
 main = do
 
   args <- getArgs
-  proj <- Prj.parse (unsafeCoerce (args!!0) :: FilePath)
+  introProj <- Prj.parse (unsafeCoerce (args!!0) :: FilePath)
+  proj      <- Prj.parse (unsafeCoerce (args!!1) :: FilePath)
 
   let title = pack $ view Prj.name proj
       resX  = (unsafeCoerce $ view Prj.resx proj) :: CInt
@@ -96,7 +97,8 @@ main = do
   setMouseLocationMode RelativeLocation
 
   print "Initializing Game"
-  game <- initGame initVAO proj
+  intro <- initGame initVAO introProj
+  game  <- initGame initVAO proj
   
   print "Initializing Resources"
   let fntObjs = concat $ toListOf (Game.objects . gui . Obj.fonts) game :: [Object]
@@ -109,5 +111,5 @@ main = do
   print "Starting Game."
   animate
     window
-    (parseWinInput >>> (mainGame game &&& handleExit))
+    (parseWinInput >>> (mainGame intro (game {_gStg = GamePlaying}) &&& handleExit))
   return ()
