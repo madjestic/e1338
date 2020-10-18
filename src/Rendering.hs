@@ -325,6 +325,13 @@ initUniforms
 
     let proj =          
           fmap realToFrac . concat $ fmap DF.toList . DF.toList -- convert to GLfloat
+
+-- TODO: convert Houdini camera to OpenGL camera:          
+-- fovx = 2 * atn( (apx/2) / focal )
+-- tan(fovy/2) = (apy/2) / focal
+-- apx/apy = (resx * asp) / resy
+-- https://www.sidefx.com/docs/houdini/ref/cameralenses.html    
+
           --               FOV    Aspect      Near   Far
           $ LP.perspective (pi/2) (resX/resY) (0.01) 1.0 :: [GLfloat]
 

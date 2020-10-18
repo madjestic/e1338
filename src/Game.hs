@@ -94,7 +94,7 @@ mainGame game0 game1 =
             GamePlaying -> gamePlay game1 game1 -< input
     returnA -< (gs, gs)
 
-loadDelay = 1.0  :: Double -- make it into Game options value                           
+loadDelay = 10.001  :: Double -- make it into Game options value                           
 
 gameIntro :: SF (AppInput, Game) Game
 gameIntro =
@@ -104,7 +104,7 @@ gameIntro =
                introState <- returnA -< gameState
                playState  <- returnA -< gameState { _gStg =  GamePlaying }
                skipE      <- keyInput SDL.ScancodeSpace "Pressed" -< input
-               waitE      <- after 0.001 () -< ()
+               waitE      <- after loadDelay () -< ()
                --waitE      <-  now () -< ()
                returnA    -< (introState, (skipE `lMerge` waitE) $> playState)
                --returnA    -< (introState, (waitE) $> playState)

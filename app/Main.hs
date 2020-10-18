@@ -94,7 +94,7 @@ main = do
                (resX, resY)
 
   -- | SDL Mouse Options
-  setMouseLocationMode RelativeLocation
+  -- setMouseLocationMode RelativeLocation
 
   print "Initializing Game"
   intro <- initGame initVAO introProj
@@ -103,9 +103,10 @@ main = do
   print "Initializing Resources"
   let fntObjs = concat $ toListOf (Game.objects . gui . Obj.fonts) game :: [Object]
       fgrObjs = concat $ toListOf (Game.objects . foreground)  game :: [Object]
+      introFgrObjs = concat $ toListOf (Game.objects . foreground)  intro :: [Object]
       --bgrObjs = concat $ toListOf (Game.objects . background)  game :: [Object]
 
-  _ <- bindTexureUniforms $ fgrObjs ++ fntObjs
+  _ <- bindTexureUniforms $ introFgrObjs ++ fgrObjs ++ fntObjs
   --_ <- bindTexureUniforms $ view (Game.objects) game
   
   print "Starting Game."
