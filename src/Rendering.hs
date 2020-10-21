@@ -323,17 +323,16 @@ initUniforms
     location2         <- get (uniformLocation program "u_time'")
     uniform location2 $= (u_time' :: GLfloat)
 
-    let proj =          
+    let apt = 90.0 -- aperture
+        foc = 50.0 -- focal length
+        proj =          
           fmap realToFrac . concat $ fmap DF.toList . DF.toList -- convert to GLfloat
-
--- TODO: convert Houdini camera to OpenGL camera:          
--- fovx = 2 * atn( (apx/2) / focal )
--- tan(fovy/2) = (apy/2) / focal
--- apx/apy = (resx * asp) / resy
--- https://www.sidefx.com/docs/houdini/ref/cameralenses.html    
-
-          --               FOV    Aspect      Near   Far
-          $ LP.perspective (pi/2) (resX/resY) (0.01) 1.0 :: [GLfloat]
+          -- $ LP.perspective (pi/2) (resX/resY) (0.01) 1.0 :: [GLfloat]
+          $ LP.perspective
+              (2 * atan ( (apt/2) / foc )) -- | FOV
+              (resX/resY)                  -- | Aspect
+              (0.01)                       -- | Near
+              1.0 :: [GLfloat]             -- | Far
 
     persp             <- GL.newMatrix RowMajor proj :: IO (GLmatrix GLfloat)
     location3         <- get (uniformLocation program "persp")

@@ -2,5 +2,5 @@
     "name": "intro",
     "fragShader": "./mat/intro/src/shader.frag",
     "vertShader": "./mat/intro/src/shader.vert",
-    "textures": ["textures/intro_e1338.png"]
+    "textures": ["textures/intro_e1338.jpg"]
 }
