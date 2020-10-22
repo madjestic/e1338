@@ -3,14 +3,15 @@
     "resx": 800,
     "resy": 600,
     "models": [
-        { "path": "models/earth.bgeo" },
+	{ "path": "models/square.bgeo" },
+	{ "path": "models/earth.bgeo" },
 	{ "path": "models/moon.bgeo"  },
 	{ "path": "models/iss_L1.bgeo"},
 	{ "path": "models/stars_00.bgeo"}
     ],
     "objects": [
         {
-            "pname": "Earth",
+            "pname": "DummyIntroScreen",
             "modelIDXs": [ 0 ],
             "solvers": [
                 "spin"
@@ -20,8 +21,18 @@
             ]
         },
         {
+            "pname": "Earth",
+            "modelIDXs": [ 1 ],
+            "solvers": [
+                "spin"
+            ],
+            "solverAttrs": [
+                [ 0,0,0,0,0,100 ]
+            ]
+        },
+        {
             "pname": "ISS",
-            "modelIDXs": [ 2 ],
+            "modelIDXs": [ 3 ],
             "solvers": [
                 "spin"
             ],
@@ -31,7 +42,7 @@
         },
         {
             "pname": "Moon",
-            "modelIDXs": [ 1 ],
+            "modelIDXs": [ 2 ],
             "solvers": [
                 "spin"
             ],
@@ -43,7 +54,7 @@
     "background": [
         {
             "pname": "Stars",
-            "modelIDXs": [ 3 ],
+            "modelIDXs": [ 4 ],
             "solvers": [
                 "spin"
             ],

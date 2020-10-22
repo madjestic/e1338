@@ -91,7 +91,7 @@ mainGame game0 game1 =
   proc (input, gameState) -> do
     gs <- case _gStg gameState of
             GameIntro   -> gameIntro            -< (input, gameState)
-            GamePlaying -> gamePlay game1 game1 -< input
+            GamePlaying -> gamePlay game0 game1 -< input
     returnA -< (gs, gs)
 
 loadDelay = 10.001  :: Double -- make it into Game options value                           

@@ -186,7 +186,8 @@ render lastInteraction Rendering.OpenGL opts window game =
         fps  = show (unsafeCoerce ticks :: Int)
 
     _ <- mapM_ (draw texPaths (opts { primitiveMode = Triangles }) window) objsDrs
-    _ <- mapM_ (draw texPaths (opts { primitiveMode = Points }) window) bgrsDrs
+    _ <- mapM_ (draw texPaths (opts { primitiveMode = Points })    window) bgrsDrs
+
         
     currentTime <- SDL.time                          
     dt <- (currentTime -) <$> readMVar lastInteraction -- swapMVar lastInteraction currentTime --dtime
@@ -278,7 +279,7 @@ bindTexureUniforms objsDrs =
     print "Finished loading textures."
       where
         txs = concat $ concat $ fmap (toListOf (materials . traverse . Material.textures)) objsDrs
-        ids = take (length txs) [0..]
+        ids = take (length txs) $ [0..]
 
 bindTexture :: (GLuint, FilePath) -> IO ()
 bindTexture (txid, tx) =
@@ -317,6 +318,7 @@ initUniforms
     let resX          = fromIntegral $ fromEnum $ fst u_res' :: Float
         resY          = fromIntegral $ fromEnum $ snd u_res' :: Float
         u_res         = Vector2 resX resY :: Vector2 GLfloat
+
     location1         <- get (uniformLocation program "u_resolution")
     uniform location1 $= u_res
 
@@ -353,7 +355,7 @@ initUniforms
     -- | Allocate Textures
     -- _ <- DT.trace "suka" $ return ()
     let texNames = fmap getTexName texPaths
-    _ <- mapM (allocateTextures program) $ zip texNames [0..]
+    _ <- mapM (allocateTextures program) $ zip texNames $ [0..]
     
     -- | Unload buffers
     --bindVertexArrayObject         $= Nothing
