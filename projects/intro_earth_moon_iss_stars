@@ -1,7 +1,7 @@
 {
     "name": "Intro: Earth, Moon, ISS, Stars",
-    "resx": 800,
-    "resy": 600,
+    "resx": 1280,
+    "resy": 720,
     "models": [
         { "path": "models/square.bgeo" }
     ],
@@ -34,7 +34,7 @@
     "camera": [
         1,0,0, 0,
         0,1,0, 0,
-        0,0,1,-5.402,
+        0,0,1,-5.6,
         0,0,0, 1
     ]
 }
