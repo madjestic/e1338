@@ -6,9 +6,10 @@ layout(location = 2) in vec3 normal;
 layout(location = 3) in vec3 uvCoords;
 layout(location = 4) in vec3 vPosition;
 
-uniform mat4  persp;
 uniform mat4  camera;
+uniform mat4  persp;
 uniform mat4  transform;
+uniform mat4  testM44;
 
 // Output data ; will be interpolated for each fragment.
 out float A;
@@ -47,8 +48,37 @@ void main()
 	uv = uvCoords;
 	vec4 position = vec4(vPosition,1)*1.0f;
 
-	position    = transform * position;
-	gl_Position = persp * viewM44 * (position + (camera)[3]);
+	//position    = transform * position;
+	// gl_Position = persp * viewM44 * ((transform * position) + (camera)[3]);
+	// gl_Position = persp * viewM44 * transform * position + persp * viewM44 * camera[3];
+	// mat4 transform1 =
+	// 	mat4 ( transform[0]
+	// 		 , transform[1]
+	// 		 , transform[2]
+	// 		 , transform[3] + camera[3]);
+	// gl_Position = persp * mat4(camera[0], camera[1], camera[2], vec4(0,0,0,1)) * transform * vec4(vPosition,1)
+	// 	        + persp * mat4(camera[0], camera[1], camera[2], vec4(0,0,0,1)) * camera[3];
+	//gl_Position = persp * mat4(camera[0], camera[1], camera[2], vec4(0,0,0,1)) * transform1 * vec4(vPosition,1);
+	
+	// gl_Position = persp * mat4( camera[0]
+	// 						  , camera[1]
+	// 						  , camera[2]
+	// 						  , vec4(0,0,0,1))
+	// 	                * mat4 ( transform[0]
+	// 						   , transform[1]
+	// 						   , transform[2]
+	// 						   , transform[3] + camera[3])
+	// 	                * vec4(vPosition,1);
+
+	gl_Position = persp * mat4( camera[0]
+							  , camera[1]
+							  , camera[2]
+							  , vec4(0,0,0,1))
+		                * testM44
+		                * vec4(vPosition,1);
+	
+	//gl_Position = testM44 * vec4(vPosition,1);
+	//gl_Position = vec4(vPosition,1);
 
 	// To logarithmic Depth Buffer.
 	float Near = 0.5; //  Near Clippng  Plane

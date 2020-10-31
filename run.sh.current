@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Earth Test: testing solvers and new project format
-cabal build
+cabal build exe:e1338
 cabal run e1338 ./projects/intro_earth_moon_iss_stars ./projects/earth_moon_iss_stars
 
 # # Font
