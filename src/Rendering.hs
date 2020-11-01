@@ -49,7 +49,7 @@ import Linear.Projection as LP (perspective)
 
 import Unsafe.Coerce
 
-import Control.Lens       hiding (transform, indexed)
+import Control.Lens       hiding (xform, indexed)
 import Debug.Trace as DT
 
 #ifdef DEBUG
@@ -307,20 +307,20 @@ initUniforms
     --            [ ShaderInfo VertexShader   (FileSource ("./mat/constant/src/shader.vert"))
     --            , ShaderInfo FragmentShader (FileSource ("./mat/constant/src/shader.frag")) ]
     
-    let program = case debug of
-                    True  -> programDebug
-                    False -> u_prog'
+    let program =
+          case debug of
+            True  -> programDebug
+            False -> u_prog'
+            
     currentProgram $= Just program
 
     let u_mouse       = Vector2 (realToFrac $ fst u_mouse') (realToFrac $ snd u_mouse') :: Vector2 GLfloat
     location0         <- get (uniformLocation program "u_mouse'")
     uniform location0 $= u_mouse
 
-    let resX          = fromIntegral $ fromEnum $ fst u_res' :: Float
-        resY          = fromIntegral $ fromEnum $ snd u_res' :: Float
-        resX'         = fromIntegral $ fromEnum $ fst u_res' :: Double
-        resY'         = fromIntegral $ fromEnum $ snd u_res' :: Double
-        u_res         = Vector2 resX resY :: Vector2 GLfloat
+    let resX          = fromIntegral $ fromEnum $ fst u_res' :: Double
+        resY          = fromIntegral $ fromEnum $ snd u_res' :: Double
+        u_res         = Vector2 (realToFrac resX) (realToFrac resY) :: Vector2 GLfloat
 
     location1         <- get (uniformLocation program "u_resolution")
     uniform location1 $= u_res
@@ -328,83 +328,28 @@ initUniforms
     location2         <- get (uniformLocation program "u_time'")
     uniform location2 $= (u_time' :: GLfloat)
 
-    let apt = 90.0 -- aperture
-        foc = 50.0 -- focal length
+    let apt = 90.0 :: Double -- aperture
+        foc = 50.0 :: Double -- focal length
         proj =          
-          fmap realToFrac . concat $ fmap DF.toList . DF.toList -- convert to GLfloat
-          -- $ LP.perspective (pi/2) (resX/resY) (0.01) 1.0 :: [GLfloat]
-          $ LP.perspective
-              (2 * atan ( (apt/2) / foc )) -- | FOV
-              (resX/resY)                  -- | Aspect
-              (0.01)                       -- | Near
-              1.0 :: [GLfloat]             -- | Far
+          LP.perspective
+          (2.0 * atan ( (apt/2.0) / foc )) -- | FOV
+          (resX/resY)                      -- | Aspect
+          (0.01)                           -- | Near
+          1.0 :: M44 Double                -- | Far
                   
-    let apt' = 90.0 :: Double -- aperture
-        foc' = 65.0 :: Double -- focal length
-
-        proj' = transpose $
-          -- fromList $
-          -- fmap realToFrac . concat $ fmap DF.toList . DF.toList -- convert to GLfloat
-          -- $ LP.perspective (pi/2) (resX/resY) (0.01) 1.0 :: [GLfloat]
-                  LP.perspective
-                  ((2.0 * atan ( (apt'/2.0) / foc' ))) -- | FOV
-                  (resX'/resY')                        -- | Aspect
-                  (0.01)                               -- | Near
-                  100.0 :: M44 Double                    -- | Far
-
-    persp             <- GL.newMatrix RowMajor proj :: IO (GLmatrix GLfloat)
-    --persp             <- GL.newMatrix RowMajor (DT.trace ("persp :" ++ show proj) $ proj) :: IO (GLmatrix GLfloat)
-    location3         <- get (uniformLocation program "persp")
-    uniform location3 $= persp
-
-    let cam =
-          fmap realToFrac . concat $ fmap DF.toList . DF.toList $ u_cam'
-    camera            <- GL.newMatrix RowMajor cam :: IO (GLmatrix GLfloat)
-    --camera            <- GL.newMatrix RowMajor (DT.trace ("camera :" ++ show (transpose $ fromList cam)) $ cam) :: IO (GLmatrix GLfloat)
+    persp             <- GL.newMatrix RowMajor $ toList' proj   :: IO (GLmatrix GLfloat)
+    location3         <- get (uniformLocation program "persp")        
+    uniform location3 $= persp                                        
+                                                                      
+    camera            <- GL.newMatrix RowMajor $ toList' u_cam' :: IO (GLmatrix GLfloat)
     location4         <- get (uniformLocation program "camera")
     uniform location4 $= camera
 
-    let mtx =
-          fmap realToFrac . concat $ fmap DF.toList . DF.toList $ u_xform'
-    transform         <- GL.newMatrix RowMajor mtx :: IO (GLmatrix GLfloat)
-    --transform         <- GL.newMatrix RowMajor (DT.trace ("transform :" ++ show mtx) $ mtx) :: IO (GLmatrix GLfloat)
-    location5         <- get (uniformLocation program "transform")
-    uniform location5 $= transform --u_xform'
-
-    let cam' = u_cam' :: M44 Double
-          -- fromList $
-          -- fmap realToFrac . concat $ fmap DF.toList . DF.toList $ u_cam'   :: M44 Double
-        mtx' = u_xform' :: M44 Double
-          -- fromList $
-          -- fmap realToFrac . concat $ fmap DF.toList . DF.toList $ u_xform' :: M44 Double
-
-    -- print $ "cam' :" ++ show cam'
-    -- print $ "mtx' :" ++ show mtx'
-    let mtx1 = fromV3M44
-                 ( mtx' ^._xyz )
-                 ( (fromV3V4 (((transpose mtx') ^._w) ^._xyz + ((transpose cam') ^._w) ^._xyz) 1.0)
-                 + (V4 0.0 0.0 10.0 0.0) ) :: M44 Double -- (identity :: M44 Double)
-               -- !*! ( transpose $ fromV3M44 (mtx' ^._xyz) (mtx' ^._w + cam' ^._w))
-               -- !*! ( proj')
-               -- !*! fromV3M44 (cam' ^._xyz) (V4 0.0 0.0 0.0 1.0)
-               -- !*! fromV3M44 (mtx' ^._xyz) (mtx' ^._w + cam' ^._w)
-               -- !*! fromV3M44 (cam' ^._xyz) (V4 0.0 0.0 0.0 1.0)
-    --let mtx1 = V4 (V4 0.625 0.0 0.0 0.0) (V4 0.0 1.1111111640930176 0.0 0.0) (V4 0.0 0.0 (-1.0202020406723022) (-2.0202020183205605e-2)) (V4 0.0 0.0 (-1.0) 0.0)
-    --print $ "mtx1 :" ++ show mtx1
-
-    --transform'        <- GL.newMatrix RowMajor $ fmap realToFrac $ concat $ fmap toList $ toList mtx1 :: IO (GLmatrix GLfloat)
-    let mtx1'= [1.0,0.0,0.0,0.0
-               ,0.0,1.0,0.0,0.0
-               ,0.0,0.0,1.0,50.0
-               ,0.0,0.0,0.0,1.0] :: [GLfloat]
-    transform'        <- GL.newMatrix RowMajor $ toList' (transpose mtx1) :: IO (GLmatrix GLfloat) -- $ toList' mtx1 :: IO (GLmatrix GLfloat)
-    print $ "transform' :" ++ show (toList' mtx1)
-    location6         <- get (uniformLocation program "testM44")
-    --uniform location6 $= (DT.trace ("mtx1' :" ++ show mtx1) $ transform') --u_xform'
-    uniform location6 $= transform' --u_xform'
+    xform             <- GL.newMatrix RowMajor $ toList' xform' :: IO (GLmatrix GLfloat)
+    location5         <- get (uniformLocation program "xform")
+    uniform location5 $= xform
 
     -- | Allocate Textures
-    -- _ <- DT.trace "suka " $ return ()
     let texNames = fmap getTexName texPaths
     _ <- mapM (allocateTextures program) $ zip texNames $ [0..]
     
@@ -415,6 +360,11 @@ initUniforms
     return ()
       where
         toList' = fmap realToFrac.concat.(fmap toList.toList) :: V4 (V4 Double) -> [GLfloat]
+        xform' = -- | = Object Position - Camera Position
+          transpose $
+          fromV3M44
+          ( u_xform' ^._xyz )
+          ( (fromV3V4 (((transpose u_xform') ^._w) ^._xyz + ((transpose u_cam') ^._w) ^._xyz) 1.0) ) :: M44 Double
 
 fromList :: [a] -> M44 a
 fromList xs = V4
@@ -422,11 +372,6 @@ fromList xs = V4
               (V4 (xs!!4 ) (xs!!5 )(xs!!6 )(xs!!7))
               (V4 (xs!!8 ) (xs!!9 )(xs!!10)(xs!!11))
               (V4 (xs!!12) (xs!!13)(xs!!14)(xs!!15))
-
---toList :: M44 a -> [a]
-
--- toList :: M44 -> [a]
--- toList x = [ (x!!0), ]
 
 fromV3M44 :: V3 (V4 a) -> V4 a -> M44 a
 fromV3M44 v3 w = V4 (v3 ^. _x) (v3 ^. _y) (v3 ^. _z) w

@@ -8,8 +8,7 @@ layout(location = 4) in vec3 vPosition;
 
 uniform mat4  camera;
 uniform mat4  persp;
-uniform mat4  transform;
-uniform mat4  testM44;
+uniform mat4  xform;
 
 // Output data ; will be interpolated for each fragment.
 out float A;
@@ -20,66 +19,36 @@ out vec3  uv;
 
 void main()
 {
-	mat4 viewM44 =
-		mat4( camera[0]
-			, camera[1]
-			, camera[2]
-			, vec4(0,0,0,1));
-
-	mat3 viewM33 =
+	mat3 viewRot =
 		mat3( camera[0].xyz
 			, camera[1].xyz
 			, camera[2].xyz );
+	
+	mat4 cameraRot =
+		mat4 ( camera[0]
+			 , camera[1]
+			 , camera[2]
+			 , vec4(0,0,0,1));
 
-	mat3 perspM33 =
+	mat3 perspRot =
 		mat3 ( persp[0].xyz
 			 , persp[1].xyz
 			 , persp[2].xyz );
 
-	mat3 xformM33 =
-		mat3 ( transform[0].xyz
-			 , transform[1].xyz
-			 , transform[2].xyz );	
+	mat3 xformRot =
+		mat3 ( xform[0].xyz
+			 , xform[1].xyz
+			 , xform[2].xyz );	
 	
 	A  = alpha;
-	N  = normalize(perspM33 * viewM33 * ((xformM33)*normal));
-	Ng = normalize(normal);//normalize(perspM33 * viewM33 * ((xformM33)*normal));
+	N  = normalize(perspRot * viewRot * xformRot * normal);
+	Ng = normalize(normal);
 	Cd = color;
 	uv = uvCoords;
 	vec4 position = vec4(vPosition,1)*1.0f;
 
-	//position    = transform * position;
-	// gl_Position = persp * viewM44 * ((transform * position) + (camera)[3]);
-	// gl_Position = persp * viewM44 * transform * position + persp * viewM44 * camera[3];
-	// mat4 transform1 =
-	// 	mat4 ( transform[0]
-	// 		 , transform[1]
-	// 		 , transform[2]
-	// 		 , transform[3] + camera[3]);
-	// gl_Position = persp * mat4(camera[0], camera[1], camera[2], vec4(0,0,0,1)) * transform * vec4(vPosition,1)
-	// 	        + persp * mat4(camera[0], camera[1], camera[2], vec4(0,0,0,1)) * camera[3];
-	//gl_Position = persp * mat4(camera[0], camera[1], camera[2], vec4(0,0,0,1)) * transform1 * vec4(vPosition,1);
+	gl_Position =  persp * cameraRot * xform * position;
 	
-	// gl_Position = persp * mat4( camera[0]
-	// 						  , camera[1]
-	// 						  , camera[2]
-	// 						  , vec4(0,0,0,1))
-	// 	                * mat4 ( transform[0]
-	// 						   , transform[1]
-	// 						   , transform[2]
-	// 						   , transform[3] + camera[3])
-	// 	                * vec4(vPosition,1);
-
-	gl_Position = persp * mat4( camera[0]
-							  , camera[1]
-							  , camera[2]
-							  , vec4(0,0,0,1))
-		                * testM44
-		                * vec4(vPosition,1);
-	
-	//gl_Position = testM44 * vec4(vPosition,1);
-	//gl_Position = vec4(vPosition,1);
-
 	// To logarithmic Depth Buffer.
 	float Near = 0.5; //  Near Clippng  Plane
 	float Far  = 100000000.0; // Far  Clipping Plane
