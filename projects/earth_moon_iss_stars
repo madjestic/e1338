@@ -1,10 +1,26 @@
 {
     "name": "Earth, Moon, ISS, Stars",
-    "resx": 640,
-    "resy": 360,
+    "resx": 1280,
+    "resy": 720,
     "models": [
 	{ "path": "models/square.bgeo" },
-	{ "path": "models/earth.bgeo" }
+	{ "path": "models/earth.bgeo" },
+	{ "path": "models/moon.bgeo"  },
+	{ "path": "models/iss_L1.bgeo"},
+	{ "path": "models/stars_00.bgeo"},
+	{ "path": "models/d1m.bgeo"},
+	{ "path": "models/d10m.bgeo"},
+	{ "path": "models/d100m.bgeo"},
+	{ "path": "models/d1000m.bgeo"},
+	{ "path": "models/d10km.bgeo"},
+	{ "path": "models/d100km.bgeo"},
+	{ "path": "models/d1000km.bgeo"},
+	{ "path": "models/d10Kkm.bgeo"},
+	{ "path": "models/d100Kkm.bgeo"},
+	{ "path": "models/d1Mkm.bgeo"},
+	{ "path": "models/d10Mkm.bgeo"},
+	{ "path": "models/d100Mkm.bgeo"},
+	{ "path": "models/d1Bkm.bgeo"}
     ],
     "objects": [
         {
@@ -14,7 +30,7 @@
                 "spin"
             ],
             "solverAttrs": [
-                [ 0,0,0,0,0,100 ]
+                [ 0,0,0,0,0,0 ]
             ]
         },
         {
@@ -24,11 +40,51 @@
                 "spin"
             ],
             "solverAttrs": [
-                [ 0,0,0,0,0,100 ]
+                [ 0,0,0,0,0,0 ]
+            ]
+        },
+        {
+            "pname": "ISS",
+            "modelIDXs": [ 3 ],
+            "solvers": [
+                "spin"
+            ],
+            "solverAttrs": [
+                [ 0,0,0,0,0,0 ]
+            ]
+        },
+        {
+            "pname": "Moon",
+            "modelIDXs": [ 2 ],
+            "solvers": [
+                "spin"
+            ],
+            "solverAttrs": [
+                [ 0,0,0,0,0,-100 ]
+            ]
+        },
+        {
+            "pname": "Distances",
+            "modelIDXs": [ 5,6,7,8,9,10,11,12,13,14,15,16,17 ],
+            "solvers": [
+                "spin"
+            ],
+            "solverAttrs": [
+                [ 0,0,0,0,0,0 ]
             ]
         }
     ],
     "background": [
+        {
+            "pname": "Stars",
+            "modelIDXs": [ 4 ],
+            "solvers": [
+                "spin"
+            ],
+            "solverAttrs": [
+                [ 0,0,0,0,0,0 ]
+            ]
+        }	
     ],
     "fonts": [
         { "path": "models/fnt_0.bgeo" },

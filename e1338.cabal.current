@@ -96,6 +96,7 @@ executable e1338
               , bearriver  ^>= 0.13.1.2
               -- , Yampa      ^>= 0.13.1
               , simple-affine-space ^>= 0.1.1
+              , hmatrix    ^>= 0.20.0.0
 
   other-modules:
                 Paths_e1338

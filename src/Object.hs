@@ -215,10 +215,6 @@ initObject project initVAO vgeo =
           , _materials   = mats
           , _programs    = progs
           , _transforms  = preTransforms
-          -- , _pivot       = view _xyz offset
-          -- , _solvers     =
-          --   [(Rotate (view _xyz offset) (V3 0 0 1000))] -- TODO: a solver per ()transform) object
-          --, _solvers = [(Rotate (V3 0 0 0) (V3 0 0 1000))] -- fmap (\offset' -> (Rotate (view _xyz offset') (V3 0 0 1000))) offset
           , Object._solvers = fmap fromString $
                          zip (concat $ toListOf (objects . traverse . (Project.solvers)) project :: [String])
                              (concat $ toListOf (objects . traverse . solverAttrs) project :: [[Int]])
@@ -243,8 +239,8 @@ fromVGeo initVAO (VGeo idxs st vaos matPaths xform) =
           , _materials   = mats
           --, _transforms   = preTransform
           --, _pivot       = offset
-          , Object._solvers     =
-            [(Rotate (view _xyz offset) (V3 0 0 1000))]
+          -- , Object._solvers =
+          --   [(Rotate (view _xyz offset) (V3 0 0 1000))]
           }
 
     return object
