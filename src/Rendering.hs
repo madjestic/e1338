@@ -211,8 +211,8 @@ offsetChar (drw, offset) = drw'
     uns  = view uniforms drw
     rot0 = view _m33 (view (uniforms . u_xform) drw)
     tr0  = view translation (view (uniforms . u_xform) drw)
-    s    = 0.07 -- scale
-    offsetM44 = mkTransformationMat rot0 (tr0 ^+^ (V3 (-0.105 + fromIntegral offset*s) 0 0))
+    s    = 0.05 -- scale
+    offsetM44 = mkTransformationMat rot0 (tr0 ^+^ (V3 (-0.105 + fromIntegral offset*s) (-0.05) 0))
     drw' = set (uniforms . u_xform) offsetM44 drw
     
 -- | Alphabet of drawables -> String -> String of drawables
@@ -300,18 +300,10 @@ initUniforms
     -- _ <- DT.trace ("vertShader: " ++ show (_vertShader u_mat')) $ return ()
     -- _ <- DT.trace ("vertShader: " ++ show (_fragShader u_mat')) $ return ()
 
-    programDebug <- loadShaders
-               [ ShaderInfo VertexShader   (FileSource (_vertShader u_mat' ))
-               , ShaderInfo FragmentShader (FileSource (_fragShader u_mat' )) ]
-    -- programDebug <- loadShaders
-    --            [ ShaderInfo VertexShader   (FileSource ("./mat/constant/src/shader.vert"))
-    --            , ShaderInfo FragmentShader (FileSource ("./mat/constant/src/shader.frag")) ]
-    
-    let program =
-          case debug of
-            True  -> programDebug
-            False -> u_prog'
-            
+    let programDebug = loadShaders
+                       [ ShaderInfo VertexShader   (FileSource (_vertShader u_mat' ))
+                       , ShaderInfo FragmentShader (FileSource (_fragShader u_mat' )) ]
+    program <- if debug then programDebug else pure u_prog'
     currentProgram $= Just program
 
     let u_mouse       = Vector2 (realToFrac $ fst u_mouse') (realToFrac $ snd u_mouse') :: Vector2 GLfloat
@@ -348,6 +340,11 @@ initUniforms
     xform             <- GL.newMatrix RowMajor $ toList' xform' :: IO (GLmatrix GLfloat)
     location5         <- get (uniformLocation program "xform")
     uniform location5 $= xform
+
+    xform1            <- GL.newMatrix RowMajor $ toList' u_xform' :: IO (GLmatrix GLfloat)
+    location6         <- get (uniformLocation program "xform1")
+    uniform location6 $= xform1
+    
 
     -- | Allocate Textures
     let texNames = fmap getTexName texPaths
