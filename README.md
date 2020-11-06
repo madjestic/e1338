@@ -3,7 +3,7 @@ a re-write of e1337 with BearRiver (and, maybe, MVars)
 
 ![](https://github.com/madjestic/e1338/blob/master/output.png)
 
-[a youtube demo](https://youtu.be/p1IZ7_5tEbM)
+[a youtube demo](https://www.youtube.com/watch?v=W8S1ju8DYME)
 
 clone repo, `cabal build`, `./run.sh`
 
@@ -22,6 +22,7 @@ Esc - quit
 
 ## Recent Progress:
 
+* Logarithmic Space (rendering objects in real scale at 10 billion kilometers is ok).
 * Improved camera controls.
 * Project file generator.
 * Speed controls for keyboard movement.

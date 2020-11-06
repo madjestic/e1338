@@ -1,25 +1,9 @@
 #!/bin/sh
 
+# Space Measure Test
+# cabal build exe:e1338
+# cabal run e1338 ./projects/intro_earth_moon_iss_stars ./projects/space_measure_test
+
 # Earth Test: testing solvers and new project format
 cabal build exe:e1338
 cabal run e1338 ./projects/intro_earth_moon_iss_stars ./projects/earth_moon_iss_stars
-
-# # Font
-# cabal build
-# cabal run e1338 ./projects/font
-
-# Box
-# cabal build
-# cabal run e1338 ./projects/box
-
-# Test
-# cabal build
-# cabal run e1338 ./projects/box
-
-# Earth and ISS
-# planet Earth modelling and shading
-# mvlink ./e1337.cabal      /home/madjestic/Projects/Haskell/e1337/e1337.cabal.earth 
-# mvlink ./app/Main.hs      /home/madjestic/Projects/Haskell/e1337/app/Main.hs.test
-# mvlink ./src/Rendering.hs /home/madjestic/Projects/Haskell/e1337/src/Rendering.hs.earth 
-# cabal build
-# cabal run e1338 ./projects/earth_iss_v02
