@@ -6,9 +6,9 @@ layout(location = 2) in vec3 normal;
 layout(location = 3) in vec3 uvCoords;
 layout(location = 4) in vec3 vPosition;
 
-uniform mat4  camera;
-uniform mat4  persp;
-uniform mat4  xform;
+uniform mat4 camera;
+uniform mat4 persp;
+uniform mat4 xform;
 
 // Output data ; will be interpolated for each fragment.
 out float A;
