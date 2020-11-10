@@ -135,14 +135,15 @@ keyInput code mode =
       | code == SDL.ScancodeLCtrl
       = if | mode == "Pressed" -> inpKeyLCtrlPressed
            | otherwise         -> inpKeyLCtrlReleased
+      | code == SDL.ScancodeLAlt
+      = if | mode == "Pressed" -> inpKeyLAltPressed
+           | otherwise         -> inpKeyLAltReleased
       | code == SDL.ScancodeRShift
       = if | mode == "Pressed" -> inpKeyRShiftPressed
            | otherwise         -> inpKeyRShiftReleased           
       | code == SDL.ScancodeRCtrl
       = if | mode == "Pressed" -> inpKeyRCtrlPressed
            | otherwise         -> inpKeyRCtrlReleased
-
---mouseInput ::            
 
 data AppInput =
      AppInput
@@ -205,12 +206,12 @@ data AppInput =
      -- -- LShift
      , inpKeyLShiftPressed   :: Maybe SDL.Scancode
      , inpKeyLShiftReleased  :: Maybe SDL.Scancode
-     -- LShift
-     -- , inpKeyLShiftPressed   :: Maybe SDL.KeyModifier
-     -- , inpKeyLShiftReleased  :: Maybe SDL.KeyModifier
      -- LCtrl
      , inpKeyLCtrlPressed   :: Maybe SDL.Scancode
      , inpKeyLCtrlReleased  :: Maybe SDL.Scancode
+     -- LAlt
+     , inpKeyLAltPressed   :: Maybe SDL.Scancode
+     , inpKeyLAltReleased  :: Maybe SDL.Scancode
      -- RShift
      , inpKeyRShiftPressed   :: Maybe SDL.Scancode
      , inpKeyRShiftReleased  :: Maybe SDL.Scancode     
@@ -286,6 +287,9 @@ initAppInput =
      -- LCtrl
      , inpKeyLCtrlPressed   = Nothing
      , inpKeyLCtrlReleased  = Nothing
+     -- LAlt
+     , inpKeyLAltPressed   = Nothing
+     , inpKeyLAltReleased  = Nothing
      -- RShift
      , inpKeyRShiftPressed   = Nothing
      , inpKeyRShiftReleased  = Nothing     
@@ -426,6 +430,14 @@ nextAppInput inp (SDL.KeyboardEvent ev)
            | otherwise      
              -> inp { inpKeyLCtrlPressed  = Nothing
                     , inpKeyLCtrlReleased = Just $ SDL.keysymScancode $ SDL.keyboardEventKeysym ev }
+
+    | (scancode ev) == SDL.ScancodeLAlt
+      = if | SDL.keyboardEventKeyMotion ev == SDL.Pressed
+             -> inp { inpKeyLAltPressed  = Just $ SDL.keysymScancode $ SDL.keyboardEventKeysym ev
+                    , inpKeyLAltReleased = Nothing }
+           | otherwise      
+             -> inp { inpKeyLAltPressed  = Nothing
+                    , inpKeyLAltReleased = Just $ SDL.keysymScancode $ SDL.keyboardEventKeysym ev }
 
     | (scancode ev) == SDL.ScancodeRShift
       = if | SDL.keyboardEventKeyMotion ev == SDL.Pressed

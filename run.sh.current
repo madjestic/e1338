@@ -1,9 +1,14 @@
 #!/bin/sh
 
+# The Solar System
+cabal build exe:e1338
+cabal run e1338 ./projects/intro_earth_moon_iss_stars ./projects/solar_system
+
+
 # Space Measure Test
 # cabal build exe:e1338
 # cabal run e1338 ./projects/intro_earth_moon_iss_stars ./projects/space_measure_test
 
 # Earth Test: testing solvers and new project format
-cabal build exe:e1338
-cabal run e1338 ./projects/intro_earth_moon_iss_stars ./projects/earth_moon_iss_stars
+# cabal build exe:e1338
+# cabal run e1338 ./projects/intro_earth_moon_iss_stars ./projects/earth_moon_iss_stars

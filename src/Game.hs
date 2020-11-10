@@ -117,6 +117,7 @@ gamePlay intro game =
      where sf =
              proc input -> do
                game'   <- updateGame game -< input
+               --game'   <- updateGame (DT.trace ("gamePlay game :" ++ show game) $ game) -< input
                reset   <- keyInput SDL.ScancodeSpace "Pressed" -< input
                returnA -< (game', reset $> game)
            --cont = const mainGame game
@@ -127,7 +128,8 @@ updateGame game =
     -- gui  <- updateGUI     $ Game._gui       game -< ()
     cam  <- updateCamera  $ Game._camera    game -< input
     objs <- updateObjects $ _foreground (Game._objects game) -< ()
-              
+
+    --returnA  -< set (Game.objects . foreground) (DT.trace ("updateGame objs :" ++ show objs)$ objs)            
     returnA  -< set (Game.objects . foreground) objs
               $ set Game.camera cam
               $ game
@@ -148,6 +150,7 @@ initGame ::
 initGame initVAO project =
   do
     print "initializing game resources..."
+    print $ "project name :" ++ (view Prj.name project)
     objs  <- (loadObjects initVAO project)
     
     let camPos = fromList $ view Prj.camera project

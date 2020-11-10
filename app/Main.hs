@@ -100,13 +100,19 @@ main = do
   intro <- initGame initVAO introProj
   game  <- initGame initVAO proj
   
-  print "Initializing Resources"
+  print "Initializing Resources1"
   let fntObjs = concat $ toListOf (Game.objects . gui . Obj.fonts) game :: [Object]
       fgrObjs = concat $ toListOf (Game.objects . Obj.foreground)  game :: [Object]
       bgrObjs = concat $ toListOf (Game.objects . Obj.background)  game :: [Object]
 
+  -- print $ "Init fntObjs :" ++ show fntObjs
+  -- print $ "Init fgrObjs :" ++ show fgrObjs
+  -- print $ "Init bgrObjs :" ++ show bgrObjs  
+
   _ <- bindTexureUniforms $ fgrObjs ++ fntObjs ++ bgrObjs
   --_ <- bindTexureUniforms $ view (Game.objects) game
+
+  -- print $ "init Game :" ++ show game
   
   print "Starting Game."
   animate

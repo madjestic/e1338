@@ -1,0 +1,84 @@
+{
+    "name": "The Solar System",
+    "resx": 1280,
+    "resy": 720,
+    "models": [
+	{ "path": "models/square.bgeo" },
+	{ "path": "models/sun.bgeo" },
+	{ "path": "models/earth.bgeo" },
+	{ "path": "models/moon.bgeo"  },
+	{ "path": "models/stars_00.bgeo"}	
+    ],
+    "objects": [
+        {
+            "pname": "DummyIntroScreen",
+            "modelIDXs": [ 0 ],
+            "solvers": [
+                "spin"
+            ],
+            "solverAttrs": [
+                [ 0,0,0,0,0,0 ]
+            ]
+        },
+        {
+            "pname": "Sun",
+            "modelIDXs": [ 1 ],
+            "solvers": [
+                "spin"
+            ],
+            "solverAttrs": [
+                [ 0,0,0,0,0,0 ]
+            ]
+        },
+        {
+            "pname": "Earth",
+            "modelIDXs": [ 2 ],
+            "solvers": [
+                "spin"
+            ],
+            "solverAttrs": [
+                [ 0,0,0,0,0,0 ]
+            ]
+        },
+        {
+            "pname": "Moon",
+            "modelIDXs": [ 3 ],
+            "solvers": [
+                "spin"
+            ],
+            "solverAttrs": [
+                [ 0,0,0,0,0,0 ]
+            ]
+        }
+    ],
+    "background": [
+        {
+            "pname": "Stars",
+            "modelIDXs": [ 4 ],
+            "solvers": [
+                "spin"
+            ],
+            "solverAttrs": [
+                [ 0,0,0,0,0,0 ]
+            ]
+        }		
+    ],
+    "fonts": [
+        { "path": "models/fnt_0.bgeo" },
+        { "path": "models/fnt_1.bgeo" },
+        { "path": "models/fnt_2.bgeo" },
+        { "path": "models/fnt_3.bgeo" },
+        { "path": "models/fnt_4.bgeo" },
+        { "path": "models/fnt_5.bgeo" },
+        { "path": "models/fnt_6.bgeo" },
+        { "path": "models/fnt_7.bgeo" },
+        { "path": "models/fnt_8.bgeo" },
+        { "path": "models/fnt_9.bgeo" }
+    ],
+    "camera": [
+        1,0,0,0,
+        0,1,0,0,
+        0,0,1,-150006371400,
+        0,0,0,1
+    ]
+}

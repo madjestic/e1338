@@ -45,7 +45,7 @@ import Linear.Matrix
 import Utils                   ()
 
 import Data.Foldable     as DF (toList)
-import Linear.Projection as LP (perspective)
+import Linear.Projection as LP (perspective, infinitePerspective)
 
 import Unsafe.Coerce
 
@@ -186,6 +186,8 @@ render lastInteraction Rendering.OpenGL opts window game =
         texPaths = concat $ toListOf ( traverse . materials . traverse . Material.textures) (fgrObjs ++ fntObjs) :: [FilePath]
         fps  = show (unsafeCoerce ticks :: Int)
 
+    -- print $ "render fgrObjs :" ++ show fgrObjs
+
     _ <- mapM_ (draw texPaths (opts { primitiveMode = Triangles }) window) objsDrs
     _ <- mapM_ (draw texPaths (opts { primitiveMode = Points })    window) bgrsDrs
 
@@ -262,6 +264,7 @@ draw
     (Descriptor vao' numIndices')
     prog) =
   do
+    -- print $ "unis: " ++ show unis
     initUniforms texPaths unis
     
     bindVertexArrayObject $= Just vao'
@@ -321,22 +324,30 @@ initUniforms
     uniform location2 $= (u_time' :: GLfloat)
 
     let apt = 50.0 :: Double -- aperture
-        foc = 90.0 :: Double -- focal length
+        foc = 100.0 :: Double -- focal length
+        -- proj =          
+        --   LP.perspective
+        --   (2.0 * atan ( (apt/2.0) / foc )) -- | FOV
+        --   (resX/resY)                      -- | Aspect
+        --   (0.01)                           -- | Near
+        --   1.0 :: M44 Double                -- | Far
         proj =          
-          LP.perspective
+          LP.infinitePerspective
           (2.0 * atan ( (apt/2.0) / foc )) -- | FOV
           (resX/resY)                      -- | Aspect
           (0.01)                           -- | Near
-          1.0 :: M44 Double                -- | Far
                   
     persp             <- GL.newMatrix RowMajor $ toList' proj   :: IO (GLmatrix GLfloat)
     location3         <- get (uniformLocation program "persp")        
     uniform location3 $= persp                                        
-                                                                      
+
+    --print $ show u_cam'
     camera            <- GL.newMatrix RowMajor $ toList' u_cam' :: IO (GLmatrix GLfloat)
     location4         <- get (uniformLocation program "camera")
     uniform location4 $= camera
 
+    -- print $ show u_mat'
+    -- print $ "u_xform' :" ++  show u_xform'
     xform             <- GL.newMatrix RowMajor $ toList' xform' :: IO (GLmatrix GLfloat)
     location5         <- get (uniformLocation program "xform")
     uniform location5 $= xform

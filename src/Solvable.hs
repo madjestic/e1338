@@ -19,6 +19,8 @@ import FRP.Yampa
 
 import Utils (toV3)
 
+import Debug.Trace as DT
+
 data Solver =
      Translate
      {
@@ -56,15 +58,19 @@ transformer solver mtx0 =
       Rotate _ _ ->
         do
           mtx' <- spin pv0 ypr0 mtx0 -< ()
+          --mtx' <- spin pv0 ypr0 (DT.trace ("transformer mtx0 :" ++ show mtx0) $ mtx0) -< ()
           returnA -< mtx'
       Translate _ ->
         do
           mtx' <- undefined -< ()
           returnA -< mtx'
     returnA -< state
+    --returnA -< (DT.trace ("transformer state :" ++ show state)$ state)
       where
         Rotate pv0 ypr0 = solver
         Translate _txyz = solver
+
+-- TODO: write a "translate solver
 
 spin :: V3 Double -> V3 Double -> M44 Double -> SF () (M44 Double)
 spin pv0 ypr0 mtx0 =

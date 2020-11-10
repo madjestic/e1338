@@ -30,4 +30,5 @@ data Keys =
      , keyPageDown :: Bool
      , keyLShift :: Bool
      , keyLCtrl  :: Bool
+     , keyLAlt   :: Bool
      } deriving Show

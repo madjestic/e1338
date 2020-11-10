@@ -83,8 +83,8 @@ updateController ctl0 =
           keyVecs1 = keyVecs kbrd'
           ypr1  =
             (1500 * (V3 mry mrx 0.0) +) $
-            (50000 *) $ 
             foldr1 (+) $
+            fmap ((scalar) *) $ -- <- make it keyboard controllabe: speed up/down            
             zipWith (*^) ((\x -> if x then (1.0::Double) else 0) . ($ keys kbrd') <$>
                           [ keyUp,  keyDown, keyLeft, keyRight, keyQ,  keyE ])
                           [ pPitch, nPitch,  pYaw,    nYaw,     pRoll, nRoll ]
@@ -95,6 +95,19 @@ updateController ctl0 =
               nYaw   = (keyVecs1)!!9  -- negative  yaw
               pRoll  = (keyVecs1)!!10 -- positive  roll
               nRoll  = (keyVecs1)!!11 -- negative  roll
+
+              baseSpeed     = 5000
+              ctl    = keyLCtrl  $ (keys kbrd')
+              shift  = keyLShift $ (keys kbrd')
+              alt    = keyLAlt   $ (keys kbrd')
+              scalar = s ctl shift alt
+              s ctl shift alt
+                | ctl && shift = baseSpeed^2       -- superfast
+                | ctl && alt   = baseSpeed * 0.01  -- very slow
+                | shift        = baseSpeed * 10000 -- fast
+                | ctl          = baseSpeed * 0.1   -- slow
+                | otherwise    = baseSpeed         -- base speed
+              
         
         ypr'     <- ((V3 0 0 0) ^+^) ^<< integral -< ypr1
 
@@ -121,14 +134,16 @@ updateController ctl0 =
                   dVel   = (keyVecs1)!!5  -- down      velocity
                   
                   baseSpeed     = 5000000
-                  shift  = keyLShift $ (keys kbrd')
                   ctl    = keyLCtrl  $ (keys kbrd')
-                  scalar = s shift ctl
-                  s shift ctl
-                    | shift && ctl = baseSpeed*baseSpeed*0.5 -- superfast
-                    | shift     = baseSpeed * 10000  -- fast
-                    | ctl       = baseSpeed * 0.1   -- slow
-                    | otherwise = baseSpeed         -- base speed
+                  shift  = keyLShift $ (keys kbrd')
+                  alt    = keyLAlt   $ (keys kbrd')
+                  scalar = s ctl shift alt
+                  s ctl shift alt
+                    | ctl && shift && alt = baseSpeed^2 * 100 -- superduperfast
+                    | ctl && shift = baseSpeed^2 * 0.5        -- superfast
+                    | shift        = baseSpeed * 10000  -- fast
+                    | ctl          = baseSpeed * 0.1    -- slow
+                    | otherwise    = baseSpeed          -- base speed
     
         tr'  <- ((view translation (Controllable._transform ctl0)) ^+^) ^<< integral -< tr1
                
@@ -180,14 +195,15 @@ updateKeys ctl0 =
 
     (keyLShift_, keyLShiftE) <- keyEvent SDL.ScancodeLShift keyLShift ctl0 -< input
     (keyLCtrl_ , keyLCtrlE)  <- keyEvent SDL.ScancodeLCtrl  keyLCtrl  ctl0 -< input
+    (keyLAlt_ , keyLAltE)    <- keyEvent SDL.ScancodeLAlt   keyLAlt   ctl0 -< input
   
     (keyUp_,    keyUpE)    <- keyEvent SDL.ScancodeUp    keyUp    ctl0 -< input
     (keyDown_,  keyDownE)  <- keyEvent SDL.ScancodeDown  keyDown  ctl0 -< input
     (keyLeft_,  keyLeftE)  <- keyEvent SDL.ScancodeLeft  keyLeft  ctl0 -< input
     (keyRight_, keyRightE) <- keyEvent SDL.ScancodeRight keyRight ctl0 -< input
 
-    let events = [      keyWe, keySe, keyAe, keyDe, keyQe, keyEe, keyZe, keyCe, keyUpE, keyDownE, keyLeftE,   keyRightE,    keyPageUpE, keyPageDownE, keyLShiftE, keyLCtrlE ]
-        keys   = ( Keys keyW_  keyS_  keyA_  keyD_  keyQ_  keyE_  keyZ_  keyC_  keyUp_  keyDown_  keyLeft_    keyRight_     keyPageUp_  keyPageDown_  keyLShift_  keyLCtrl_ )
+    let events = [      keyWe, keySe, keyAe, keyDe, keyQe, keyEe, keyZe, keyCe, keyUpE, keyDownE, keyLeftE,   keyRightE,    keyPageUpE, keyPageDownE, keyLShiftE, keyLCtrlE, keyLAltE ]
+        keys   = ( Keys keyW_  keyS_  keyA_  keyD_  keyQ_  keyE_  keyZ_  keyC_  keyUp_  keyDown_  keyLeft_    keyRight_     keyPageUp_  keyPageDown_  keyLShift_  keyLCtrl_ keyLAlt_ )
 
     returnA -< (keys, events)
 
