@@ -7,7 +7,11 @@
 	{ "path": "models/sun.bgeo" },
 	{ "path": "models/earth.bgeo" },
 	{ "path": "models/moon.bgeo"  },
-	{ "path": "models/stars_00.bgeo"}	
+	{ "path": "models/stars_01.bgeo"},
+	{ "path": "models/mercury.bgeo" },
+	{ "path": "models/venus.bgeo" },
+	{ "path": "models/mars.bgeo" },
+	{ "path": "models/jupiter.bgeo" }
     ],
     "objects": [
         {
@@ -49,7 +53,47 @@
             "solverAttrs": [
                 [ 0,0,0,0,0,0 ]
             ]
-        }
+        },
+        {
+            "pname": "Mercury",
+            "modelIDXs": [ 5 ],
+            "solvers": [
+                "spin"
+            ],
+            "solverAttrs": [
+                [ 0,0,0,0,0,0 ]
+            ]
+        },
+        {
+            "pname": "Venus",
+            "modelIDXs": [ 6 ],
+            "solvers": [
+                "spin"
+            ],
+            "solverAttrs": [
+                [ 0,0,0,0,0,0 ]
+            ]
+        },
+        {
+            "pname": "Mars",
+            "modelIDXs": [ 7 ],
+            "solvers": [
+                "spin"
+            ],
+            "solverAttrs": [
+                [ 0,0,0,0,0,0 ]
+            ]
+        },
+        {
+            "pname": "Jupiter",
+            "modelIDXs": [ 8 ],
+            "solvers": [
+                "spin"
+            ],
+            "solverAttrs": [
+                [ 0,0,0,0,0,0 ]
+            ]
+        }	
     ],
     "background": [
         {

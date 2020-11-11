@@ -1,0 +1,6 @@
+{
+    "name": "sun",
+    "fragShader": "./mat/sun/src/shader.frag",
+    "vertShader": "./mat/sun/src/shader.vert",
+    "textures": []
+}

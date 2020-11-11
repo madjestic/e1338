@@ -175,7 +175,13 @@ def parseJSON(jsonFile):
     value = jsonEntry["material"]
     # print("initial value  :", value)
     value = concat(value)
+    
+    #
+    # Shuffle indices per material
+    #
+    # print("DEBUG value :{}".format(value))
     value = eval(rpcShuffler(value))
+    
     source_order = value
     # print("shuffled value :", value)
     # print("source_order :", source_order)

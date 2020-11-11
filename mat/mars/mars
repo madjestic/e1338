@@ -1,0 +1,6 @@
+{
+    "name": "mars",
+    "fragShader": "./mat/mars/src/shader.frag",
+    "vertShader": "./mat/mars/src/shader.vert",
+    "textures": ["textures/mars_1024_512.jpg"]    
+}

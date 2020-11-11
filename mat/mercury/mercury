@@ -1,0 +1,6 @@
+{
+    "name": "mercury",
+    "fragShader": "./mat/mercury/src/shader.frag",
+    "vertShader": "./mat/mercury/src/shader.vert",
+    "textures": ["textures/mercury_1024_512.jpg"]
+}

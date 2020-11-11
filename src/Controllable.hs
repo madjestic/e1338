@@ -86,7 +86,7 @@ updateController ctl0 =
             foldr1 (+) $
             fmap ((scalar) *) $ -- <- make it keyboard controllabe: speed up/down            
             zipWith (*^) ((\x -> if x then (1.0::Double) else 0) . ($ keys kbrd') <$>
-                          [ keyUp,  keyDown, keyLeft, keyRight, keyQ,  keyE ])
+                          [ keyUp,  keyDown, keyLeft, keyRight, keyPageUp,  keyPageDown ])
                           [ pPitch, nPitch,  pYaw,    nYaw,     pRoll, nRoll ]
             where
               pPitch = (keyVecs1)!!6  -- positive  pitch
@@ -102,9 +102,9 @@ updateController ctl0 =
               alt    = keyLAlt   $ (keys kbrd')
               scalar = s ctl shift alt
               s ctl shift alt
-                | ctl && shift = baseSpeed^2       -- superfast
+                | ctl && shift = baseSpeed * 2     -- superfast
                 | ctl && alt   = baseSpeed * 0.01  -- very slow
-                | shift        = baseSpeed * 10000 -- fast
+                | shift        = baseSpeed * 1.5   -- fast
                 | ctl          = baseSpeed * 0.1   -- slow
                 | otherwise    = baseSpeed         -- base speed
               
@@ -123,7 +123,7 @@ updateController ctl0 =
             fmap ((scalar) *) $ -- <- make it keyboard controllabe: speed up/down
             fmap (transpose (rot) !*) $
             zipWith (*^) ((\x -> if x then (1::Double) else 0) . ($ (keys kbrd')) <$>
-                          [keyW, keyS, keyA, keyD, keyZ, keyC])
+                          [keyW, keyS, keyA, keyD, keyQ, keyE])
                           [fVel, bVel, lVel, rVel, uVel, dVel]
        
             where fVel   = (keyVecs1)!!0  -- forwards  velocity
@@ -203,7 +203,7 @@ updateKeys ctl0 =
     (keyRight_, keyRightE) <- keyEvent SDL.ScancodeRight keyRight ctl0 -< input
 
     let events = [      keyWe, keySe, keyAe, keyDe, keyQe, keyEe, keyZe, keyCe, keyUpE, keyDownE, keyLeftE,   keyRightE,    keyPageUpE, keyPageDownE, keyLShiftE, keyLCtrlE, keyLAltE ]
-        keys   = ( Keys keyW_  keyS_  keyA_  keyD_  keyQ_  keyE_  keyZ_  keyC_  keyUp_  keyDown_  keyLeft_    keyRight_     keyPageUp_  keyPageDown_  keyLShift_  keyLCtrl_ keyLAlt_ )
+        keys   = ( Keys keyW_  keyS_  keyA_  keyD_  keyQ_  keyE_  keyZ_  keyC_  keyUp_  keyDown_  keyLeft_    keyRight_     keyPageUp_  keyPageDown_  keyLShift_  keyLCtrl_  keyLAlt_ )
 
     returnA -< (keys, events)
 

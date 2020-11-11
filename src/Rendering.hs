@@ -324,7 +324,7 @@ initUniforms
     uniform location2 $= (u_time' :: GLfloat)
 
     let apt = 50.0 :: Double -- aperture
-        foc = 100.0 :: Double -- focal length
+        foc = 200.0 :: Double -- focal length
         -- proj =          
         --   LP.perspective
         --   (2.0 * atan ( (apt/2.0) / foc )) -- | FOV

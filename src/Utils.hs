@@ -7,6 +7,7 @@
 module Utils
   ( toVAO
   , toIdxVAO
+  , toIdxVAO'
   , Utils.fromList
   , (<$.>)
   , (<*.>)
@@ -80,6 +81,14 @@ toIdxVAO stride vao = (idx, idxVAO)
     iList    = indexed vao                                                   :: [(Int, [GLfloat])]
     idx      = fmap (\(i,_) -> (fromIntegral i)) (matchLists iListSet iList) :: [Int]
     idxVAO   = concat $ fmap (\x -> snd x) iListSet                          :: [Float]
+
+toIdxVAO' :: Int -> [[Float]] -> ([Int],[Float])
+toIdxVAO' stride vao = (idx, idxVAO)
+  where
+    --iListSet = indexed $ DS.toList $ DS.fromList $ vao                       :: [(Int,[Float])]
+    iList    = indexed vao                             :: [(Int, [GLfloat])]
+    idx      = fmap (\(i,_) -> (fromIntegral i)) iList :: [Int]
+    idxVAO   = concat $ fmap (\x -> snd x) iList       :: [Float]
 
 -- | matchLists - cross-match 2 listst, replacing the elements of list2 with matching
 -- |          with elements of list1, concatenating the non-matched elements.

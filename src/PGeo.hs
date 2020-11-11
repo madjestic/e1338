@@ -21,6 +21,7 @@ module PGeo
   , readVGeo
   , readBGeo
   , fromPGeo
+  , fromPGeo'
   ) where
 
 import Control.Monad (mzero)
@@ -108,4 +109,12 @@ fromPGeo (PGeo idx' as' cs' ns' uvw' ps' ms' xf') = (VGeo idxs st vaos ms' xf')
     stride = 13 -- TODO: make it more elegant, right now VBO's are hard-coded to be have stride = 13...
     vao = (toVAO idx' as' cs' ns' uvw' ps')
     (idxs, vaos) = unzip $ fmap (toIdxVAO stride) vao -- that already outputs [[]], but vao, I think,is still a single element list?
+    st           = take (length vaos) $ repeat stride
+
+fromPGeo' :: PGeo -> VGeo
+fromPGeo' (PGeo idx' as' cs' ns' uvw' ps' ms' xf') = (VGeo idxs st vaos ms' xf')
+  where
+    stride = 13 -- TODO: make it more elegant, right now VBO's are hard-coded to be have stride = 13...
+    vao = (toVAO idx' as' cs' ns' uvw' ps')
+    (idxs, vaos) = unzip $ fmap (toIdxVAO' stride) vao -- that already outputs [[]], but vao, I think,is still a single element list?
     st           = take (length vaos) $ repeat stride

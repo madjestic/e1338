@@ -1,0 +1,6 @@
+{
+    "name": "jupiter",
+    "fragShader": "./mat/jupiter/src/shader.frag",
+    "vertShader": "./mat/jupiter/src/shader.vert",
+    "textures": ["textures/jupiter_1024_512.jpg"]
+}

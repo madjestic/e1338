@@ -1,0 +1,6 @@
+{
+    "name": "venus",
+    "fragShader": "./mat/venus/src/shader.frag",
+    "vertShader": "./mat/venus/src/shader.vert",
+    "textures": ["textures/venus_1024_512.jpg"]
+}
