@@ -152,8 +152,9 @@ initGame initVAO project =
     print "initializing game resources..."
     print $ "project name :" ++ (view Prj.name project)
     objs  <- (loadObjects initVAO project)
-    
-    let camPos = fromList $ view Prj.camera project
+
+    -- TODO : make game support a list of cameras
+    let camPos = fromList $ (view Prj.cameras project)!!0
         fdiv   = length $ view Prj.fonts project
     --pc <- fromVGeo $ fromPGeo pCloud  -- PCloud Point Cloud
     --let objs = [pc]
@@ -169,7 +170,9 @@ initGame initVAO project =
           GameIntro
           --(DT.trace ("initGame.objs :" ++ show objs) $ objs)
           objs
-          (Camera  initCamController { Controllable._transform = camPos })
+          --(Camera initCamController { Controllable._transform = camPos })
+          --(initCam { Controllable._transform = camPos })
+          (set controller (initCamController { Controllable._transform = camPos }) initCam)
     print "finished initializing game resources..."          
     return game
       where        

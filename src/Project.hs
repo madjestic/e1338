@@ -15,7 +15,7 @@ module Project
   , solvers
   , solverAttrs
   , fonts
-  , camera
+  , cameras
   , parse
   , writeProject
   , defaultProject
@@ -57,7 +57,7 @@ data Project
      --, _foreground :: [PreObject] 
      , _background :: [PreObject]
      , _fonts   :: [Model]
-     , _camera  :: [Float]
+     , _cameras :: [[Float]]
      } deriving Show
 
 $(makeLenses ''Project)
@@ -92,10 +92,10 @@ defaultProject =
   ,(Model   "models/fnt_8.bgeo")
   ,(Model   "models/fnt_9.bgeo")
   ]
-  [1, 0, 0, 0,
-   0, 1, 0, 0,
-   0, 0, 1,-1,
-   0, 0, 0, 1]
+  [[1, 0, 0, 0,
+    0, 1, 0, 0,
+    0, 0, 1,-1,
+    0, 0, 0, 1]]
 
 writeProject :: Project -> FilePath -> IO ()
 writeProject prj fileOut =
@@ -104,7 +104,7 @@ writeProject prj fileOut =
     config = defConfig { confCompare = comp }
 
 comp :: Text -> Text -> Ordering
-comp = keyOrder . (fmap pack) $ ["name", "resx", "resy", "models", "objects", "background", "pname", "modelIDXs", "solvers", "solverAttrs", "fonts", "camera" ]
+comp = keyOrder . (fmap pack) $ ["name", "resx", "resy", "models", "objects", "background", "pname", "modelIDXs", "solvers", "solverAttrs", "fonts", "cameras" ]
 
 parse :: FilePath -> IO Project
 parse filePath =
@@ -117,8 +117,8 @@ parse filePath =
         objects'  = (_objects  . fromEitherDecode) d
         background'  = (_background . fromEitherDecode) d
         fonts'    = (_fonts    . fromEitherDecode) d
-        camera'   = (_camera   . fromEitherDecode) d
-    return $ Project name' resx' resy' models' objects' background' fonts' camera'
+        cameras'  = (_cameras  . fromEitherDecode) d
+    return $ Project name' resx' resy' models' objects' background' fonts' cameras'
       where
         fromEitherDecode = fromMaybe emptyProject . fromEither
         fromEither d =

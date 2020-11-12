@@ -23,13 +23,19 @@ import Debug.Trace as DT
 data Camera =
      Camera
      {
-       _controller :: Controllable
+       _apt        :: Double
+     , _foc        :: Double 
+     , _controller :: Controllable
      } deriving Show
 
 $(makeLenses ''Camera)
 
 initCam :: Camera
-initCam = Camera initCamController
+initCam =
+  Camera
+  50.0
+  200.0
+  initCamController
 
 initCamController :: Controllable
 initCamController =
