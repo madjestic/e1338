@@ -10,7 +10,8 @@ module Game
   , Game.resx
   , Game.resy
   , Game.objects
-  , Game.camera
+  , playCam
+  , Game.cameras
   , mainGame
   , gameIntro
   , gamePlay
@@ -49,11 +50,12 @@ data Stage =
 data Game =
      Game
      {
-       _debug    :: (Double, Double)
-     , _options  :: Options
-     , _gStg     :: Stage
-     , _objects  :: ObjectTree
-     , _camera   :: Camera
+       _debug   :: (Double, Double)
+     , _options :: Options
+     , _gStg    :: Stage
+     , _objects :: ObjectTree
+     , _playCam :: Camera -- TODO:
+     , _cameras :: [Camera]
      } deriving Show
 
 data Options
@@ -109,12 +111,12 @@ updateGame :: Game -> SF AppInput Game
 updateGame game = 
   proc input -> do
     -- gui  <- updateGUI     $ Game._gui       game -< ()
-    cam  <- updateCamera  $ Game._camera    game -< input
+    cam  <- updateCamera  $ Game._playCam              game  -< input
     objs <- updateObjects $ _foreground (Game._objects game) -< ()
 
     --returnA  -< set (Game.objects . foreground) (DT.trace ("updateGame objs :" ++ show objs)$ objs)            
     returnA  -< set (Game.objects . foreground) objs
-              $ set Game.camera cam
+              $ set Game.playCam cam
               $ game
     
 handleExit :: SF AppInput Bool
@@ -156,12 +158,15 @@ initGame initVAO project =
           --(Camera initCamController { Controllable._transform = camPos })
           --(initCam { Controllable._transform = camPos })
           (set controller (initCamController { Controllable._transform = camPos }) initCam)
+          cams
     print "finished initializing game resources..."          
     return game
       where        
         name' = view Prj.name project
         resX' = (unsafeCoerce $ view Prj.resx project) :: CInt
         resY' = (unsafeCoerce $ view Prj.resy project) :: CInt
+        -- pcam  = undefined :: Camera
+        cams  = undefined :: [Camera]
 
 loadFonts :: IO [Object]
 loadFonts =

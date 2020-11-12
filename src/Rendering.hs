@@ -137,11 +137,11 @@ fromGame :: Game -> [Object] -> Float -> [Drawable]
 fromGame game objs time = drs -- (drs, drs')
   where
     -- objsDrs = (view objects game) -- :: [Object]
-    mpos = unsafeCoerce $ view (camera . controller . device' . mouse . pos) game -- :: (Double, Double)
+    mpos = unsafeCoerce $ view (playCam . controller . device' . mouse . pos) game -- :: (Double, Double)
     resX = fromEnum $ view (options . resx) game :: Int
     resY = fromEnum $ view (options . resy) game :: Int
     res  = ((toEnum resX), (toEnum resY)) :: (CInt, CInt)
-    cam  = view (camera . controller . Controllable.transform) game :: M44 Double
+    cam  = view (playCam . controller . Controllable.transform) game :: M44 Double
     drs  = concat $ fmap (fromObject mpos time res cam) objs :: [Drawable]
     --drs  = concat $ fmap (fromObject mpos time res cam) (DT.trace ("objs :" ++ show objs) $ objs) :: [Drawable]
               
