@@ -58,10 +58,6 @@ void main()
 	vec4 position = vec4(vPosition,1.0);	
 
 	gl_Position
-		= persp
-		//* cameraRot
-		* xform
+		= xform
 		* position;
-
-	gl_Position.z = -log10(length(gl_Position.xyz));
 } 

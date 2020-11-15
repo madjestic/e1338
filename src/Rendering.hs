@@ -136,7 +136,6 @@ closeWindow window =
 fromGame :: Game -> [Object] -> Float -> [Drawable]
 fromGame game objs time = drs -- (drs, drs')
   where
-    -- objsDrs = (view objects game) -- :: [Object]
     mpos = unsafeCoerce $ view (playCam . controller . device' . mouse . pos) game -- :: (Double, Double)
     resX = fromEnum $ view (options . resx) game :: Int
     resY = fromEnum $ view (options . resy) game :: Int
@@ -148,7 +147,7 @@ fromGame game objs time = drs -- (drs, drs')
 fromObject :: (Double, Double) -> Float -> (CInt, CInt) -> M44 Double -> Object -> [Drawable]
 fromObject mpos time res cam obj = drs
   where
-    drs      = --undefined :: [Drawable]
+    drs      = 
       (\u_mats' u_prog' u_mouse' u_time' u_res' u_cam' u_xform' ds' ps'
         -> (Drawable (Uniforms u_mats' u_prog' u_mouse' u_time' u_res' u_cam' u_xform') ds' ps'))
       <$.> mats <*.> progs <*.> mpos_ <*.> time_ <*.> res_ <*.> cam_ <*.> xforms <*.> ds <*.> progs
@@ -213,8 +212,14 @@ offsetChar (drw, offset) = drw'
     uns  = view uniforms drw
     rot0 = view _m33 (view (uniforms . u_xform) drw)
     tr0  = view translation (view (uniforms . u_xform) drw)
-    s    = 0.05 -- scale
-    offsetM44 = mkTransformationMat rot0 (tr0 ^+^ (V3 (-0.105 + fromIntegral offset*s) (-0.05) 0))
+    s1    = 0.035 -- scale Offset
+    s2    = 0.5   -- scale Size
+    h     = -0.05  -- horizontal offset
+    v     = 0.45  -- vertical   offset
+    offsetM44 =
+      mkTransformationMat
+      (rot0 * s2)
+      (tr0 ^+^ (V3 (h + fromIntegral offset*s1) v 0))
     drw' = set (uniforms . u_xform) offsetM44 drw
     
 -- | Alphabet of drawables -> String -> String of drawables
@@ -247,12 +252,6 @@ drawString :: (Drawable -> IO ()) -> [Drawable] -> String -> IO ()
 drawString cmds fntsDrs str =
   do
     mapM_ cmds $ format $ drawableString fntsDrs str
-
--- drawChar :: (Drawable -> IO ()) -> [Drawable] -> Char -> IO ()
--- drawChar cmds fntsDrs chr = 
-  -- do
-  --   cmds fntsDrs
-    
 
 draw :: [FilePath] -> BackendOptions -> SDL.Window -> Drawable -> IO ()
 draw
@@ -460,4 +459,3 @@ loadTex f =
     blendFunc $= (SrcAlpha, OneMinusSrcAlpha)
     generateMipmap' Texture2D
     return t
-

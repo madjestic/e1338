@@ -38,8 +38,8 @@ library
               , sdl2                ^>= 2.5.1.0
               , store               ^>= 0.7.4
               , text                ^>= 1.2.2.2
-              --, bearriver           ^>= 0.13.1.2
-              , Yampa               ^>= 0.13.1
+              , bearriver           ^>= 0.13.1.2
+              --, Yampa               ^>= 0.13.1
               , simple-affine-space ^>= 0.1.1
 
   exposed-modules:
@@ -93,8 +93,8 @@ executable e1338
               , split      ^>= 0.2.3.4
               , store      ^>= 0.7.4
               , text       ^>= 1.2.2.2
-              -- , bearriver  ^>= 0.13.1.2
-              , Yampa      ^>= 0.13.1
+              , bearriver  ^>= 0.13.1.2
+              -- , Yampa      ^>= 0.13.1
               , simple-affine-space ^>= 0.1.1
               , hmatrix    ^>= 0.20.0.0
 
