@@ -3,20 +3,26 @@
 
 module Camera
   ( Camera (..)
-  , initCam
+  , defaultCam
   , controller
-  , initCamController
+  , defaultCamController
   , updateCamera
+--  , updateCamera'  
+  , updateCameras
+  , switchCameras
+  , switchCameras'
   ) where
 
 import Control.Lens
 import Linear                    (V3(..), V4 (..))
 import FRP.Yampa -- (SF, returnA)
 import Data.Functor              (($>))
+import SDL.Input.Keyboard.Codes as SDL
 
 import Controllable
 import Keyboard
 import AppInput
+import Utils
 
 import Debug.Trace as DT
 
@@ -30,15 +36,15 @@ data Camera =
 
 $(makeLenses ''Camera)
 
-initCam :: Camera
-initCam =
+defaultCam :: Camera
+defaultCam =
   Camera
   50.0
   200.0
-  initCamController
+  defaultCamController
 
-initCamController :: Controllable
-initCamController =
+defaultCamController :: Controllable
+defaultCamController =
   ( Controller
     (0,0)
     -- (transpose (identity :: M44 Double))
@@ -72,6 +78,7 @@ initCamController =
 -- controller :: Lens' Camera Controllable
 -- controller = lens _controller (\camera newController -> Camera { _controller = newController })
 
+-- TODO: add camera switcher, based on a key-event, somewhere here.
 updateCamera :: Camera -> SF AppInput Camera
 updateCamera cam0 = 
   proc input ->
@@ -81,3 +88,67 @@ updateCamera cam0 =
         cam' = cam0 { Camera._controller = ctl' }
       --returnA -< (DT.trace ("cam' :" ++ show cam') $ cam')
       returnA -< cam'
+
+-- updateCamera' :: [Camera] -> Int -> SF (AppInput, Game) Camera
+-- updateCamera' cams idx = 
+--   proc input ->
+--     do
+--       ctl' <- updateController (view controller (cams!!idx)) -< input -- add a switch for mouse moving / stopped, switch between integral and static
+--       let
+--         cam0 = cams!!idx
+--         cam' = cam0 { Camera._controller = ctl' }
+--       --returnA -< (DT.trace ("cam' :" ++ show cam') $ cam')
+--       returnA -< cam'
+
+updateCameras :: ([Camera], Camera) -> SF AppInput ([Camera], Camera)
+updateCameras (cams0, cam0) = 
+  proc input ->
+    do
+      cams1 <- switchCameras cams0 -< ()
+      ctl' <- updateController (view controller cam0) -< input
+      let
+        cam0' = cam0 { Camera._controller = ctl' }
+      --returnA -< (DT.trace ("cam' :" ++ show cam') $ cam')
+      returnA -< (cams1, cam0)
+
+-- TODO: revolve a list as a result of an event
+switchCameras :: [Camera] -> SF () [Camera]
+switchCameras cams0 =
+  proc input ->
+    do
+      let result = rotateList 1 cams0
+      returnA -< result
+
+switchCameras' :: [Camera] -> SF AppInput [Camera]
+switchCameras' cams0 =
+  switch sf cont
+  where
+    sf =
+      proc input ->
+        do
+          kev <- keyInput SDL.ScancodeC "Pressed" -< input
+          let cams1 = rotateList 1 cams0 -- (DT.trace ("switchCameras' cams0 :" ++ show cams0 ++ "\n") $ cams0)
+
+          returnA -<
+            ( cams0
+            , kev $> cams1 )
+            -- ( (DT.trace ("switchCameras' cams0 :" ++ show cams0 ++ "\n") $ cams0)
+            -- , kev' $> (DT.trace ("switchCameras' cams1 :" ++ show cams1 ++ "\n") $ cams1) )
+
+    cont = switchCameras'
+
+-- updateCamera' :: Camera -> SF AppInput Camera
+-- updateCamera' cam0 = 
+--   switch sf cont
+--   where
+--     sf = --undefined
+--       proc input ->
+--         do
+--           ctl' <- updateController (view controller cam0) -< input -- add a switch for mouse moving / stopped, switch between integral and static
+--       --     (kbrd',  kevs) <- updateKeyboard (view controller cam0) -< input
+--           let
+--             cam' = cam0 { Camera._controller = ctl' }
+--       --     --returnA -< (DT.trace ("cam' :" ++ show cam') $ cam')
+--           returnA -< ( cam'
+--                      , kevs $> cam' )
+--     cont = upda

@@ -54,6 +54,7 @@ fromString (x, ys) =
 transformer :: Solver -> M44 Double -> SF () (M44 Double)
 transformer solver mtx0 =
   proc () -> do
+    --state <- case (DT.trace ("solver :" ++ show solver) $ solver) of
     state <- case solver of
       Rotate _ _ ->
         do

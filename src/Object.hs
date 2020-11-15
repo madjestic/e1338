@@ -236,10 +236,19 @@ fromVGeo initVAO (VGeo idxs st vaos matPaths xform) =
 solve :: Object -> SF () Object
 solve obj =
   proc () -> do
+    -- let
+    --   trs =
+    --     [V4
+    --       (V4 1.0 0.0 0.0 0.0)
+    --       (V4 0.0 1.0 0.0 0.0)
+    --       (V4 0.0 0.0 1.0 1.49999992832e11)
+    --       (V4 0.0 0.0 0.0 1.0)]
+    
     --mtxs <- (parB . fmap (transform obj)) (DT.trace ("solve slvs0 :" ++ show slvs0)$ slvs0) -< ()
     mtxs <- (parB . fmap (transform obj)) slvs0 -< ()
     --returnA -< (DT.trace ("solve mtxs :" ++ show (vectorizedCompose mtxs)) $ obj { _transforms = vectorizedCompose mtxs })    
     returnA -< obj { _transforms = vectorizedCompose mtxs }
+    --returnA -< obj { _transforms = trs }
       where
         slvs0 = view Object.solvers obj
         mtxs0 = view transforms     obj
@@ -248,6 +257,16 @@ transform :: Object -> Solver -> SF () ([M44 Double])
 transform obj0 slv0 = 
   proc () ->
     do
+      -- let
+      --   trs =
+      --     V4
+      --       (V4 1.0 0.0 0.0 0.0)
+      --       (V4 0.0 1.0 0.0 0.0)
+      --       (V4 0.0 0.0 1.0 1.49999992832e11)
+      --       (V4 0.0 0.0 0.0 1.0)
+      --   id = identity :: M44 Double
+      --   mtxs' = [trs, id]  
+        
       mtxs <- (parB . fmap (transformer slv0)) mtxs0 -< ()
       -- returnA -< (DT.trace ("transform mtxs :" ++ show mtxs)$ mtxs)      
       returnA -< mtxs
@@ -257,7 +276,12 @@ transform obj0 slv0 =
 
 -- TODO: here's a glitch
 vectorizedCompose :: [[M44 Double]] -> [M44 Double]
-vectorizedCompose mtxss = 
+vectorizedCompose mtxss =
+  -- [V4
+  --   (V4 1.0 0.0 0.0 0.0)
+  --   (V4 0.0 1.0 0.0 0.0)
+  --   (V4 0.0 0.0 1.0 1.49999992832e11)
+  --   (V4 0.0 0.0 0.0 1.0)]
   fmap (foldr1 (^*^)) $ DL.transpose mtxss
   --fmap (foldr (^*^) (identity :: M44 Double)) $ DL.transpose (DT.trace ("vectorizedCompose mtxss :" ++ show mtxss) $ mtxss)
 
@@ -267,6 +291,16 @@ vectorizedCompose mtxss =
     rot = (view _m33 mtx0) !*! (view _m33 mtx1) :: M33 Double
     tr  = (view translation mtx0) ^+^ (view translation mtx1)
 
+-- (^*^) :: M44 Double -> M44 Double -> M44 Double
+-- (^*^) mtx0 mtx1 =
+--   V4
+--     (V4 1.0 0.0 0.0 0.0)
+--     (V4 0.0 1.0 0.0 0.0)
+--     (V4 0.0 0.0 1.0 1.49999992832e11)
+--     (V4 0.0 0.0 0.0 1.0)
+  
+    
+
 -- foreach object:
 --            \
 --        foreach solver:
@@ -275,4 +309,40 @@ vectorizedCompose mtxss =
 
 -- TODO: [Object] -> [Solver] -> SF () [Object]
 updateObjects :: [Object] -> SF () [Object]
-updateObjects = parB . fmap solve
+updateObjects =  parB . fmap solve
+-- updateObjects objs =
+--   proc () -> 
+--     do
+--       let
+--         trs =
+--           [V4
+--             (V4 1.0 0.0 0.0 0.0)
+--             (V4 0.0 1.0 0.0 0.0)
+--             (V4 0.0 0.0 1.0 1.49999992832e11)
+--             (V4 0.0 0.0 0.0 1.0)]
+--         objs' = fmap (\obj -> obj { _transforms = trs }) objs
+--       returnA -< objs'
+      
+        -- result = [Object
+        --           { _descriptors =
+        --             [Descriptor (VertexArrayObject {vertexArrayID = 14}) 3450]
+        --           , _materials =
+        --             [Material { Material._name = "Earth"
+        --                       , _vertShader = "./mat/earth/Earth/shader.vert"
+        --                       , _fragShader = "./mat/earth/Earth/shader.frag"
+        --                       , _textures = ["textures/earth_daymap_4096.jpg"]}]
+        --           , _programs = [Program {programID = 40}]
+        --           , _transforms =
+        --             [V4
+        --              (V4 1.0 0.0 0.0 0.0)
+        --              (V4 0.0 1.0 0.0 0.0)
+        --              (V4 0.0 0.0 1.0 1.49999992832e11)
+        --              (V4 0.0 0.0 0.0 1.0)]
+        --           , _velocity = V3 0.0 0.0 0.0
+        --           , _avelocity = V3 0.0 0.0 0.0
+        --           , _mass = 1.0
+        --           , _density = 1.0
+        --           , _time = 0.0
+        --           , Object._solvers =
+        --             [Rotate { _pivot = V3 0.0 0.0 0.0
+        --                     , _ypr = V3 0.0 0.0 0.0}]}]

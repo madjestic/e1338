@@ -1,7 +1,7 @@
 {
     "name": "The Solar System",
-    "resx": 1280,
-    "resy": 720,
+    "resx": 640,
+    "resy": 360,
     "models": [
 	{ "path": "models/square.bgeo" },
 	{ "path": "models/sun.bgeo" },

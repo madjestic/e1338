@@ -94,7 +94,7 @@ main = do
                (resX, resY)
 
   -- | SDL Mouse Options
-  setMouseLocationMode RelativeLocation
+  -- setMouseLocationMode RelativeLocation
 
   print "Initializing Game"
   intro <- initGame initVAO introProj

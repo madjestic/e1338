@@ -12,6 +12,7 @@ module Utils
   , (<$.>)
   , (<*.>)
   , toV3
+  , rotateList
   ) where
 
 import Graphics.Rendering.OpenGL as GL (GLfloat)
@@ -128,3 +129,7 @@ fromList xs' = V4 x y z w
 
 toV3 :: [a] -> V3 a
 toV3 xs = V3 (xs!!0) (xs!!1) (xs!!2)
+
+rotateList :: Int -> [a] -> [a]
+rotateList _ [] = []
+rotateList n xs = zipWith const (drop n (cycle xs)) xs

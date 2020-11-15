@@ -16,6 +16,7 @@ module Controllable
   , mouse
   , keyboard
   , updateController
+  , updateKeyboard
   ) where
 
 import Linear.Matrix
@@ -166,7 +167,7 @@ updateController ctl0 =
           , catEvents (mevs ++ kevs) $> result ) 
           where
             mtx0 = view Controllable.transform ctl0
-    cont c = updateController c
+    cont = updateController
 
 updateKeyboard :: Controllable -> SF AppInput (Keyboard, [Event ()])
 updateKeyboard ctl0 =
