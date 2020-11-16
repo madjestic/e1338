@@ -5,13 +5,11 @@ module Game
   ( Game    (..)
   , Stage   (..) 
   , Options (..)
-  , debug'
   , options
   , Game.name
   , Game.resx
   , Game.resy
   , Game.objects
-  , pCamIDX
   , playCam
   , Game.cameras
   , mainGame
@@ -53,11 +51,9 @@ data Game =
      Game
      {
        _debug   :: (Double, Double)
-     , _debug'  :: Int
      , _options :: Options
      , _gStg    :: Stage
      , _objects :: ObjectTree
-     , _pCamIDX :: Int -- TODO: turn it into and index and look up a camera from the list, is integration in a SF (otherwise it does not work)
      , _playCam :: Camera
      , _cameras :: [Camera]
      } deriving Show
@@ -151,7 +147,6 @@ initGame initVAO project =
     let game =
           Game
           (-42,-17)
-          0
           ( Options
             name'
             resX'
@@ -161,7 +156,6 @@ initGame initVAO project =
           GameIntro
           --(DT.trace ("initGame.objs :" ++ show objs) $ objs)
           objs
-          0
           (set controller (defaultCamController { Controllable._transform = playCamP }) defaultCam)                     -- | :: Camera   - player Camera
           (fmap (\camP -> (set controller (defaultCamController { Controllable._transform = camP }) defaultCam)) camPs) -- | :: [Camera] - list of Cameras
     print "finished initializing game resources..."          
