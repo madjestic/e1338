@@ -114,10 +114,11 @@ updateGame game =
       result =
         game { Game._objects = (objTree {_foreground = objs})
              , Game._cameras = cams
-             , _playCam      = cam
+             , _playCam      = cam             
              }
 
     returnA  -< result
+    -- returnA  -< (DT.trace (show (view (playCam . controller . Controllable.transform ) result)) $ result)
     
 handleExit :: SF AppInput Bool
 handleExit = quitEvent >>^ isEvent
