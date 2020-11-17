@@ -8,6 +8,7 @@ module Camera
   , defaultCamController
   , updateCamera
   , updateCameras
+  , fromProjectCamera
   ) where
 
 import Control.Lens
@@ -20,6 +21,7 @@ import Controllable
 import Keyboard
 import AppInput
 import Utils
+import Project
 
 import Debug.Trace as DT
 
@@ -37,7 +39,7 @@ defaultCam :: Camera
 defaultCam =
   Camera
   50.0
-  200.0
+  100.0
   defaultCamController
 
 defaultCamController :: Controllable
@@ -109,3 +111,14 @@ switchCameras cams0 =
     do
       let result = rotateList 1 cams0
       returnA -< result
+
+fromProjectCamera :: ProjectCamera -> Camera
+fromProjectCamera pcam =
+  defaultCam
+  {
+    _apt = ( _pApt pcam)
+  , _foc = ( _pFoc pcam)
+  , _controller =
+      defaultCamController
+      { _transform = fromList ( _pTransform pcam) }
+  }

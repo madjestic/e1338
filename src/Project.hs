@@ -2,6 +2,10 @@
 
 module Project 
   ( Project  (..)
+  , ProjectCamera (..)
+  , pTransform
+  , pApt
+  , pFoc
   , Model    (..)
   , name
   , resx
@@ -45,6 +49,16 @@ data PreObject
 $(makeLenses ''PreObject)
 deriveJSON defaultOptions {fieldLabelModifier = drop 1} ''PreObject
 
+data ProjectCamera
+  =  ProjectCamera
+     {
+       _pApt       :: Double
+     , _pFoc       :: Double
+     , _pTransform :: [Float]
+     } deriving Show
+$(makeLenses ''ProjectCamera)
+deriveJSON defaultOptions {fieldLabelModifier = drop 1} ''ProjectCamera
+
 data Project
   =  Project
      {
@@ -57,9 +71,8 @@ data Project
      --, _foreground :: [PreObject] 
      , _background :: [PreObject]
      , _fonts   :: [Model]
-     , _cameras :: [[Float]]
+     , _cameras :: [ProjectCamera]
      } deriving Show
-
 $(makeLenses ''Project)
 deriveJSON defaultOptions {fieldLabelModifier = drop 1} ''Project
 
@@ -92,10 +105,13 @@ defaultProject =
   ,(Model   "models/fnt_8.bgeo")
   ,(Model   "models/fnt_9.bgeo")
   ]
-  [[1, 0, 0, 0,
-    0, 1, 0, 0,
-    0, 0, 1,-1,
-    0, 0, 0, 1]]
+  [(ProjectCamera
+    50.0
+    100.0
+    [1, 0, 0, 0,
+     0, 1, 0, 0,
+     0, 0, 1,-1,
+     0, 0, 0, 1])]
 
 writeProject :: Project -> FilePath -> IO ()
 writeProject prj fileOut =
@@ -104,7 +120,7 @@ writeProject prj fileOut =
     config = defConfig { confCompare = comp }
 
 comp :: Text -> Text -> Ordering
-comp = keyOrder . (fmap pack) $ ["name", "resx", "resy", "models", "objects", "background", "pname", "modelIDXs", "solvers", "solverAttrs", "fonts", "cameras" ]
+comp = keyOrder . (fmap pack) $ ["name", "resx", "resy", "models", "objects", "background", "pname", "modelIDXs", "solvers", "solverAttrs", "fonts", "cameras", "pApt", "pFoc", "pTransform"]
 
 parse :: FilePath -> IO Project
 parse filePath =

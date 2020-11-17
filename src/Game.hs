@@ -140,9 +140,11 @@ initGame initVAO project =
     print $ "project name :" ++ (view Prj.name project)
     objs  <- (loadObjects initVAO project)
 
-    let 
-        camPs    = fmap fromList $ view Prj.cameras project
-        playCamP = camPs!!0 --fromList $ camPs!!0
+    let
+      cams = fmap fromProjectCamera $ view Prj.cameras project
+      pCam = cams!!0
+      camerasP = fmap fromList $ toListOf (Prj.cameras . traverse . pTransform) project
+      playCamP = camerasP!!0 --fromList $ camerasP!!0
     --pc <- fromVGeo $ fromPGeo pCloud  -- PCloud Point Cloud
     --let objs = [pc]
     let game =
@@ -157,8 +159,9 @@ initGame initVAO project =
           GameIntro
           --(DT.trace ("initGame.objs :" ++ show objs) $ objs)
           objs
-          (set controller (defaultCamController { Controllable._transform = playCamP }) defaultCam)                     -- | :: Camera   - player Camera
-          (fmap (\camP -> (set controller (defaultCamController { Controllable._transform = camP }) defaultCam)) camPs) -- | :: [Camera] - list of Cameras
+          pCam
+          cams
+
     print "finished initializing game resources..."          
     return game
       where        
@@ -166,7 +169,7 @@ initGame initVAO project =
         resX' = (unsafeCoerce $ view Prj.resx project) :: CInt
         resY' = (unsafeCoerce $ view Prj.resy project) :: CInt
         -- pcam  = undefined :: Camera
-        -- camPs  = undefined :: [Camera]
+        -- camerasP  = undefined :: [Camera]
 
 loadFonts :: IO [Object]
 loadFonts =

@@ -84,7 +84,9 @@ data Uniforms
      , _u_time  :: Float
      , _u_res   :: (CInt, CInt)
      --, u_proj  :: M44 Double --GLmatrix GLfloat
-     , _u_cam   :: M44 Double 
+     , _u_cam   :: M44 Double
+     , _u_cam_a :: Double
+     , _u_cam_f :: Double
      , _u_xform :: M44 Double 
      } deriving Show
 
@@ -140,23 +142,26 @@ fromGame game objs time = drs -- (drs, drs')
     resX = fromEnum $ view (options . resx) game :: Int
     resY = fromEnum $ view (options . resy) game :: Int
     res  = ((toEnum resX), (toEnum resY)) :: (CInt, CInt)
-    cam  = view (playCam . controller . Controllable.transform) game :: M44 Double
+    --cam  = view (playCam . controller . Controllable.transform) game :: M44 Double
+    cam  = view playCam game :: Camera
     drs  = concat $ fmap (fromObject mpos time res cam) objs :: [Drawable]
     --drs  = concat $ fmap (fromObject mpos time res cam) (DT.trace ("objs :" ++ show objs) $ objs) :: [Drawable]
               
-fromObject :: (Double, Double) -> Float -> (CInt, CInt) -> M44 Double -> Object -> [Drawable]
+fromObject :: (Double, Double) -> Float -> (CInt, CInt) -> Camera -> Object -> [Drawable]
 fromObject mpos time res cam obj = drs
   where
     drs      = 
-      (\u_mats' u_prog' u_mouse' u_time' u_res' u_cam' u_xform' ds' ps'
-        -> (Drawable (Uniforms u_mats' u_prog' u_mouse' u_time' u_res' u_cam' u_xform') ds' ps'))
-      <$.> mats <*.> progs <*.> mpos_ <*.> time_ <*.> res_ <*.> cam_ <*.> xforms <*.> ds <*.> progs
+      (\u_mats' u_prog' u_mouse' u_time' u_res' u_cam' u_cam_a' u_cam_f' u_xform' ds' ps'
+        -> (Drawable (Uniforms u_mats' u_prog' u_mouse' u_time' u_res' u_cam' u_cam_a' u_cam_f' u_xform') ds' ps'))
+      <$.> mats <*.> progs <*.> mpos_ <*.> time_ <*.> res_ <*.> cam_ <*.> cam_a_ <*.> cam_f_ <*.> xforms <*.> ds <*.> progs
 
     n      = length $ view descriptors obj:: Int
     mpos_  = replicate n $ mpos :: [(Double, Double)]
     time_  = replicate n $ time :: [Float]
     res_   = replicate n $ res  :: [(CInt, CInt)]
-    cam_   = replicate n $ cam  :: [M44 Double]
+    cam_   = replicate n $ (view (controller . Controllable.transform) cam)  :: [M44 Double]
+    cam_a_ = replicate n $ (_apt cam) :: [Double]
+    cam_f_ = replicate n $ (_foc cam) :: [Double]
 
     mats   = view Object.materials   obj :: [Material]
     progs  = view Object.programs    obj :: [Program]
@@ -295,7 +300,7 @@ bindTexture (txid, tx) =
 initUniforms :: [FilePath] -> Uniforms -> IO ()
 initUniforms
   texPaths
-  (Uniforms u_mat' u_prog' u_mouse' u_time' u_res' u_cam' u_xform') =
+  (Uniforms u_mat' u_prog' u_mouse' u_time' u_res' u_cam' u_cam_a' u_cam_f' u_xform') =
   
   do
     -- | Shaders
@@ -322,14 +327,8 @@ initUniforms
     location2         <- get (uniformLocation program "u_time'")
     uniform location2 $= (u_time' :: GLfloat)
 
-    let apt = 50.0 :: Double -- aperture
-        foc = 200.0 :: Double -- focal length
-        -- proj =          
-        --   LP.perspective
-        --   (2.0 * atan ( (apt/2.0) / foc )) -- | FOV
-        --   (resX/resY)                      -- | Aspect
-        --   (0.01)                           -- | Near
-        --   1.0 :: M44 Double                -- | Far
+    let apt = u_cam_a' -- aperture
+        foc = u_cam_f' -- focal length
         proj =          
           LP.infinitePerspective
           (2.0 * atan ( (apt/2.0) / foc )) -- | FOV
