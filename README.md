@@ -3,17 +3,18 @@ a re-write of e1337 with BearRiver (and, maybe, MVars)
 
 ![](https://github.com/madjestic/e1338/blob/master/output.png)
 
-[a youtube demo](https://www.youtube.com/watch?v=W8S1ju8DYME)
+[a youtube demo](https://youtu.be/7d5-QfOqkbY)
 
 clone repo, `cabal build`, `./run.sh`
 
 ```
-w,a,s,d,z,c - 6-axis movement
-qe - roll
+w,a,s,d,q,e - 6-axis movement
+PgUp/PgDown - roll left/right
 arrow keys, mouse controls - yaw, pitch
 LCtrl          - slow
 LShift         - fast
 LCtrl + LShift - very fast
+C              - switch camera
 
 Space - reset
 
@@ -22,6 +23,8 @@ Esc - quit
 
 ## Recent Progress:
 
+* Mercury, Venus, Earth (Moon), Mars, Jupiter.
+* Project file supports multiple cameras with individual params.
 * Logarithmic Space (rendering objects in real scale at 10 billion kilometers is ok).
 * Improved camera controls.
 * Project file generator.
