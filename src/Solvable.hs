@@ -1,3 +1,4 @@
+{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE Arrows #-}
@@ -10,6 +11,7 @@ module Solvable
   , fromString
   ) where
 
+import Control.Lens
 import Linear.Matrix
 import Linear.V3
 import Linear.V4
@@ -39,11 +41,13 @@ data Solver =
      {
        _models :: [FilePath]
      }
-  -- |  Gravity
-  --   {
-  --     _G :: Double
-  --   }
+  |  Gravity
+    {
+      _vel  :: V3 Double
+    , _mass :: Double
+    }
   deriving Show
+$(makeLenses ''Solver)
 
 fromString :: (String, [Int]) -> Solver
 fromString (x, ys) =
@@ -63,13 +67,13 @@ transformer solver mtx0 =
           returnA -< mtx'
       Translate _ ->
         do
-          mtx' <- undefined -< ()
+          mtx' <- translate txyz mtx0 -< ()
           returnA -< mtx'
     returnA -< state
     --returnA -< (DT.trace ("transformer state :" ++ show state)$ state)
       where
         Rotate pv0 ypr0 = solver
-        Translate _txyz = solver
+        Translate txyz  = solver
 
 -- TODO: write a "translate solver
 
@@ -90,3 +94,45 @@ spin pv0 ypr0 mtx0 =
               tr  = view (_w._xyz) mtx0
 
     returnA -< mtx
+
+translate :: V3 Double -> M44 Double -> SF () (M44 Double)
+translate v0 mtx0 =
+  proc () -> do
+    tr' <- ((V3 0 0 0) ^+^) ^<< integral -< v0
+    let mtx =
+          mkTransformationMat
+            rot
+            tr
+            where
+              rot =
+                (view _m33 mtx0)
+              tr = v0
+    returnA -< mtx
+
+g = 6.673**(-11.0) :: Double
+
+gravity :: V3 Double -> Double -> [V3 Double] -> [Double] -> SF () (M44 Double)
+gravity p0 m0 vs ms =
+  proc () -> do
+    let a0 = foldr1 (^+^) $ fmap (gravity' p0 m0) $ zip vs ms :: V3 Double
+    acc <- ((V3 0 0 0) ^+^) ^<< integral -< a0
+    -- let mtx =
+    --       mkTransformationMat
+    --         rot
+    --         tr
+    --         where
+    --           rot =
+    --             (view _m33 mtx0)
+    --           tr = p0
+          
+    returnA -< undefined
+  
+gravity' :: V3 Double -> Double -> (V3 Double, Double) -> V3 Double
+gravity' p0 m0 (p1, m1) = acc
+  where
+    dir  = p1 ^-^ p0                 :: V3 Double
+    dist = norm dir                  :: Double
+    f    = g * m0 * m1 / dist**2.0   :: Double
+    acc  = (f / m1) *^ (dir ^/ dist) :: V3 Double
+-- | F = G*@mass*m2/(dist^2);       //  Newton's gravity equation
+-- | a += (F/@mass)*normalize(dir); // Acceleration
