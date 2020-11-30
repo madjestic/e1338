@@ -10,6 +10,9 @@ import Data.Store                (encode)
 import Unsafe.Coerce
 import System.Environment        (getArgs)
 
+import Data.Time.Clock.Compat
+import Data.Time.LocalTime.Compat
+
 import Options.Applicative
 import Data.Semigroup ((<>))
 
@@ -45,6 +48,9 @@ geoArgs = GeoArgs
          <> short 's'
          <> help "Whether to perform the indexing" )
 
+formatTime' :: UTCTime -> String
+formatTime' = take 8 . show . timeToTimeOfDay . utctDayTime
+
 writeVGeo :: FilePath -> VGeo -> IO ()
 writeVGeo fileOut vgeo =
   do
@@ -74,7 +80,9 @@ main = do
   -- let fileIn  =  (unsafeCoerce (args!!0) :: FilePath)
   --     fileOut =  (unsafeCoerce (args!!1) :: FilePath)
   --     index   =  (unsafeCoerce (args!!2) :: FilePath)
-  
+
+  currentTime <- getCurrentTime
+  putStrLn $ "reading PGeo: " ++ (formatTime' currentTime)
   pgeo <- readPGeo (fileIn args)
   putStrLn "running indexer..."
   --let vgeo = fromPGeo pgeo
@@ -82,6 +90,7 @@ main = do
         False -> fromPGeo  pgeo
         True  -> fromPGeo' pgeo
   -- _ <- DT.trace ("geoIndexer.vgeo :" ++ show vgeo) $ return ()
-  putStrLn "OK"
+  currentTime <- getCurrentTime
+  putStrLn $ "Finished converting PGeo: " ++ (formatTime' currentTime)
   writeBGeo (fileOut args) vgeo
   -- writeVGeo fileOut vgeo
