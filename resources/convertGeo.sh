@@ -8,20 +8,25 @@ SOURCE="./resources/models/$1.geo"
 TARGET="./models/$1.bgeo"
 PDG="./resources/models/$1.pgeo"
 PDGCPY="./models/$1.pgeo"
+INDEX=${2:-} # optional argument {--skip} or nothing {}. e.g. foo --skip
 
 convertGeo(){
     if [ -e "$SOURCE" ]
     then
 	echo "Running geoParser.py..."
-	python ./resources/geoParser.py $SOURCE $PDG
+	echo "python ./resources/geoParser.py" $SOURCE $PDG $INDEX
+	python ./resources/geoParser.py $SOURCE $PDG $INDEX
 	echo "Running geoIndexer..."
-	cabal run geoIndexer $PDG $TARGET
+	echo "cabal run geoIndexer" $PDG $TARGET $INDEX
+	cabal run geoIndexer -- -i $PDG -o $TARGET $INDEX
 	echo "Copying files..."
-	cp $PDG $PDGCPY
+	echo "cp" $PDG $PDGCPY
+	# cp $PDG $PDGCPY
     else
-	python ./resources/geoParser.py
-	cabal run geoIndexer ./models/model.geo ../models/model.bgeo
-	cp ./models/model.geo ../models/model.bgeo
+	echo "pass"
+	# python ./resources/geoParser.py
+	# cabal run geoIndexer ./models/model.geo ../models/model.bgeo
+	# cp ./models/model.geo ../models/model.bgeo
     fi
 }
 

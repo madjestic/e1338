@@ -7,20 +7,28 @@ import json
 import sys
 import subprocess
 from itertools import chain
-from numpy import argsort,array,concatenate
+from numpy     import argsort,array,concatenate
+from datetime  import datetime
+import argparse
 
 # from itertools import izip
 
-def rpcShuffler(arg=[]):
+def rpcShuffler(arg=[], skip=False):
     print("initializing RPC process...")
-    with open('./resources/rpcShuffler/.p2h', 'w') as f:
-        f.write(str(arg))
+    if skip:
+        print ("Skipping Indexing")
+        result = [[*range(len(arg))]]
+    else:
+        print ("Saving unShuffled data")
+        with open('./resources/rpcShuffler/.p2h', 'w') as f:
+            f.write(str(arg))
+         
+        print("calling rpcshuffler")
+        subprocess.call(["cabal", "run", "rpcShuffler"])
 
-    print("calling rpcshuffler")
-    subprocess.call(["cabal", "run", "rpcShuffler"])
-
-    with open('./resources/rpcShuffler/.h2p', 'r') as f:
-        result = f.read()
+        print("reading Shuffled data")
+        with open('./resources/rpcShuffler/.h2p', 'r') as f:
+            result = f.read()
 
     print("OK")
     
@@ -239,28 +247,61 @@ def parseJSON(jsonFile):
     return data
 
 
-def Main(fileIn = "models/cornel_box.geo", fileOut = "models/cornel_box.pgeo"):
-    
-    #jsonFile = readJSON(fileIn)
+def Main(fileIn = "models/cornel_box.geo", fileOut = "models/cornel_box.pgeo", skip=False):
+    # print ("fileIn: {}, fileOut: {}, skip: {}".format (fileIn, fileOut, skip))
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+    print("Before Parsing Time =", current_time)
+
+    print ("Parsing data")
     data = parseJSON(readJSON(fileIn))
     # print(data)
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+    print("After Parsing Time =", current_time)
 
     # Write the data into a json fileIn
     with open(fileOut, 'w') as outfile:
         json.dump(data, outfile)
 
 if __name__ == "__main__":
-    print("This application converts Houdini geo format to a pgeo, intermediary format.\n\
-It's using IPC to talk to a haskell process to do the value shuffling, because I know no better :P.\n\
-PGeo is homeomorphic json geo container, suitable for standard haskell.\n\
-Usage: $ python geoParser.py inputFile.geo outputFile.pgeo\n")
+    descr = \
+    "This application converts Houdini geo format to a pgeo, intermediary format.\n\
+    It's using IPC to talk to a haskell process to do the value shuffling.\n\
+    PGeo is a homeomorphic json geo container, suitable for standard haskell.\n\
+    example: $ python geoParser.py inputFile.geo outputFile.pgeo\n"
     
-    if len(sys.argv) <= 1:
-        print("Parsing default ./models/cornel_box.geo")
-        Main()
-    else:
-        print("Parsing %s" % sys.argv[1])
-        Main(sys.argv[1], sys.argv[2])
+    parser = argparse.ArgumentParser(description = descr)
+    parser.add_argument("pathIn", type=str,
+                        help = "a path to a model file, e.g. `python ./geoParser.py ./models/cornel_box.geo ... `")
+    parser.add_argument("pathOut", type=str,
+                        help = "a path to the save a model to a file, e.g. `python ./geoParser.py ... ./models/cornel_box.pgeo")
+    parser.add_argument("--skip", help = "skip geometry indexing",
+                        action="store_true")
+    args = parser.parse_args()
+
+    Main (args.pathIn, args.pathOut, args.skip)
+    # if args.pathIn and args.pathOut and args.skip:
+    #     # print("args.skip: {}".format(args.skip))
+    #     Main (args.pathIn, args.pathOut, args.skip)
+    # elif args.pathIn and args.pathOut:
+    #     print (" pathIn: {}\n pathOut: {}".format (args.pathIn, args.pathOut))
+    #     Main (args.pathIn, args.pathOut, args.skip)
+    # else:
+    #     print("Error")
+
+    
+#     print("This application converts Houdini geo format to a pgeo, intermediary format.\n\
+# It's using IPC to talk to a haskell process to do the value shuffling, because I know no better :P.\n\
+# PGeo is homeomorphic json geo container, suitable for standard haskell.\n\
+# Usage: $ python geoParser.py inputFile.geo outputFile.pgeo\n")
+    
+#     if len(sys.argv) <= 1:
+#         print("Parsing default ./models/cornel_box.geo")
+#         Main()
+#     else:
+#         print("Parsing %s" % sys.argv[1])
+#         Main(sys.argv[1], sys.argv[2])
 
 # for i in list(set(concat(foo))):
 # ...  list(filter(lambda x: x == i, concat(foo)))
