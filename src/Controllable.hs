@@ -228,14 +228,10 @@ keyState state pressed released
 updateMouse :: Controllable -> SF AppInput (Mouse, [Event ()])
 updateMouse ctl0 = 
   proc input -> do
--- TODO: Should be something along the lines with:
--- _ <- mouseEvents -< input
     mouseMovedE   <- mouseMovedEvent   ctl0 -< input -- relative motion event
     mouseStoppedE <- mouseStoppedEvent ctl0 -< input
     rpos <- mouseRelPos -< input
---    pos <- 
     let
-      --event  = mouseMovedE $> ():: Event ()
       events = [(mouseMovedE $> ())
                ,(mouseStoppedE $> ())]
       mouse  =

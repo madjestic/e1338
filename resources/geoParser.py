@@ -251,14 +251,14 @@ def Main(fileIn = "models/cornel_box.geo", fileOut = "models/cornel_box.pgeo", s
     # print ("fileIn: {}, fileOut: {}, skip: {}".format (fileIn, fileOut, skip))
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
-    print("Before Parsing Time =", current_time)
+    print("Before Parsing Time: ", current_time)
 
     print ("Parsing data")
     data = parseJSON(readJSON(fileIn))
     # print(data)
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
-    print("After Parsing Time =", current_time)
+    print("After Parsing Time: ", current_time)
 
     # Write the data into a json fileIn
     with open(fileOut, 'w') as outfile:

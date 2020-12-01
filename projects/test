@@ -1,15 +1,15 @@
 {
-    "name": "Earth Test",
+    "name": "Test Box",
     "resx": 800,
     "resy": 600,
     "models": [
         {
-            "path": "models/earth.bgeo"
+            "path": "models/box.bgeo"
         }
     ],
     "objects": [
         {
-            "pname": "Earth",
+            "pname": "Box",
             "modelIDXs": [
                 0
             ],
@@ -63,26 +63,13 @@
     ],
     "cameras": [
         {
-            "pTransform": [
-                1,
-                0,
-                0,
-                0,
-                0,
-                1,
-                0,
-                0,
-                0,
-                0,
-                1,
-                -1,
-                0,
-                0,
-                0,
-                1
-            ],
-            "pFoc": 100,
-            "pApt": 50
+	    "pTransform":
+            [1,0,0, 0,
+             0,1,0, 0,
+             0,0,1,-20,
+             0,0,0, 1],
+	    "pFoc": 100,
+	    "pApt": 50
         }
     ]
 }

@@ -21,7 +21,7 @@ convertGeo(){
 	cabal run geoIndexer -- -i $PDG -o $TARGET $INDEX
 	echo "Copying files..."
 	echo "cp" $PDG $PDGCPY
-	# cp $PDG $PDGCPY
+	cp $PDG $PDGCPY
     else
 	echo "pass"
 	# python ./resources/geoParser.py

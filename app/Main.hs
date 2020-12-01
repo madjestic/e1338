@@ -29,7 +29,7 @@ import Unsafe.Coerce
 import Game
 import Object         as Obj
 import Project        as Prj
-import AppInput
+import AppInput                 (parseWinInput) 
 import Rendering      as R
 
 import Debug.Trace    as DT
@@ -62,10 +62,8 @@ animate window sf =
         renderOutput _ (game, shouldExit) =
           do
             lastInteraction <- newMVar =<< SDL.time
-            -- currentTime <- SDL.time                          
-            -- dt <- (currentTime -) <$> swapMVar lastInteraction currentTime --dtime
-            -- putStrLn $ "FPS :" ++ show (0.0001/dt)
-            -- TODO: send dt to renderer to display FPS in game
+            -- relM <- SDL.getRelativeMouseLocation
+            -- print $ "relM :" ++ show relM
             
             R.render
               --dt

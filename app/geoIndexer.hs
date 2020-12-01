@@ -90,7 +90,7 @@ main = do
         False -> fromPGeo  pgeo
         True  -> fromPGeo' pgeo
   -- _ <- DT.trace ("geoIndexer.vgeo :" ++ show vgeo) $ return ()
-  currentTime <- getCurrentTime
-  putStrLn $ "Finished converting PGeo: " ++ (formatTime' currentTime)
+  currentTime' <- getCurrentTime
+  putStrLn $ "Finished converting PGeo: " ++ (formatTime' currentTime')
   writeBGeo (fileOut args) vgeo
   -- writeVGeo fileOut vgeo

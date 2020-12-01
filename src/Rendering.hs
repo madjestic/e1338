@@ -188,10 +188,8 @@ render lastInteraction Rendering.OpenGL opts window game =
 
         --texPaths = concat $ toListOf (foreground . traverse . materials . traverse . Material.textures) (view objects game) :: [FilePath]
         texPaths = concat $ toListOf ( traverse . materials . traverse . Material.textures) (fgrObjs ++ fntObjs) :: [FilePath]
-        fps  = show (unsafeCoerce ticks :: Int)
 
     -- print $ "render fgrObjs :" ++ show fgrObjs
-
     _ <- mapM_ (draw texPaths (opts { primitiveMode = Triangles }) window) objsDrs
     _ <- mapM_ (draw texPaths (opts { primitiveMode = Points })    window) bgrsDrs
 

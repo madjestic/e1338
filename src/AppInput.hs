@@ -36,7 +36,15 @@ mousePos :: SF AppInput (Double,Double)
 mousePos = arr inpMousePos
 
 mouseRelPos :: SF AppInput (Double,Double)
-mouseRelPos = arr inpMouseRelPos
+mouseRelPos = iPre initAppInput >>> arr inpMouseRelPos
+
+runSFEveryOtherTick :: SF a (Event b) -> SF a (Event b)
+runSFEveryOtherTick sf =
+  dSwitch
+    (constant noEvent &&& constant (Event ()))
+    (const $ dSwitch
+         (sf &&& constant (Event ()))
+         (const $ runSFEveryOtherTick sf))
 
 -- | Events that indicate left button click
 lbp :: SF AppInput (Event ())
@@ -147,12 +155,12 @@ keyInput code mode =
 
 data AppInput =
      AppInput
-     { inpMousePos          :: (Double, Double)       -- ^ Current mouse position
-     , inpMouseRelPos       :: (Double, Double) -- ^ Relative mouse motion
-     , inpMouseLeft         :: Maybe (Double, Double) -- ^ Left   button currently down
-     , inpMouseRight        :: Maybe (Double, Double) -- ^ Right  button currently down
-     --, inpMouseMiddle       :: Maybe (Double, Double) -- ^ Middle button currently down
-     , inpQuit              :: Bool                   -- ^ SDL's QuitEvent
+     { inpMousePos          :: (Double, Double)        -- ^ Current mouse position
+     , inpMouseRelPos       :: (Double, Double)        -- ^ Relative mouse motion
+     , inpMouseLeft         :: Maybe (Double, Double)  -- ^ Left   button currently down
+     , inpMouseRight        :: Maybe (Double, Double)  -- ^ Right  button currently down
+     , inpMouseMiddle       :: Maybe (Double, Double)  -- ^ Middle button currently down
+     , inpQuit              :: Bool                    -- ^ SDL's QuitEvent
      , inpCenter            :: Bool
      , inpMouseMoving       :: Maybe (Double, Double)
      , inpMouseStopped      :: Bool
@@ -301,7 +309,6 @@ initAppInput =
 -- | Filter and transform SDL events into events which are relevant to our
 --   application
 parseWinInput :: SF WinInput AppInput
---parseWinInput = accumHoldBy nextAppInput initAppInput
 parseWinInput = accumHoldBy nextAppInput initAppInput
 
 scancode :: SDL.KeyboardEventData -> Scancode

@@ -2,5 +2,7 @@
     "name": "Earth",
     "vertShader": "./mat/earth/Earth/shader.vert",
     "fragShader": "./mat/earth/Earth/shader.frag",
-    "textures": ["textures/earth_daymap_4096.jpg"]
+    "textures": [ "textures/earth_daymap_4096.jpg"
+		, "textures/earth_nightmap_4096.jpg"
+		, "textures/earth_clouds_4096.jpg" ]
 }

@@ -165,15 +165,26 @@ loadObjects initVAO project =
     return (result)
 
 
-initObject :: Project -> (([Int], Int, [Float], Material) -> IO Descriptor) -> ObjectClass -> (VGeo, Int) -> IO Object
-initObject project initVAO cls (vgeo, idx) =
+initObject :: Project
+           -> (([Int], Int, [Float], Material) -> IO Descriptor)
+           -> ObjectClass
+           -> (VGeo, Int)
+           -> IO Object
+initObject project
+           initVAO
+           cls
+           (vgeo, idx) =
   do
     print "Loading Materials..."
     mats  <- mapM readMaterial $ ms vgeo :: IO [Material]
+    
     let (VGeo is_ st_ vs_ ms_ xf_) = vgeo
-        vaoArgs = (\idx' st' vao' mat' ->  (idx', st', vao', mat')) <$.> is_ <*.> st_ <*.> vs_ <*.> mats
-        offset = fmap ((view _w).fromList) (xf_)
+        vaoArgs       = (\idx' st' vao' mat' -> (idx', st', vao', mat'))
+                        <$.> is_ <*.> st_ <*.> vs_ <*.> mats
+        offset        = fmap ((view _w).fromList) (xf_)
         preTransforms = fmap fromList ((xf_))
+        vel           = undefined :: V3 Double
+        m             = undefined :: Double
 
     -- print $ "preTransforms :" ++ show preTransforms
     ds <- mapM initVAO vaoArgs
@@ -188,13 +199,9 @@ initObject project initVAO cls (vgeo, idx) =
           , _materials   = mats
           , _programs    = progs
           , _transforms  = preTransforms
-          -- TODO: separate solvers per fgr,bgr,fonts. Current solution works for fgr objects, but not for fonts, etc.
+          , _velocity    = vel
+          , _mass        = m
           , Object._solvers = fmap fromString $
-                         -- TODO: error is somewhere here: one solver gets copied multiple times (by the number of objects, it seems...)
-                         -- zip (concat $ toListOf (objects . traverse . (Project.solvers)) project :: [String])
-                         --     (concat $ toListOf (objects . traverse . solverAttrs) project :: [[Int]])
-                         -- zip (((toListOf (objects . traverse . (Project.solvers)) project)!!idx) :: [String])
-                         --     (((toListOf (objects . traverse . solverAttrs) project)!!idx) :: [[Int]])
                               zip solvers' attrs'
           } :: Object
 

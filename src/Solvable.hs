@@ -44,9 +44,10 @@ data Solver =
   |  Gravity
     {
       _vel  :: V3 Double
-    , _mass :: Double
-    }
-  deriving Show
+    , _m    :: Double
+    , _ps   :: [V3 Double]
+    , _ms   :: [Double]
+    } deriving Show
 $(makeLenses ''Solver)
 
 fromString :: (String, [Int]) -> Solver
@@ -62,23 +63,28 @@ transformer solver mtx0 =
     state <- case solver of
       Rotate _ _ ->
         do
-          mtx' <- spin pv0 ypr0 mtx0 -< ()
+          mtx' <- spin mtx0 pv0 ypr0 -< ()
           --mtx' <- spin pv0 ypr0 (DT.trace ("transformer mtx0 :" ++ show mtx0) $ mtx0) -< ()
           returnA -< mtx'
       Translate _ ->
         do
-          mtx' <- translate txyz mtx0 -< ()
+          mtx' <- translate mtx0 txyz -< ()
+          returnA -< mtx'
+      Gravity _ _ _ _ ->
+        do
+          mtx' <- gravity mtx0 v0 m0 ps ms -< ()
           returnA -< mtx'
     returnA -< state
     --returnA -< (DT.trace ("transformer state :" ++ show state)$ state)
       where
         Rotate pv0 ypr0 = solver
-        Translate txyz  = solver
+        Translate  txyz = solver
+        Gravity v0 m0 ps ms = solver
 
 -- TODO: write a "translate solver
 
-spin :: V3 Double -> V3 Double -> M44 Double -> SF () (M44 Double)
-spin pv0 ypr0 mtx0 =
+spin :: M44 Double -> V3 Double -> V3 Double -> SF () (M44 Double)
+spin mtx0 pv0 ypr0 =
   proc () -> do
     ypr' <- ((V3 0 0 0) ^+^) ^<< integral -< ypr0
     let mtx =
@@ -95,8 +101,8 @@ spin pv0 ypr0 mtx0 =
 
     returnA -< mtx
 
-translate :: V3 Double -> M44 Double -> SF () (M44 Double)
-translate v0 mtx0 =
+translate :: M44 Double -> V3 Double -> SF () (M44 Double)
+translate mtx0 v0 =
   proc () -> do
     tr' <- ((V3 0 0 0) ^+^) ^<< integral -< v0
     let mtx =
@@ -106,26 +112,29 @@ translate v0 mtx0 =
             where
               rot =
                 (view _m33 mtx0)
-              tr = v0
+              tr = tr'
     returnA -< mtx
 
 g = 6.673**(-11.0) :: Double
 
-gravity :: V3 Double -> Double -> [V3 Double] -> [Double] -> SF () (M44 Double)
-gravity p0 m0 vs ms =
+gravity :: M44 Double -> V3 Double -> Double -> [V3 Double] -> [Double] -> SF () (M44 Double)
+gravity mtx0 v0 m0 ps ms =
   proc () -> do
-    let a0 = foldr1 (^+^) $ fmap (gravity' p0 m0) $ zip vs ms :: V3 Double
-    acc <- ((V3 0 0 0) ^+^) ^<< integral -< a0
-    -- let mtx =
-    --       mkTransformationMat
-    --         rot
-    --         tr
-    --         where
-    --           rot =
-    --             (view _m33 mtx0)
-    --           tr = p0
-          
-    returnA -< undefined
+    let
+      p0 = view (_w._xyz) mtx0
+      a0 = foldr1 (^+^) $ fmap (gravity' p0 m0) $ zip ps ms :: V3 Double
+    --acc <- ((V3 0 0 0) ^+^) ^<< integral -< a0
+    acc  <- (v0 ^+^) ^<< integral -< a0
+    -- mtx <- translate mtx0 acc -< ()
+    let mtx =
+          mkTransformationMat
+            rot
+            tr
+            where
+              rot =
+                (view _m33 mtx0)
+              tr = acc
+    returnA -< mtx
   
 gravity' :: V3 Double -> Double -> (V3 Double, Double) -> V3 Double
 gravity' p0 m0 (p1, m1) = acc
