@@ -6,9 +6,10 @@
 module Solvable
   ( Solver (..)
 --  , Solvable (..)
+  , preTransformer
   , transformer
   , spin
-  , fromString
+  , toSolver
   ) where
 
 import Control.Lens
@@ -27,6 +28,11 @@ data Solver =
      Translate
      {
        _txyz   :: V3 Double
+     }
+  |  PreRotate
+     {
+       _pivot :: V3 Double
+     , _ypr   :: V3 Double
      }
   |  Rotate
      {
@@ -50,13 +56,22 @@ data Solver =
     } deriving Show
 $(makeLenses ''Solver)
 
-fromString :: (String, [Int]) -> Solver
-fromString (x, ys) =
+toSolver :: (String, [Double]) -> Solver
+toSolver (x, ys) =
   case x of
-    "spin" -> Rotate (toV3 $ take 3 (fmap toEnum ys :: [Double])) (toV3 $ drop 3 (fmap toEnum ys :: [Double]))
+    "prerotate" -> PreRotate (toV3 $ take 3 ys) (toV3 $ drop 3 ys)
+    "spin"      -> Rotate (toV3 $ take 3 ys) (toV3 $ drop 3 ys)
     _ -> undefined
 
+preTransformer :: Solver -> M44 Double -> M44 Double
+preTransformer solver mtx0 = mtx
+  where
+    mtx = case solver of
+      PreRotate pv0 ypr0 -> rotate' mtx0 pv0 ypr0
+      _ -> mtx0
+      
 transformer :: Solver -> M44 Double -> SF () (M44 Double)
+--transformer solver mtx0 =
 transformer solver mtx0 =
   proc () -> do
     --state <- case (DT.trace ("solver :" ++ show solver) $ solver) of
@@ -74,6 +89,9 @@ transformer solver mtx0 =
         do
           mtx' <- gravity mtx0 v0 m0 ps ms -< ()
           returnA -< mtx'
+      _ ->
+        do
+          returnA -< mtx0
     returnA -< state
     --returnA -< (DT.trace ("transformer state :" ++ show state)$ state)
       where
@@ -100,6 +118,21 @@ spin mtx0 pv0 ypr0 =
               tr  = view (_w._xyz) mtx0
 
     returnA -< mtx
+
+rotate' :: M44 Double -> V3 Double -> V3 Double -> M44 Double
+rotate' mtx0 pv0 ypr0 = mtx
+    where
+      mtx =
+          mkTransformationMat
+            rot
+            tr
+            where
+              rot =
+                (view _m33 mtx0)
+                !*! fromQuaternion (axisAngle (view _x (view _m33 mtx0)) (view _x ypr0)) -- yaw
+                !*! fromQuaternion (axisAngle (view _y (view _m33 mtx0)) (view _y ypr0)) -- pitch
+                !*! fromQuaternion (axisAngle (view _z (view _m33 mtx0)) (view _z ypr0)) -- roll
+              tr  = view (_w._xyz) mtx0
 
 translate :: M44 Double -> V3 Double -> SF () (M44 Double)
 translate mtx0 v0 =

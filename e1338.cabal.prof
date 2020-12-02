@@ -195,6 +195,9 @@ executable geoIndexer
               , text       ^>= 1.2.2.2
               , simple-affine-space ^>= 0.1.1
               , linear     ^>= 1.20.8
+              , optparse-applicative ^>= 0.15.1.0
+              , time-compat          ^>= 1.9.4
+              , time       ^>= 1.9.3
               
   other-modules:
                 Paths_e1338

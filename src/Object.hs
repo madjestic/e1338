@@ -182,12 +182,18 @@ initObject project
         vaoArgs       = (\idx' st' vao' mat' -> (idx', st', vao', mat'))
                         <$.> is_ <*.> st_ <*.> vs_ <*.> mats
         offset        = fmap ((view _w).fromList) (xf_)
-        preTransforms = fmap fromList ((xf_))
-        vel           = undefined :: V3 Double
-        m             = undefined :: Double
+        -- vel           = undefined :: V3 Double
+        -- m             = undefined :: Double
+        solvs         = fmap toSolver $
+                        zip solvers' attrs'
+                        --(zip ((DT.trace ("solvers' :" ++ show solvers') $ solvers')) attrs'::[(String, [Double])]) :: [Solver]
+        preTransforms = fmap (\(s0, xf0) -> preTransformer s0 xf0) $ (zip solvs (fmap fromList ((xf_)))::[(Solver, M44 Double)]) :: [M44 Double]
+        --preTransforms = fmap (\(s0, xf0) -> preTransformer s0 xf0) $ (zip (DT.trace ("solvs :" ++ show solvs) $ solvs) (fmap fromList ((xf_)))::[(Solver, M44 Double)]) :: [M44 Double]
+        --preTransforms = fmap (\(s0, xf0) -> preTransformer (DT.trace ("s0 :" ++ show s0) $ s0) (DT.trace ("xf0 :" ++ show xf0) $ xf0)) $ (zip solvs (fmap fromList ((xf_)))::[(Solver, M44 Double)])
+        --preTransforms = fmap fromList ((xf_))
 
     -- print $ "preTransforms :" ++ show preTransforms
-    ds <- mapM initVAO vaoArgs
+    ds    <- mapM initVAO vaoArgs
 
     progs <- mapM (\mat -> loadShaders
                            [ ShaderInfo VertexShader   (FileSource (_vertShader (mat) ))
@@ -199,23 +205,22 @@ initObject project
           , _materials   = mats
           , _programs    = progs
           , _transforms  = preTransforms
-          , _velocity    = vel
-          , _mass        = m
-          , Object._solvers = fmap fromString $
-                              zip solvers' attrs'
+          -- , _velocity    = vel
+          -- , _mass        = m
+          , Object._solvers = solvs
           } :: Object
 
     return obj
       where
         solvers' =
           case cls of
-            Foreground -> (concat $ toListOf (objects            . traverse . (Project.solvers)) project :: [String])
-            Background -> (concat $ toListOf (Project.background . traverse . (Project.solvers)) project :: [String])
-            Font       -> []
+            Foreground -> ((toListOf (objects            . traverse . Project.solvers) project)!!idx) :: [String] 
+            Background -> ((toListOf (Project.background . traverse . Project.solvers) project)!!idx) :: [String]
+            Font       -> []            
         attrs'   =
           case cls of
-            Foreground -> (((toListOf (objects . traverse . solverAttrs) project)!!idx) :: [[Int]])
-            Background -> (((toListOf (Project.background . traverse . solverAttrs) project)!!idx) :: [[Int]])
+            Foreground -> ((toListOf (objects . traverse . solverAttrs)            project)!!idx) :: [[Double]]
+            Background -> ((toListOf (Project.background . traverse . solverAttrs) project)!!idx) :: [[Double]]
             Font       -> []
 
 fromVGeo :: (([Int], Int, [Float], Material) -> IO Descriptor) -> VGeo -> IO Object

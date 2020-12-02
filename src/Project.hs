@@ -43,7 +43,7 @@ data PreObject
        _pname       :: String
      , _modelIDXs   :: [Int]
      , _solvers     :: [String]
-     , _solverAttrs :: [[Int]]
+     , _solverAttrs :: [[Double]]
      } deriving Show
 
 $(makeLenses ''PreObject)
