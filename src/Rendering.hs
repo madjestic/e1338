@@ -197,7 +197,7 @@ render lastInteraction Rendering.OpenGL opts window game =
     currentTime <- SDL.time                          
     dt <- (currentTime -) <$> readMVar lastInteraction -- swapMVar lastInteraction currentTime --dtime
     -- putStrLn $ "FPS :" ++ show (1/dt) ++ "\n"
-    -- _ <- drawString (draw texPaths opts window) fntsDrs $ show $ round (1/dt) -- render FPS
+    --_ <- drawString (draw texPaths opts window) fntsDrs $ show $ round (1/dt) -- render FPS
     
     SDL.glSwapWindow window
     
