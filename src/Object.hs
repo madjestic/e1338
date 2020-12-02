@@ -189,7 +189,10 @@ initObject project
         solvs         = fmap toSolver $
                         zip solvers' attrs'
         --                 --(zip ((DT.trace ("solvers' :" ++ show solvers') $ solvers')) attrs'::[(String, [Double])]) :: [Solver]
-        preTransforms = fmap (\(s0, xf0) -> preTransformer s0 xf0) $ (zip solvs (fmap fromList ((xf_)))::[(Solver, M44 Double)]) :: [M44 Double]
+        preTransforms =
+          case cls of
+            Font -> fmap fromList ((xf_))
+            _    -> fmap (\(s0, xf0) -> preTransformer s0 xf0) $ (zip solvs (fmap fromList ((xf_)))::[(Solver, M44 Double)]) :: [M44 Double]
         
         --preTransforms = fmap (\(s0, xf0) -> preTransformer s0 xf0) $ (zip (DT.trace ("solvs :" ++ show solvs) $ solvs) (fmap fromList ((xf_)))::[(Solver, M44 Double)]) :: [M44 Double]
         --preTransforms = fmap (\(s0, xf0) -> preTransformer (DT.trace ("s0 :" ++ show s0) $ s0) (DT.trace ("xf0 :" ++ show xf0) $ xf0)) $ (zip solvs (fmap fromList ((xf_)))::[(Solver, M44 Double)])
