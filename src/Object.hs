@@ -184,8 +184,14 @@ initObject project
         offset        = fmap ((view _w).fromList) (xf_)
         vel           = undefined :: V3 Double
         m             = undefined :: Double
-        
-        solvs         = fmap toSolver $ zip solvers' attrs'
+
+        solversF      = case solvers' of
+                          [] -> [""]
+                          _  -> solvers'
+        attrsF        = case attrs' of
+                          [] -> [[]]
+                          _  -> attrs'
+        solvs         = fmap toSolver $ zip solversF attrsF
         preTransforms =
           case cls of
             Font -> fmap fromList ((xf_))

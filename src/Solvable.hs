@@ -7,24 +7,29 @@ module Solvable
   ( Solver (..)
   , preTransformer
   , transformer
-  , spin
+  , rotate
   , toSolver
   ) where
 
-import Control.Lens
-import Linear.Matrix
+import Control.Lens      hiding (Identity)
+import Linear.Matrix     hiding (identity)
 import Linear.V3
 import Linear.V4
-import Linear.Quaternion
-import Control.Lens hiding (transform)
-import FRP.Yampa
+import Linear.Quaternion hiding (rotate)
+import Control.Lens      hiding (transform, Identity)
+import FRP.Yampa         hiding (identity)
 
 import Utils (toV3)
 
 import Debug.Trace as DT
 
 data Solver =
-     Translate
+     Identity
+  |  PreTranslate
+     {
+       _txyz   :: V3 Double
+     }
+  |  Translate
      {
        _txyz   :: V3 Double
      }
@@ -58,16 +63,19 @@ $(makeLenses ''Solver)
 toSolver :: (String, [Double]) -> Solver
 toSolver (x, ys) =
   case x of
-    "prerotate" -> PreRotate (toV3 $ take 3 ys) (toV3 $ drop 3 ys)
-    "spin"      -> Rotate (toV3 $ take 3 ys) (toV3 $ drop 3 ys)
-    _ -> undefined
+    "pretranslate" -> PreTranslate (toV3 ys)
+    "prerotate"    -> PreRotate    (toV3 $ take 3 ys) (toV3 $ drop 3 ys)
+    "rotate"       -> Rotate       (toV3 $ take 3 ys) (toV3 $ drop 3 ys)
+    _              -> Identity
 
 preTransformer :: Solver -> M44 Double -> M44 Double
 preTransformer solver mtx0 = mtx
   where
     mtx = case solver of
-      PreRotate pv0 ypr0 -> rotate' mtx0 pv0 ypr0
-      _ -> mtx0
+      PreTranslate v0    -> preTranslate mtx0 v0
+      PreRotate pv0 ypr0 -> preRotate mtx0 pv0 ypr0
+      Identity           -> identity mtx0
+      _                  -> mtx0
       
 transformer :: Solver -> M44 Double -> SF () (M44 Double)
 transformer solver mtx0 =
@@ -75,7 +83,7 @@ transformer solver mtx0 =
     state <- case solver of
       Rotate _ _ ->
         do
-          mtx' <- spin mtx0 pv0 ypr0 -< ()
+          mtx' <- rotate mtx0 pv0 ypr0 -< ()
           returnA -< mtx'
       Translate _ ->
         do
@@ -94,8 +102,8 @@ transformer solver mtx0 =
         Translate  txyz = solver
         Gravity v0 m0 ps ms = solver
 
-spin :: M44 Double -> V3 Double -> V3 Double -> SF () (M44 Double)
-spin mtx0 pv0 ypr0 =
+rotate :: M44 Double -> V3 Double -> V3 Double -> SF () (M44 Double)
+rotate mtx0 pv0 ypr0 =
   proc () -> do
     ypr' <- ((V3 0 0 0) ^+^) ^<< integral -< ypr0
     let mtx =
@@ -112,8 +120,30 @@ spin mtx0 pv0 ypr0 =
 
     returnA -< mtx
 
-rotate' :: M44 Double -> V3 Double -> V3 Double -> M44 Double
-rotate' mtx0 pv0 ypr0 = mtx
+identity :: M44 Double -> M44 Double
+identity mtx0 = mtx
+  where
+    mtx =
+      mkTransformationMat
+        rot
+        tr
+        where
+          rot = view _m33 mtx0
+          tr  = view (_w._xyz) mtx0
+
+preTranslate :: M44 Double -> V3 Double -> M44 Double
+preTranslate mtx0 v0 = mtx
+  where
+    mtx =
+      mkTransformationMat
+        rot
+        tr
+        where
+          rot = view _m33 mtx0
+          tr  = v0 + view (_w._xyz) mtx0
+
+preRotate :: M44 Double -> V3 Double -> V3 Double -> M44 Double
+preRotate mtx0 pv0 ypr0 = mtx
     where
       mtx =
           mkTransformationMat

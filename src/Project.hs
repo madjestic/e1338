@@ -40,6 +40,7 @@ data PreObject
   =  PreObject
      {
        _pname       :: String
+     , _objIDX      :: Int
      , _modelIDXs   :: [Int]
      , _solvers     :: [String]
      , _solverAttrs :: [[Double]]
@@ -86,6 +87,7 @@ defaultProject =
   [(Model   "models/earth.bgeo")]
   [(PreObject
     "Earth"
+    0
     [0]
     ["spin"]
     [[0,0,0,0,0,1000]]
@@ -117,7 +119,7 @@ writeProject prj fileOut =
     config = defConfig { confCompare = comp }
 
 comp :: Text -> Text -> Ordering
-comp = keyOrder . (fmap pack) $ ["name", "resx", "resy", "models", "objects", "background", "pname", "modelIDXs", "solvers", "solverAttrs", "fonts", "cameras", "pApt", "pFoc", "pTransform"]
+comp = keyOrder . (fmap pack) $ ["name", "resx", "resy", "models", "objects", "background", "pname", "objIDX", "modelIDXs", "solvers", "solverAttrs", "fonts", "cameras", "pApt", "pFoc", "pTransform"]
 
 parse :: FilePath -> IO Project
 parse filePath =

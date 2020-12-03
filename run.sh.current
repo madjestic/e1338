@@ -7,3 +7,4 @@
 # The Solar Syste, testing solvers
 cabal build exe:e1338
 cabal run e1338 ./projects/intro_XXII ./projects/solar_system_solve
+# cabal run e1338 ./projects/intro_XXII ./projects/intro_XXII
