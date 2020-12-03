@@ -23,7 +23,7 @@ module Game
 
 import Control.Lens
 import Data.Functor              (($>))
-import FRP.Yampa --(SF, returnA, isEvent, (>>^), switch)
+import FRP.Yampa
 import Foreign.C                              (CInt)
 import Linear.Matrix
 import SDL.Input.Keyboard.Codes as SDL
@@ -129,7 +129,6 @@ centerView = centerEvent >>^ isEvent
 
 -- -- < Init Game State > ------------------------------------------------------
 
--- TODO: initGame could be loaded from a file, similar to "Save Game" feature.
 initGame ::
      (([Int], Int, [Float], Material) -> IO Descriptor)
   -> Project
@@ -157,7 +156,6 @@ initGame initVAO project =
           )
           --GamePlaying
           GameIntro
-          --(DT.trace ("initGame.objs :" ++ show objs) $ objs)
           objs
           pCam
           cams
@@ -168,10 +166,3 @@ initGame initVAO project =
         name' = view Prj.name project
         resX' = (unsafeCoerce $ view Prj.resx project) :: CInt
         resY' = (unsafeCoerce $ view Prj.resy project) :: CInt
-        -- pcam  = undefined :: Camera
-        -- camerasP  = undefined :: [Camera]
-
-loadFonts :: IO [Object]
-loadFonts =
-  do
-    return undefined

@@ -22,7 +22,7 @@ import Data.List.Index                 (indexed)
 import Data.List                       (elemIndex)
 import Linear.V3
 import Linear.V4
-import Linear.Matrix -- (M44, M33, identity, translation, fromQuaternion, (!*!), mkTransformationMat)
+import Linear.Matrix
 import Linear.Metric    as LM
 import Data.VectorSpace as DV
 import Control.Lens (view)

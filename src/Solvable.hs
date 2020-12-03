@@ -5,7 +5,6 @@
 
 module Solvable
   ( Solver (..)
---  , Solvable (..)
   , preTransformer
   , transformer
   , spin
@@ -71,15 +70,12 @@ preTransformer solver mtx0 = mtx
       _ -> mtx0
       
 transformer :: Solver -> M44 Double -> SF () (M44 Double)
---transformer solver mtx0 =
 transformer solver mtx0 =
   proc () -> do
-    --state <- case (DT.trace ("solver :" ++ show solver) $ solver) of
     state <- case solver of
       Rotate _ _ ->
         do
           mtx' <- spin mtx0 pv0 ypr0 -< ()
-          --mtx' <- spin pv0 ypr0 (DT.trace ("transformer mtx0 :" ++ show mtx0) $ mtx0) -< ()
           returnA -< mtx'
       Translate _ ->
         do
@@ -93,13 +89,10 @@ transformer solver mtx0 =
         do
           returnA -< mtx0
     returnA -< state
-    --returnA -< (DT.trace ("transformer state :" ++ show state)$ state)
       where
         Rotate pv0 ypr0 = solver
         Translate  txyz = solver
         Gravity v0 m0 ps ms = solver
-
--- TODO: write a "translate solver
 
 spin :: M44 Double -> V3 Double -> V3 Double -> SF () (M44 Double)
 spin mtx0 pv0 ypr0 =

@@ -182,29 +182,20 @@ initObject project
         vaoArgs       = (\idx' st' vao' mat' -> (idx', st', vao', mat'))
                         <$.> is_ <*.> st_ <*.> vs_ <*.> mats
         offset        = fmap ((view _w).fromList) (xf_)
-        -- vel           = undefined :: V3 Double
-        -- m             = undefined :: Double
-        -- preTransforms = fmap fromList ((xf_))
+        vel           = undefined :: V3 Double
+        m             = undefined :: Double
         
-        solvs         = fmap toSolver $
-                        zip solvers' attrs'
-        --                 --(zip ((DT.trace ("solvers' :" ++ show solvers') $ solvers')) attrs'::[(String, [Double])]) :: [Solver]
+        solvs         = fmap toSolver $ zip solvers' attrs'
         preTransforms =
           case cls of
             Font -> fmap fromList ((xf_))
             _    -> fmap (\(s0, xf0) -> preTransformer s0 xf0) $ (zip solvs (fmap fromList ((xf_)))::[(Solver, M44 Double)]) :: [M44 Double]
         
-        --preTransforms = fmap (\(s0, xf0) -> preTransformer s0 xf0) $ (zip (DT.trace ("solvs :" ++ show solvs) $ solvs) (fmap fromList ((xf_)))::[(Solver, M44 Double)]) :: [M44 Double]
-        --preTransforms = fmap (\(s0, xf0) -> preTransformer (DT.trace ("s0 :" ++ show s0) $ s0) (DT.trace ("xf0 :" ++ show xf0) $ xf0)) $ (zip solvs (fmap fromList ((xf_)))::[(Solver, M44 Double)])
-        --preTransforms = fmap fromList ((xf_))
-
-    -- print $ "preTransforms :" ++ show preTransforms
     ds    <- mapM initVAO vaoArgs
 
     progs <- mapM (\mat -> loadShaders
                            [ ShaderInfo VertexShader   (FileSource (_vertShader (mat) ))
                            , ShaderInfo FragmentShader (FileSource (_fragShader (mat) )) ]) mats
-    -- print $ "initObject idx:" ++ show idx
     let obj =
           defaultObj
           { _descriptors = ds
@@ -243,10 +234,6 @@ fromVGeo initVAO (VGeo idxs st vaos matPaths xform) =
           defaultObj
           { _descriptors = ds
           , _materials   = mats
-          --, _transforms   = preTransform
-          --, _pivot       = offset
-          -- , Object._solvers =
-          --   [(Rotate (view _xyz offset) (V3 0 0 1000))]
           }
 
     return object
@@ -254,19 +241,8 @@ fromVGeo initVAO (VGeo idxs st vaos matPaths xform) =
 solve :: Object -> SF () Object
 solve obj =
   proc () -> do
-    -- let
-    --   trs =
-    --     [V4
-    --       (V4 1.0 0.0 0.0 0.0)
-    --       (V4 0.0 1.0 0.0 0.0)
-    --       (V4 0.0 0.0 1.0 1.49999992832e11)
-    --       (V4 0.0 0.0 0.0 1.0)]
-    
-    --mtxs <- (parB . fmap (transform obj)) (DT.trace ("solve slvs0 :" ++ show slvs0)$ slvs0) -< ()
     mtxs <- (parB . fmap (transform obj)) slvs0 -< ()
-    --returnA -< (DT.trace ("solve mtxs :" ++ show (vectorizedCompose mtxs)) $ obj { _transforms = vectorizedCompose mtxs })    
     returnA -< obj { _transforms = vectorizedCompose mtxs }
-    --returnA -< obj { _transforms = trs }
       where
         slvs0 = view Object.solvers obj
         mtxs0 = view transforms     obj
@@ -275,33 +251,14 @@ transform :: Object -> Solver -> SF () ([M44 Double])
 transform obj0 slv0 = 
   proc () ->
     do
-      -- let
-      --   trs =
-      --     V4
-      --       (V4 1.0 0.0 0.0 0.0)
-      --       (V4 0.0 1.0 0.0 0.0)
-      --       (V4 0.0 0.0 1.0 1.49999992832e11)
-      --       (V4 0.0 0.0 0.0 1.0)
-      --   id = identity :: M44 Double
-      --   mtxs' = [trs, id]  
-        
       mtxs <- (parB . fmap (transformer slv0)) mtxs0 -< ()
-      -- returnA -< (DT.trace ("transform mtxs :" ++ show mtxs)$ mtxs)      
       returnA -< mtxs
         where
           mtxs0 = view transforms obj0 :: [M44 Double]
           func  = undefined
 
--- TODO: here's a glitch
 vectorizedCompose :: [[M44 Double]] -> [M44 Double]
-vectorizedCompose mtxss =
-  -- [V4
-  --   (V4 1.0 0.0 0.0 0.0)
-  --   (V4 0.0 1.0 0.0 0.0)
-  --   (V4 0.0 0.0 1.0 1.49999992832e11)
-  --   (V4 0.0 0.0 0.0 1.0)]
-  fmap (foldr1 (^*^)) $ DL.transpose mtxss
-  --fmap (foldr (^*^) (identity :: M44 Double)) $ DL.transpose (DT.trace ("vectorizedCompose mtxss :" ++ show mtxss) $ mtxss)
+vectorizedCompose = fmap (foldr1 (^*^)) . DL.transpose
 
 (^*^) :: M44 Double -> M44 Double -> M44 Double
 (^*^) mtx0 mtx1 = mkTransformationMat rot tr
@@ -309,58 +266,5 @@ vectorizedCompose mtxss =
     rot = (view _m33 mtx0) !*! (view _m33 mtx1) :: M33 Double
     tr  = (view translation mtx0) ^+^ (view translation mtx1)
 
--- (^*^) :: M44 Double -> M44 Double -> M44 Double
--- (^*^) mtx0 mtx1 =
---   V4
---     (V4 1.0 0.0 0.0 0.0)
---     (V4 0.0 1.0 0.0 0.0)
---     (V4 0.0 0.0 1.0 1.49999992832e11)
---     (V4 0.0 0.0 0.0 1.0)
-  
-    
-
--- foreach object:
---            \
---        foreach solver:
---              \              ...      \
---           foreach transform ... foreach property
-
--- TODO: [Object] -> [Solver] -> SF () [Object]
 updateObjects :: [Object] -> SF () [Object]
 updateObjects =  parB . fmap solve
--- updateObjects objs =
---   proc () -> 
---     do
---       let
---         trs =
---           [V4
---             (V4 1.0 0.0 0.0 0.0)
---             (V4 0.0 1.0 0.0 0.0)
---             (V4 0.0 0.0 1.0 1.49999992832e11)
---             (V4 0.0 0.0 0.0 1.0)]
---         objs' = fmap (\obj -> obj { _transforms = trs }) objs
---       returnA -< objs'
-      
-        -- result = [Object
-        --           { _descriptors =
-        --             [Descriptor (VertexArrayObject {vertexArrayID = 14}) 3450]
-        --           , _materials =
-        --             [Material { Material._name = "Earth"
-        --                       , _vertShader = "./mat/earth/Earth/shader.vert"
-        --                       , _fragShader = "./mat/earth/Earth/shader.frag"
-        --                       , _textures = ["textures/earth_daymap_4096.jpg"]}]
-        --           , _programs = [Program {programID = 40}]
-        --           , _transforms =
-        --             [V4
-        --              (V4 1.0 0.0 0.0 0.0)
-        --              (V4 0.0 1.0 0.0 0.0)
-        --              (V4 0.0 0.0 1.0 1.49999992832e11)
-        --              (V4 0.0 0.0 0.0 1.0)]
-        --           , _velocity = V3 0.0 0.0 0.0
-        --           , _avelocity = V3 0.0 0.0 0.0
-        --           , _mass = 1.0
-        --           , _density = 1.0
-        --           , _time = 0.0
-        --           , Object._solvers =
-        --             [Rotate { _pivot = V3 0.0 0.0 0.0
-        --                     , _ypr = V3 0.0 0.0 0.0}]}]

@@ -69,7 +69,6 @@ readBGeo file =
     -- _ <- DT.trace "trace" $ return ()
     bs <- BS.readFile file
     return $ case (DS.decode bs) of
-               --Right d@(idxs, st, vaos, mats, xform) -> DT.trace ("d :" ++ show d)$ VGeo idxs st vaos mats xform
                Right d@(idxs, st, vaos, mats, xform) -> VGeo idxs st vaos mats xform
                Left _ -> VGeo [[]] [] [[]] [] [[]]
 

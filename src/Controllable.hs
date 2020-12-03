@@ -24,7 +24,7 @@ import Linear.V3
 import Linear.Quaternion
 
 import Control.Lens hiding (transform)
-import FRP.Yampa hiding (identity)--(SF, Event, returnA, isEvent, lMerge, catEvents, )
+import FRP.Yampa    hiding (identity)
 import SDL.Input.Keyboard.Codes as SDL
 import Data.Functor              (($>))
 

@@ -32,7 +32,6 @@ import Data.Aeson.Encode.Pretty
 import Data.ByteString.Lazy as B hiding (drop, pack)
 import Data.Maybe                (fromMaybe)
 import Data.Text                 hiding (drop)
---import Linear.Matrix
 
 import Texture
 import Model
@@ -67,8 +66,6 @@ data Project
      , _resy    :: Int
      , _models  :: [Model]
      , _objects :: [PreObject]
-     -- TODO: 
-     --, _foreground :: [PreObject] 
      , _background :: [PreObject]
      , _fonts   :: [Model]
      , _cameras :: [ProjectCamera]

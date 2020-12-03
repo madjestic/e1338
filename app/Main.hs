@@ -62,15 +62,11 @@ animate window sf =
         renderOutput _ (game, shouldExit) =
           do
             lastInteraction <- newMVar =<< SDL.time
-            -- relM <- SDL.getRelativeMouseLocation
-            -- print $ "relM :" ++ show relM
             
             R.render
-              --dt
               lastInteraction
               R.OpenGL
               (BackendOptions { primitiveMode = Triangles})
-              --(BackendOptions { primitiveMode = Points})
               window
               game
             return shouldExit
@@ -92,7 +88,7 @@ main = do
                (resX, resY)
 
   -- | SDL Mouse Options
-  -- setMouseLocationMode RelativeLocation
+  setMouseLocationMode RelativeLocation
 
   print "Initializing Game"
   intro <- initGame initVAO introProj
@@ -103,14 +99,7 @@ main = do
       fgrObjs = concat $ toListOf (Game.objects . Obj.foreground)  game :: [Object]
       bgrObjs = concat $ toListOf (Game.objects . Obj.background)  game :: [Object]
 
-  -- print $ "Init fntObjs :" ++ show fntObjs
-  -- print $ "Init fgrObjs :" ++ show fgrObjs
-  -- print $ "Init bgrObjs :" ++ show bgrObjs  
-
   _ <- bindTexureUniforms $ fgrObjs ++ fntObjs ++ bgrObjs
-  --_ <- bindTexureUniforms $ view (Game.objects) game
-
-  -- print $ "init Game :" ++ show game
   
   print "Starting Game."
   animate

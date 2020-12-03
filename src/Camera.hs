@@ -13,7 +13,7 @@ module Camera
 
 import Control.Lens
 import Linear                    (V3(..), V4 (..))
-import FRP.Yampa -- (SF, returnA)
+import FRP.Yampa
 import Data.Functor              (($>))
 import SDL.Input.Keyboard.Codes as SDL
 

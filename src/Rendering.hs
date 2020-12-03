@@ -142,10 +142,8 @@ fromGame game objs time = drs -- (drs, drs')
     resX = fromEnum $ view (options . resx) game :: Int
     resY = fromEnum $ view (options . resy) game :: Int
     res  = ((toEnum resX), (toEnum resY)) :: (CInt, CInt)
-    --cam  = view (playCam . controller . Controllable.transform) game :: M44 Double
     cam  = view playCam game :: Camera
     drs  = concat $ fmap (fromObject mpos time res cam) objs :: [Drawable]
-    --drs  = concat $ fmap (fromObject mpos time res cam) (DT.trace ("objs :" ++ show objs) $ objs) :: [Drawable]
               
 fromObject :: (Double, Double) -> Float -> (CInt, CInt) -> Camera -> Object -> [Drawable]
 fromObject mpos time res cam obj = drs
@@ -181,23 +179,19 @@ render lastInteraction Rendering.OpenGL opts window game =
         fgrObjs = concat $ toListOf (objects . foreground)  game :: [Object]
         bgrObjs = concat $ toListOf (objects . background)  game :: [Object]
         
-        --fntsDrs = fromGame game (DT.trace ("fntObjs :" ++ show fntObjs) $ fntObjs) currentTime :: [Drawable]
         fntsDrs = fromGame game fntObjs currentTime :: [Drawable]
         objsDrs = fromGame game fgrObjs currentTime :: [Drawable]
         bgrsDrs = fromGame game bgrObjs currentTime :: [Drawable]
 
-        --texPaths = concat $ toListOf (foreground . traverse . materials . traverse . Material.textures) (view objects game) :: [FilePath]
         texPaths = concat $ toListOf ( traverse . materials . traverse . Material.textures) (fgrObjs ++ fntObjs) :: [FilePath]
 
-    -- print $ "render fgrObjs :" ++ show fgrObjs
     _ <- mapM_ (draw texPaths (opts { primitiveMode = Triangles }) window) objsDrs
     _ <- mapM_ (draw texPaths (opts { primitiveMode = Points })    window) bgrsDrs
 
-        
+    -- | render FPS
     currentTime <- SDL.time                          
-    dt <- (currentTime -) <$> readMVar lastInteraction -- swapMVar lastInteraction currentTime --dtime
-    -- putStrLn $ "FPS :" ++ show (1/dt) ++ "\n"
-    _ <- drawString (draw texPaths opts window) fntsDrs $ show $ round (1/dt) -- render FPS
+    dt <- (currentTime -) <$> readMVar lastInteraction
+    _ <- drawString (draw texPaths opts window) fntsDrs $ show $ round (1/dt) 
     
     SDL.glSwapWindow window
     
@@ -217,7 +211,7 @@ offsetChar (drw, offset) = drw'
     tr0  = view translation (view (uniforms . u_xform) drw)
     s1    = 0.035 -- scale Offset
     s2    = 0.5   -- scale Size
-    h     = -0.05  -- horizontal offset
+    h     = -0.05 -- horizontal offset
     v     = 0.45  -- vertical   offset
     offsetM44 =
       mkTransformationMat
@@ -247,10 +241,6 @@ drawableChar drs chr =
     '9' -> drs!!9
     _   -> drs!!0
 
--- -- | Alphabet of drawables -> a drawable character with an offset
--- formatCharacter :: [Drawable] -> Char -> Int -> Drawable
--- formatCharacter = undefined
-
 drawString :: (Drawable -> IO ()) -> [Drawable] -> String -> IO ()
 drawString cmds fntsDrs str =
   do
@@ -266,7 +256,6 @@ draw
     (Descriptor vao' numIndices')
     prog) =
   do
-    -- print $ "unis: " ++ show unis
     initUniforms texPaths unis
     
     bindVertexArrayObject $= Just vao'
@@ -301,10 +290,6 @@ initUniforms
   (Uniforms u_mat' u_prog' u_mouse' u_time' u_res' u_cam' u_cam_a' u_cam_f' u_xform') =
   
   do
-    -- | Shaders
-    -- _ <- DT.trace ("vertShader: " ++ show (_vertShader u_mat')) $ return ()
-    -- _ <- DT.trace ("vertShader: " ++ show (_fragShader u_mat')) $ return ()
-
     let programDebug = loadShaders
                        [ ShaderInfo VertexShader   (FileSource (_vertShader u_mat' ))
                        , ShaderInfo FragmentShader (FileSource (_fragShader u_mat' )) ]
@@ -342,8 +327,6 @@ initUniforms
     location4         <- get (uniformLocation program "camera")
     uniform location4 $= camera
 
-    -- print $ show u_mat'
-    -- print $ "u_xform' :" ++  show u_xform'
     xform             <- GL.newMatrix RowMajor $ toList' xform' :: IO (GLmatrix GLfloat)
     location5         <- get (uniformLocation program "xform")
     uniform location5 $= xform
@@ -351,7 +334,6 @@ initUniforms
     xform1            <- GL.newMatrix RowMajor $ toList' u_xform' :: IO (GLmatrix GLfloat)
     location6         <- get (uniformLocation program "xform1")
     uniform location6 $= xform1
-    
 
     -- | Allocate Textures
     let texNames = fmap getTexName texPaths
@@ -389,8 +371,6 @@ getTexName f = (splitOn "." $ (splitOn "/" f)!!1)!!0
 allocateTextures :: Program -> (String, GLuint) -> IO ()
 allocateTextures program (tx, txU) =
   do
-    -- _ <- DT.trace ("tx :" ++ show tx) $ return ()
-    -- _ <- DT.trace ("txU :" ++ show txU) $ return ()
     location <- get (uniformLocation program tx)
     uniform location $= (TextureUnit txU)
     
@@ -401,7 +381,6 @@ initVAO (idx', st', vs', matPath) =
     let
       idx = (fmap unsafeCoerce idx') :: [GLuint]
       vs  = (fmap unsafeCoerce vs')  :: [GLfloat]
-    --_ <- DT.trace ("Rendering.initVAO.vs :" ++ show vs) $ return ()
     -- | VAO
     vao <- genObjectName
     bindVertexArrayObject $= Just vao 
@@ -443,14 +422,11 @@ initVAO (idx', st', vs', matPath) =
 
     return $ Descriptor vao (fromIntegral numIndices)
 
---f = "textures/8192_moon.jpg"
-
 loadTex :: FilePath -> IO TextureObject
 loadTex f =
   do
     t <- either error id <$> readTexture f
     texture2DWrap $= (Repeated, ClampToEdge)
-    --textureFilter Texture2D $= ((Linear', Nothing), Linear')
     textureFilter  Texture2D $= ((Linear', Just Nearest), Linear')
     blend $= Enabled
     blendFunc $= (SrcAlpha, OneMinusSrcAlpha)
