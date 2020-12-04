@@ -1,0 +1,42 @@
+{
+    "name": "Intro: Earth, Moon, ISS, Stars",
+    "resx": 1280,
+    "resy": 720,
+    "models": [
+        { "path": "models/square.bgeo" }
+    ],
+    "objects": [
+        {
+            "pname": "IntroScreen",
+	    "objIDX": 0,
+            "modelIDXs": [ 0 ],
+            "solvers": [],
+            "solverAttrs": []
+        }
+    ],
+    "background": [
+    ],
+    "fonts": [
+        { "path": "models/fnt_0.bgeo" },
+        { "path": "models/fnt_1.bgeo" },
+        { "path": "models/fnt_2.bgeo" },
+        { "path": "models/fnt_3.bgeo" },
+        { "path": "models/fnt_4.bgeo" },
+        { "path": "models/fnt_5.bgeo" },
+        { "path": "models/fnt_6.bgeo" },
+        { "path": "models/fnt_7.bgeo" },
+        { "path": "models/fnt_8.bgeo" },
+        { "path": "models/fnt_9.bgeo" }
+    ],
+    "cameras": [
+	{
+	    "pTransform":
+            [1,0,0, 0,
+             0,1,0, 0,
+             0,0,1,-20,
+             0,0,0, 1],
+	    "pFoc": 100,
+	    "pApt": 50
+	}
+    ]
+}

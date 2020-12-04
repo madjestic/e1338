@@ -1,20 +1,22 @@
 {
-    "name": "Test Box",
+    "name": "Earth Test",
     "resx": 800,
     "resy": 600,
     "models": [
         {
-            "path": "models/box.bgeo"
+            "path": "models/earth.bgeo"
         }
     ],
     "objects": [
         {
-            "pname": "Box",
+            "pname": "Earth",
+            "objIDX": 0,
             "modelIDXs": [
                 0
             ],
             "solvers": [
-                "spin"
+                "rotate",
+                "transform"
             ],
             "solverAttrs": [
                 [
@@ -24,6 +26,11 @@
                     0,
                     0,
                     1000
+                ],
+                [
+                    1000,
+                    0,
+                    0
                 ]
             ]
         }
@@ -63,13 +70,26 @@
     ],
     "cameras": [
         {
-	    "pTransform":
-            [1,0,0, 0,
-             0,1,0, 0,
-             0,0,1,-20,
-             0,0,0, 1],
-	    "pFoc": 100,
-	    "pApt": 50
+            "pApt": 50,
+            "pFoc": 100,
+            "pTransform": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                -1,
+                0,
+                0,
+                0,
+                1
+            ]
         }
     ]
 }

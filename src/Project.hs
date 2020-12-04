@@ -84,13 +84,14 @@ defaultProject =
   "Earth Test"
   800
   600
-  [(Model   "models/earth.bgeo")]
+  [(Model   "models/box.bgeo")]
   [(PreObject
     "Earth"
     0
     [0]
-    ["spin"]
-    [[0,0,0,0,0,1000]]
+    ["rotate", "transform"]
+    [[0,0,0,0,0,1000]
+    ,[1000,0,0]]
    )]
   []
   [(Model   "models/fnt_0.bgeo")

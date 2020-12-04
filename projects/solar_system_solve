@@ -1,0 +1,177 @@
+{
+    "name": "The Solar System",
+    "resx": 640,
+    "resy": 360,
+    "models": [
+	{ "path": "models/square.bgeo" },
+	{ "path": "models/sun.bgeo" },
+	{ "path": "models/earth.bgeo" },
+	{ "path": "models/moon.bgeo"  },
+	{ "path": "models/stars_01.bgeo"},
+	{ "path": "models/mercury.bgeo" },
+	{ "path": "models/venus.bgeo" },
+	{ "path": "models/mars.bgeo" },
+	{ "path": "models/jupiter.bgeo" }
+    ],
+    "objects": [
+        {
+            "pname": "DummyIntroScreen",
+	    "objIDX": 0,
+            "modelIDXs": [ 0 ],
+            "solvers": [],
+            "solverAttrs": []
+        },
+        {
+            "pname": "Sun",
+	    "objIDX": 1,
+            "modelIDXs": [ 1 ],
+            "solvers": [
+		"translate",
+                "rotate"
+            ],
+            "solverAttrs": [
+		[0,10000000000000,0],
+                [0,0,0,0,0,1000 ]
+            ]
+        },
+        {
+            "pname": "Earth",
+	    "objIDX": 2,
+            "modelIDXs": [ 2 ],
+            "solvers": [
+		"translate",
+                "rotate"
+            ],
+            "solverAttrs": [
+		[10000000000,0,0],
+                [0,0,0,0,0,1000 ]
+            ]
+        },
+        {
+            "pname": "Moon",
+	    "objIDX": 3,
+            "modelIDXs": [ 3 ],
+            "solvers": [],
+            "solverAttrs": []
+        },
+        {
+            "pname": "Mercury",
+	    "objIDX": 4,
+            "modelIDXs": [ 5 ],
+            "solvers": [],
+            "solverAttrs": []
+        },
+        {
+            "pname": "Venus",
+	    "objIDX": 5,
+            "modelIDXs": [ 6 ],
+            "solvers": [],
+            "solverAttrs": []
+        },
+        {
+            "pname": "Mars",
+	    "objIDX": 6,
+            "modelIDXs": [ 7 ],
+            "solvers": [],
+            "solverAttrs": []
+        },
+        {
+            "pname": "Jupiter",
+	    "objIDX": 7,
+            "modelIDXs": [ 8 ],
+            "solvers": [],
+            "solverAttrs": []
+        }	
+    ],
+    "background": [
+        {
+            "pname": "Stars",
+	    "objIDX": -1,
+            "modelIDXs": [ 4 ],
+            "solvers": [
+                "rotate"
+            ],
+            "solverAttrs": [
+                [ 0,0,0,0,0,-100 ]
+            ]
+        }		
+    ],
+    "fonts": [
+        { "path": "models/fnt_0.bgeo" },
+        { "path": "models/fnt_1.bgeo" },
+        { "path": "models/fnt_2.bgeo" },
+        { "path": "models/fnt_3.bgeo" },
+        { "path": "models/fnt_4.bgeo" },
+        { "path": "models/fnt_5.bgeo" },
+        { "path": "models/fnt_6.bgeo" },
+        { "path": "models/fnt_7.bgeo" },
+        { "path": "models/fnt_8.bgeo" },
+        { "path": "models/fnt_9.bgeo" }
+    ],
+    "cameras": [
+	{
+	    "pTransform":
+	    [1,0,0,0,
+             0,1,0,0,
+             0,0,1,-150063163046,
+             0,0,0,1],
+	    "pFoc": 200,
+	    "pApt": 50
+	},
+        {
+	    "pTransform":
+	    [6.2280237674713135e-2, 0, -0.9970607161521912, -4.015006012819568e8,
+             0,1,0,0,
+             0.9970607161521912, 0, 6.2280237674713135e-2, -1.5000190631545795e11,
+             0,0,0,1],
+	    "pFoc": 200,
+	    "pApt": 50
+	    
+	},
+        {
+	    "pTransform":
+	    [1,0,0,0,
+             0,1,0,0,
+             0,0,1,-228033173634,
+             0,0,0,1],
+	    "pFoc": 200,
+	    "pApt": 50
+	},
+        {
+	    "pTransform":
+	    [1,0,0,0,
+             0,1,0,0,
+             0,0,1,-108060413789,
+             0,0,0,1],
+	    "pFoc": 200,
+	    "pApt": 50
+	},
+        {
+	    "pTransform":
+	    [1,0,0,0,
+             0,1,0,0,
+             0,0,1,-58025117466,
+             0,0,0,1],
+	    "pFoc": 200,
+	    "pApt": 50
+	},
+        {
+	    "pTransform":
+	    [1,0,0,0,
+             0,1,0,0,
+             0,0,1,-778696453912,
+             0,0,0,1],
+	    "pFoc": 200,
+	    "pApt": 50
+	},
+	{
+	    "pTransform":
+            [1,0,0, 0,
+             0,1,0, 0,
+             0,0,1,-20,
+             0,0,0, 1],
+	    "pFoc": 100,
+	    "pApt": 50
+	}	
+    ]
+}

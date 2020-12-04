@@ -64,6 +64,7 @@ toSolver :: (String, [Double]) -> Solver
 toSolver (x, ys) =
   case x of
     "pretranslate" -> PreTranslate (toV3 ys)
+    "translate"    -> Translate    (toV3 ys)
     "prerotate"    -> PreRotate    (toV3 $ take 3 ys) (toV3 $ drop 3 ys)
     "rotate"       -> Rotate       (toV3 $ take 3 ys) (toV3 $ drop 3 ys)
     _              -> Identity
@@ -96,29 +97,12 @@ transformer solver mtx0 =
       _ ->
         do
           returnA -< mtx0
+    --returnA -< (DT.trace ("state :" ++ show state) $ state)
     returnA -< state
       where
-        Rotate pv0 ypr0 = solver
-        Translate  txyz = solver
+        Rotate pv0 ypr0     = solver
+        Translate  txyz     = solver
         Gravity v0 m0 ps ms = solver
-
-rotate :: M44 Double -> V3 Double -> V3 Double -> SF () (M44 Double)
-rotate mtx0 pv0 ypr0 =
-  proc () -> do
-    ypr' <- ((V3 0 0 0) ^+^) ^<< integral -< ypr0
-    let mtx =
-          mkTransformationMat
-            rot
-            tr
-            where
-              rot =
-                (view _m33 mtx0)
-                !*! fromQuaternion (axisAngle (view _x (view _m33 mtx0)) (view _x ypr')) -- yaw
-                !*! fromQuaternion (axisAngle (view _y (view _m33 mtx0)) (view _y ypr')) -- pitch
-                !*! fromQuaternion (axisAngle (view _z (view _m33 mtx0)) (view _z ypr')) -- roll
-              tr  = view (_w._xyz) mtx0
-
-    returnA -< mtx
 
 identity :: M44 Double -> M44 Double
 identity mtx0 = mtx
@@ -169,6 +153,23 @@ translate mtx0 v0 =
               rot =
                 (view _m33 mtx0)
               tr = tr'
+    returnA -< mtx
+
+rotate :: M44 Double -> V3 Double -> V3 Double -> SF () (M44 Double)
+rotate mtx0 pv0 ypr0 =
+  proc () -> do
+    ypr' <- ((V3 0 0 0) ^+^) ^<< integral -< ypr0
+    let mtx =
+          mkTransformationMat
+            rot
+            tr
+            where
+              rot =
+                (view _m33 mtx0)
+                !*! fromQuaternion (axisAngle (view _x (view _m33 mtx0)) (view _x ypr')) -- yaw
+                !*! fromQuaternion (axisAngle (view _y (view _m33 mtx0)) (view _y ypr')) -- pitch
+                !*! fromQuaternion (axisAngle (view _z (view _m33 mtx0)) (view _z ypr')) -- roll
+              tr  = view (_w._xyz) mtx0
     returnA -< mtx
 
 g = 6.673**(-11.0) :: Double
