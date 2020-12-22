@@ -13,6 +13,7 @@ INDEX=${2:-} # optional argument {--skip} or nothing {}. e.g. foo --skip
 convertGeo(){
     if [ -e "$SOURCE" ]
     then
+	printf "\n"
 	echo "Running geoParser.py..."
 	echo "python ./resources/geoParser.py" $SOURCE $PDG $INDEX
 	python ./resources/geoParser.py $SOURCE $PDG $INDEX

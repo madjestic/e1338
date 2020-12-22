@@ -41,6 +41,7 @@ library
               , bearriver           ^>= 0.13.1.2
               --, Yampa               ^>= 0.13.1
               , simple-affine-space ^>= 0.1.1
+              , sort                ^>= 1.0.0.0
 
   exposed-modules:
                 AppInput
@@ -58,8 +59,7 @@ library
               , Solvable
               , Texture
               , Utils
-              , VGeo
---              , GUI  
+              
   other-modules:
                 Paths_e1338
               , LoadShaders
@@ -97,6 +97,8 @@ executable e1338
               -- , Yampa      ^>= 0.13.1
               , simple-affine-space ^>= 0.1.1
               , hmatrix    ^>= 0.20.0.0
+              , sort       ^>= 1.0.0.0
+
 
   other-modules:
                 Paths_e1338
@@ -112,7 +114,6 @@ executable e1338
               , FromVector
               , Game
               , PGeo
-              , VGeo
               , AppInput
               , Keyboard
               , Mouse
@@ -164,6 +165,7 @@ executable genProject
               , bytestring   ^>= 0.10.8.2
               , lens         ^>= 4.19.1
               , text       ^>= 1.2.2.2
+              , sort       ^>= 1.0.0.0              
 
   other-modules:
                 Paths_e1338
@@ -204,7 +206,6 @@ executable geoIndexer
               , Material
               , FromVector
               , PGeo
-              , VGeo
               , Utils
 
   default-language:
@@ -231,14 +232,13 @@ executable rpcShuffler
               , lens       ^>= 4.19.1
               , store      ^>= 0.7.4
               , simple-affine-space ^>= 0.1.1
-              , linear     ^>= 1.20.8                        
+              , linear     ^>= 1.20.8
               
   other-modules:
                 Paths_e1338
               , FromVector
               , Material
               , PGeo
-              , VGeo
               , Utils
               
   default-language:

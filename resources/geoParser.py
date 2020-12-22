@@ -154,7 +154,9 @@ def parseJSON(jsonFile):
     ### Global Attributes
     globAttrs         = attrs ["globalattributes"]
     # print("globAttrs :", globAttrs)
-    glAttrXform       = (toDict(toDict((globAttrs[0])[1])["values"])["tuples"])
+    glAttrM           = (toDict(toDict((globAttrs[0])[1])["values"])["arrays"])    
+    glAttrV           = (toDict(toDict((globAttrs[1])[1])["values"])["tuples"])    
+    glAttrXform       = (toDict(toDict((globAttrs[2])[1])["values"])["tuples"])
     # print("debug :", glAttrXform)      
 
     # DEBUG:
@@ -206,9 +208,7 @@ def parseJSON(jsonFile):
     # Reorder Alpha according to the shuffled indices.
     # print("DEBUG :", vtxAttrAlphaArrays)
     vtxAttrAlphaArrays = (reorder ((concatenate(vtxAttrAlphaArrays)), source_order, target_order)).tolist()
-    # jsonEntry = {'Alpha' : list(chain.from_iterable(vtxAttrAlphaArrays))}
     jsonEntry = {'as' : vtxAttrAlphaArrays}    
-    # data.get('PGeo').update(jsonEntry)
     data.update(jsonEntry)
 
     # print("pre_vtxAttrCdTuples :", vtxAttrCdTuples)
@@ -216,32 +216,33 @@ def parseJSON(jsonFile):
     # print("vtxAttrCdTuples :", vtxAttrCdTuples)
     vtxAttrCdTuples = (reorder ((array(vtxAttrCdTuples)), source_order, target_order)).tolist()
     jsonEntry = {'cs' : vtxAttrCdTuples}
-    # data.get('PGeo').update(jsonEntry)
     data.update(jsonEntry)
 
     vtxAttrNTuples = (reorder ((array(vtxAttrNTuples)), source_order, target_order)).tolist()
     jsonEntry = {'ns' : vtxAttrNTuples}
-    # data.get('PGeo').update(jsonEntry)
     data.update(jsonEntry)
 
     # Fix `/` in a file path
     vtxAttrMatDictVals = fixPaths(vtxAttrMatDictVals)
     
     jsonEntry = {'mats' : vtxAttrMatDictVals}
-    # data.get('PGeo').update(jsonEntry)
     data.update(jsonEntry)
 
     vtxAttrUVTuples = (reorder ((array(vtxAttrUVTuples)), source_order, target_order)).tolist()
     jsonEntry = {'uvws' : vtxAttrUVTuples}
-    # data.get('PGeo').update(jsonEntry)
     data.update(jsonEntry)
 
     jsonEntry = {'ps' : ptAttrPTuples}
-    # data.get('PGeo').update(jsonEntry)
+    data.update(jsonEntry)
+
+    # vtxAttrAlphaArrays = (reorder ((concatenate(vtxAttrAlphaArrays)), source_order, target_order)).tolist()
+    jsonEntry = {'m' : concat(glAttrM)}
+    data.update(jsonEntry)
+
+    jsonEntry = {'v' : glAttrV}
     data.update(jsonEntry)
 
     jsonEntry = {'xform' : glAttrXform}
-    # data.get('PGeo').update(jsonEntry)
     data.update(jsonEntry)
 
     return data

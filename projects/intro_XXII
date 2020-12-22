@@ -1,9 +1,9 @@
 {
     "name": "Intro: Earth, Moon, ISS, Stars",
-    "resx": 1280,
-    "resy": 720,
+    "resx": 320,
+    "resy": 200,
     "models": [
-        { "path": "models/square.bgeo" }
+        { "path": "models/intro_square.bgeo" }
     ],
     "objects": [
         {
@@ -26,7 +26,7 @@
         { "path": "models/fnt_6.bgeo" },
         { "path": "models/fnt_7.bgeo" },
         { "path": "models/fnt_8.bgeo" },
-        { "path": "models/fnt_9.bgeo" }
+        { "path": "models/fnt_9.bgeo" }	
     ],
     "cameras": [
 	{

@@ -31,10 +31,13 @@ import Data.Aeson.TH
 import Data.Aeson.Encode.Pretty
 import Data.ByteString.Lazy as B hiding (drop, pack)
 import Data.Maybe                (fromMaybe)
+import Data.Sort (sortOn)                              
 import Data.Text                 hiding (drop)
 
 import Texture
 import Model
+
+import Debug.Trace as DT
 
 data PreObject
   =  PreObject
@@ -130,14 +133,29 @@ parse filePath =
         resx'     = (_resx     . fromEitherDecode) d
         resy'     = (_resy     . fromEitherDecode) d
         models'   = (_models   . fromEitherDecode) d
-        objects'  = (_objects  . fromEitherDecode) d
-        background'  = (_background . fromEitherDecode) d
+        preObjs'  = (_objects  . fromEitherDecode) d
+        bgrObjs'  = (_background . fromEitherDecode) d
         fonts'    = (_fonts    . fromEitherDecode) d
         cameras'  = (_cameras  . fromEitherDecode) d
-    return $ Project name' resx' resy' models' objects' background' fonts' cameras'
+    return $
+      Project
+      name'
+      resx'
+      resy'
+      models'
+      --(sortOn (view objIDX) preObjs')
+      (sortOn (view objIDX) preObjs')
+      (sortOn (view objIDX) bgrObjs')
+      fonts'
+      cameras'
+      
       where
         fromEitherDecode = fromMaybe emptyProject . fromEither
         fromEither d =
           case d of
             Left err -> Nothing
             Right pt -> Just pt
+
+-- sortByIDX  :: [PreObject] -> [PreObject]
+-- sortByIDX = sortOn (view objIDX)
+            

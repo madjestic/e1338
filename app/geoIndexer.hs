@@ -17,7 +17,6 @@ import Options.Applicative
 import Data.Semigroup ((<>))
 
 import PGeo
-import VGeo
 
 --import Debug.Trace as DT
 
@@ -64,7 +63,8 @@ writeVGeo fileOut vgeo =
 writeBGeo :: FilePath -> VGeo -> IO ()
 writeBGeo fileOut vgeo =
   do
-    BS.writeFile fileOut $ encode $ ( is vgeo, st vgeo, vs vgeo, ms vgeo, xf vgeo )
+    -- print $ "writeBGeo.vgeo :" ++ show vgeo
+    BS.writeFile fileOut $ encode $ ( is vgeo, st vgeo, vs vgeo, mts vgeo, ms vgeo, vls vgeo, xf vgeo )
 
 main :: IO ()
 main = do
@@ -82,8 +82,9 @@ main = do
   --     index   =  (unsafeCoerce (args!!2) :: FilePath)
 
   currentTime <- getCurrentTime
-  putStrLn $ "reading PGeo: " ++ (formatTime' currentTime)
+  -- putStrLn $ "reading PGeo: " ++ show args ++ (formatTime' currentTime) 
   pgeo <- readPGeo (fileIn args)
+  -- print $ "geoIndexer.pgeo :" ++ show pgeo
   putStrLn "running indexer..."
   --let vgeo = fromPGeo pgeo
   let vgeo = case (skip args) of

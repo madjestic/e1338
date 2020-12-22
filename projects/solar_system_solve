@@ -40,11 +40,13 @@
             "modelIDXs": [ 2 ],
             "solvers": [
 		"translate",
-                "rotate"
+                "rotate",
+		"gravity"
             ],
             "solverAttrs": [
 		[10000000000,0,0],
-                [0,0,0,0,0,1000 ]
+                [0,0,0,0,0,1000 ],
+		[1]
             ]
         },
         {

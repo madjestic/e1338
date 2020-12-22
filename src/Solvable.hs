@@ -53,10 +53,11 @@ data Solver =
      }
   |  Gravity
     {
-      _vel  :: V3 Double
-    , _m    :: Double
-    , _ps   :: [V3 Double]
-    , _ms   :: [Double]
+    --   _vel  :: V3 Double
+    -- , _m    :: Double
+    --   _ps   :: [V3 Double]
+    -- , _ms   :: [Double]
+      _idxs :: [Int]
     } deriving Show
 $(makeLenses ''Solver)
 
@@ -67,7 +68,10 @@ toSolver (x, ys) =
     "translate"    -> Translate    (toV3 ys)
     "prerotate"    -> PreRotate    (toV3 $ take 3 ys) (toV3 $ drop 3 ys)
     "rotate"       -> Rotate       (toV3 $ take 3 ys) (toV3 $ drop 3 ys)
+    "gravity"      -> Gravity      idxs'
     _              -> Identity
+  where
+    idxs' = undefined :: [Int]
 
 preTransformer :: Solver -> M44 Double -> M44 Double
 preTransformer solver mtx0 = mtx
@@ -90,19 +94,22 @@ transformer solver mtx0 =
         do
           mtx' <- translate mtx0 txyz -< ()
           returnA -< mtx'
-      Gravity _ _ _ _ ->
+      Gravity _ ->
         do
           mtx' <- gravity mtx0 v0 m0 ps ms -< ()
           returnA -< mtx'
       _ ->
         do
           returnA -< mtx0
-    --returnA -< (DT.trace ("state :" ++ show state) $ state)
     returnA -< state
       where
-        Rotate pv0 ypr0     = solver
+        v0 = undefined 
+        m0 = undefined
+        ps = undefined 
+        ms = undefined 
+        Rotate     pv0 ypr0 = solver
         Translate  txyz     = solver
-        Gravity v0 m0 ps ms = solver
+        Gravity    idxs     = solver
 
 identity :: M44 Double -> M44 Double
 identity mtx0 = mtx

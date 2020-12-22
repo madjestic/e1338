@@ -108,6 +108,7 @@ updateGame game =
   proc input -> do
     (cams, cam) <- updateCameras ((Game._cameras game), (Game._playCam game)) -< input
     objs <- updateObjects $ _foreground (Game._objects game) -< ()
+    objTree <- updateObjTree game -< ()
 
     let
       objTree = Game._objects game
@@ -119,6 +120,11 @@ updateGame game =
 
     returnA  -< result
     -- returnA  -< (DT.trace (show (view (playCam . controller . Controllable.transform ) result)) $ result)
+
+updateObjTree :: Game -> SF () ObjectTree -- TODO
+updateObjTree game =
+  proc () -> do
+    returnA -< (view Game.objects game)
     
 handleExit :: SF AppInput Bool
 handleExit = quitEvent >>^ isEvent
@@ -137,7 +143,7 @@ initGame initVAO project =
   do
     print "initializing game resources..."
     print $ "project name :" ++ (view Prj.name project)
-    objs  <- (loadObjects initVAO project)
+    objTree <- (initObjectTree initVAO project)
 
     let
       cams = fmap fromProjectCamera $ view Prj.cameras project
@@ -145,7 +151,7 @@ initGame initVAO project =
       camerasP = fmap fromList $ toListOf (Prj.cameras . traverse . pTransform) project
       playCamP = camerasP!!0 --fromList $ camerasP!!0
     --pc <- fromVGeo $ fromPGeo pCloud  -- PCloud Point Cloud
-    --let objs = [pc]
+    --let objTree = [pc]
     let game =
           Game
           (-42,-17)
@@ -156,7 +162,7 @@ initGame initVAO project =
           )
           --GamePlaying
           GameIntro
-          objs
+          objTree
           pCam
           cams
 

@@ -111,7 +111,11 @@ matchLists il nil =
       where
         nili = elemIndex cy cxs
         cxs  = fmap (\(i,s) -> s) il :: [[GLfloat]]
-    
+
+-- TODO: create a fromList typeclass?
+-- [a] -> V3 a
+-- [a] -> M44 a
+-- etc.
 fromList :: [Float] -> M44 Double
 fromList xs' = V4 x y z w
   where

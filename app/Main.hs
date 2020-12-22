@@ -75,20 +75,23 @@ animate window sf =
 main :: IO ()
 main = do
 
+  let
+  --args = ["./projects/intro_XXII", "./projects/intro_XXII"]
   args <- getArgs
   introProj <- Prj.parse (unsafeCoerce (args!!0) :: FilePath)
   proj      <- Prj.parse (unsafeCoerce (args!!1) :: FilePath)
-
-  let title = pack $ view Prj.name proj
-      resX  = (unsafeCoerce $ view Prj.resx proj) :: CInt
-      resY  = (unsafeCoerce $ view Prj.resy proj) :: CInt
+  
+  let
+    title = pack $ view Prj.name proj
+    resX  = (unsafeCoerce $ view Prj.resx proj) :: CInt
+    resY  = (unsafeCoerce $ view Prj.resy proj) :: CInt
 
   window    <- openWindow
                title
                (resX, resY)
 
   -- | SDL Mouse Options
-  setMouseLocationMode RelativeLocation
+  -- setMouseLocationMode RelativeLocation
 
   print "Initializing Game"
   intro <- initGame initVAO introProj

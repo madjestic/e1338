@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# N-body, gravity solver test
+# cabal build exe:e1338
+# cabal run +RTS -sstderr -RTS e1338 ./projects/intro_XXII ./projects/intro_XXII # ./projects/n_body
+
+# Solar System
 cabal build exe:e1338
-# cabal run +RTS -sstderr -RTS e1338 ./projects/intro_earth_moon_iss_stars ./projects/earth_moon_iss_stars
-cabal run +RTS -sstderr -RTS e1338 ./projects/intro_XXII ./projects/solar_system_solve
+cabal run +RTS -sstderr -RTS e1338 ./projects/intro_XXII ./projects/solar_system_solve_new_test

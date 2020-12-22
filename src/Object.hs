@@ -18,7 +18,7 @@ module Object
   , gui
   , foreground
   , Object.background
-  , loadObjects
+  , initObjectTree
   , GUI (..)
   , Object.fonts
   , icons
@@ -28,6 +28,7 @@ module Object
   , updateObjects
   ) where
 
+import GHC.Float
 import Linear.V4
 import Linear.Matrix -- (M44, M33, identity, translation, fromQuaternion, (!*!), mkTransformationMat)
 import Linear (V3(..))
@@ -41,7 +42,6 @@ import Material
 import Descriptor
 import Solvable
 import PGeo
-import VGeo
 import Project
 import Model
 import Utils
@@ -103,65 +103,63 @@ defaultObj =
     (0.0)
     []
 
-
-loadPreObjects :: ObjectClass -> Project -> [String]
-loadPreObjects cls project = modelList
+-- TODO: This is wrong, as it will return duplicate models, it should be a list of Objects with indexes matching the VGeos instead...
+-- | returns a list of model paths
+modelPaths :: ObjectClass -> Project -> [String]
+modelPaths cls project = modelList
   where
     modelSet  = toListOf (models . traverse . path) project :: [String]
-    modelList =
-      
+    modelList =      
       case cls of
         Foreground -> (modelSet!!) <$> (concat $ toListOf ( objects . traverse . modelIDXs ) project)
         Background -> (modelSet!!) <$> (concat $ toListOf ( Project.background . traverse . modelIDXs ) project)
         Font       -> (toListOf (Project.fonts . traverse . path) project)
 
-loadObjects :: (([Int], Int, [Float], Material) -> IO Descriptor) -> Project -> IO ObjectTree
-loadObjects initVAO project = 
+initObjectTree :: (([Int], Int, [Float], Material) -> IO Descriptor) -> Project -> IO ObjectTree
+initObjectTree initVAO project = 
   do
     -- _ <- Dt.trace ("project :" ++ show project) $ return ()
     print "Loading Models..."
 
+    pgeo <- readPGeo "./models/body_0.pgeo"
+    -- print $ "initObjectTree.pgeo" ++ show pgeo
+
+    vgeo <- readBGeo "./models/body_0.bgeo"
+    -- print $ "initObjectTree.vgeo" ++ show vgeo
+
     fgrVGeos  <-
       mapM (\modelPath ->
-               do { vgeo <- readBGeo modelPath :: IO VGeo
+               do { vgeo <- readBGeo modelPath :: IO VGeo --TODO: error here, seems to be empty
                   ; return vgeo
                   }
-           ) $ (loadPreObjects Foreground project ) :: IO [VGeo]
+           ) $ (modelPaths Foreground project ) :: IO [VGeo]
+    -- print ("initObjectTree.fgrVGeos :" ++ show fgrVGeos)
 
     bgrVGeos  <-
       mapM (\modelPath ->
                do { vgeo <- readBGeo modelPath :: IO VGeo
                   ; return vgeo
                   }
-           ) $ (loadPreObjects Background project ) :: IO [VGeo]
+           ) $ (modelPaths Background project ) :: IO [VGeo]
                                                                                                                             
     fntVGeos  <-
       mapM (\modelPath ->
                do { vgeo <- readBGeo modelPath :: IO VGeo
                   ; return vgeo
                   }
-           ) $ (loadPreObjects Font project ) :: IO [VGeo]
+           ) $ (modelPaths Font project ) :: IO [VGeo]
                                               
-    -- print $ "loadObjects fgrVGeos :" ++ show (length fgrVGeos)
-    -- print $ "loadObjects bgrVGeos :" ++ show (length bgrVGeos)
-    -- print $ "loadObjects fntVGeos :" ++ show (length fntVGeos)
     objs  <- if (length fgrVGeos > 0 ) then (mapM (initObject project initVAO Foreground) $ zip fgrVGeos [0..]) else pure []  :: IO [Object]
     bgrs  <- if (length bgrVGeos > 0 ) then (mapM (initObject project initVAO Background) $ zip bgrVGeos [0..]) else pure []  :: IO [Object]
     fonts <- if (length fntVGeos > 0 ) then (mapM (initObject project initVAO Font)       $ zip fntVGeos [0..]) else pure []  :: IO [Object]
-    --let
-    --   objs = []  :: [Object] 
-      -- bgrs = []  :: [Object] 
-      -- fonts = [] :: [Object] 
-    -- print $ "loadObjects objs :" ++ show objs
-    
+
     let result =
           ObjectTree
           ( GUI fonts [] )
           objs
           bgrs
-    -- TODO : Here somewhere add solver inits <- read project file
+
     print "Finished loading models."
-    
     return (result)
 
 
@@ -176,14 +174,14 @@ initObject project
            (vgeo, idx) =
   do
     print "Loading Materials..."
-    mats  <- mapM readMaterial $ ms vgeo :: IO [Material]
+    mats  <- mapM readMaterial $ mts vgeo :: IO [Material]
     
-    let (VGeo is_ st_ vs_ ms_ xf_) = vgeo
+    let (VGeo is_ st_ vs_ mts_ ms_ vels_ xf_) = vgeo
         vaoArgs       = (\idx' st' vao' mat' -> (idx', st', vao', mat'))
                         <$.> is_ <*.> st_ <*.> vs_ <*.> mats
         offset        = fmap ((view _w).fromList) (xf_)
-        vel           = undefined :: V3 Double
-        m             = undefined :: Double
+        vel           = toV3 (fmap float2Double (vels_!!0)) :: V3 Double -- TODO: this can be a list of vels, representing animated series, could be used later to create animations
+        m             = realToFrac (ms_!!0):: Double      -- TODO: same here
 
         solversF      = case solvers' of
                           [] -> [""]
@@ -208,8 +206,8 @@ initObject project
           , _materials   = mats
           , _programs    = progs
           , _transforms  = preTransforms
-          -- , _velocity    = vel
-          -- , _mass        = m
+          , _velocity    = (DT.trace ("vel :" ++ show vel ) $ vel)
+          , _mass        = (DT.trace ("vel :" ++ show m ) $ m)
           , Object._solvers = solvs
           } :: Object
 
@@ -227,7 +225,7 @@ initObject project
             Font       -> []
 
 fromVGeo :: (([Int], Int, [Float], Material) -> IO Descriptor) -> VGeo -> IO Object
-fromVGeo initVAO (VGeo idxs st vaos matPaths xform) = 
+fromVGeo initVAO (VGeo idxs st vaos matPaths mass vels xform) = 
   do
     mats <- mapM readMaterial matPaths -- (ms vgeo)
     let
@@ -244,24 +242,23 @@ fromVGeo initVAO (VGeo idxs st vaos matPaths xform) =
 
     return object
     
-solve :: Object -> SF () Object
-solve obj =
+solve :: [Object] -> Object -> SF () Object
+solve objs obj =
   proc () -> do
-    mtxs <- (parB . fmap (transform obj)) slvs0 -< ()
+    mtxs <- (parB . fmap (transform objs obj)) slvs0 -< ()
     returnA -< obj { _transforms = vectorizedCompose mtxs }
       where
         slvs0 = view Object.solvers obj
         mtxs0 = view transforms     obj
 
-transform :: Object -> Solver -> SF () ([M44 Double])
-transform obj0 slv0 = 
+transform :: [Object] -> Object -> Solver -> SF () ([M44 Double])
+transform objs obj0 slv0 = 
   proc () ->
     do
-      mtxs <- (parB . fmap (transformer slv0)) mtxs0 -< ()
+      mtxs <- (parB . fmap (transformer slv0)) mtxs0 -< () -- TODO: pass object as arg to trabsformer
       returnA -< mtxs
         where
           mtxs0 = view transforms obj0 :: [M44 Double]
-          func  = undefined
 
 vectorizedCompose :: [[M44 Double]] -> [M44 Double]
 vectorizedCompose = fmap (foldr1 (^*^)) . DL.transpose
@@ -273,4 +270,4 @@ vectorizedCompose = fmap (foldr1 (^*^)) . DL.transpose
     tr  = (view translation mtx0) ^+^ (view translation mtx1)
 
 updateObjects :: [Object] -> SF () [Object]
-updateObjects =  parB . fmap solve
+updateObjects xs =  parB . fmap (solve xs) $ xs

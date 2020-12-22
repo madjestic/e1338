@@ -16,6 +16,7 @@
 
 module PGeo
   ( PGeo(..)
+  , VGeo(..)
   , Vec3(..)
   , readPGeo
   , readVGeo
@@ -32,15 +33,16 @@ import qualified Data.ByteString.Lazy as BL
 import qualified Data.ByteString      as BS
 import Graphics.Rendering.OpenGL      as GL   (Vertex4(..))
 import Data.Store                     as DS
+import Linear (V3(..))
 
 import FromVector
-import VGeo
 import Utils
 
 import Debug.Trace   as DT
 
 -- | TODO : replace Vec3 -> Vec4
 type Vec3 = (Double, Double, Double)
+
 type Vec4 = (Double, Double, Double, Double)
 
 instance FromVector Vec3 where
@@ -55,13 +57,27 @@ data PGeo
      , cs    :: [Vec3]  -- 3
      , ns    :: [Vec3]  -- 3
      , uvws  :: [Vec3]  -- 3
-     , ps    :: [Vec3]  -- 3 -> 13+1 -> 14 stride
+     , ps    :: [Vec3]  -- 3 -> 13+1 -> 14 stride -- TODO: add v (vel), m (mass)
      , mats  :: [String]
+     , m     :: [Float]
+     , v     :: [Vec3] -- [[x,y,x]] ~= [Vec3]
      , xform :: [[Float]] -- [xform M44]
      }
   deriving Show
-
 deriveJSON defaultOptions ''PGeo
+
+data VGeo
+  =  VGeo
+     {
+       is  :: [[Int]]    -- indices
+     , st  :: [Int]      -- strides
+     , vs  :: [[Float]]  -- all attrs as a flat list
+     , mts :: [FilePath] -- materials
+     , ms  :: [Float]    -- masses
+     , vls :: [[Float]]     -- velocities
+     , xf  :: [[Float]]  -- preTransforms
+     }
+  deriving Show
 
 readBGeo :: FilePath -> IO VGeo
 readBGeo file = 
@@ -69,51 +85,63 @@ readBGeo file =
     -- _ <- DT.trace "trace" $ return ()
     bs <- BS.readFile file
     return $ case (DS.decode bs) of
-               Right d@(idxs, st, vaos, mats, xform) -> VGeo idxs st vaos mats xform
-               Left _ -> VGeo [[]] [] [[]] [] [[]]
+               Right d@(idxs, st, vaos, mats, mass, vels, xform) -> VGeo idxs st vaos mats mass vels xform
+               Left _ -> VGeo [[]] [] [[]] [] [] [] [[]]
 
 readVGeo :: FilePath -> IO VGeo
 readVGeo file = 
   do
-    d <- decodeFileStrict file :: IO (Maybe ([[Int]],[Int],[[Float]],[String],[[Float]]))
+    d <- decodeFileStrict file :: IO (Maybe ([[Int]],[Int],[[Float]],[String], [Float], [[Float]], [[Float]]))
     return $ case d of
-               Just d@(idxs, st, vaos, mats, xform) -> VGeo idxs st vaos mats xform
-               Nothing  -> VGeo [[]] [] [[]] [] [[]]
+               Just d@(idxs, st, vaos, mats, mass, vels, xform) -> VGeo idxs st vaos mats mass vels xform
+               Nothing  -> VGeo [[]] [] [[]] [] [] [] [[]]
 
 readPGeo :: FilePath -> IO PGeo
 readPGeo jsonFile =
   do
     d <- (eitherDecode <$> BL.readFile jsonFile) :: IO (Either String PGeo)
-    -- print d
+    --print $ "readPGeo.d :" ++ show d
+    -- case d of
+    _ <-
+      case (fromEither d) of
+        Nothing -> print $ "readPGeo.d :" ++ show d
+        _ -> putStrLn $ "parsing the " ++ (show jsonFile) ++ ": OK"
+    
     let ids'  = (ids   . fromEitherDecode) d
         as'   = (as    . fromEitherDecode) d
         cs'   = (cs    . fromEitherDecode) d
         ns'   = (ns    . fromEitherDecode) d
         uvws' = (uvws  . fromEitherDecode) d
         ps'   = (ps    . fromEitherDecode) d
-        ms'   = (mats  . fromEitherDecode) d
+        mts'  = (mats  . fromEitherDecode) d
+        mass' = (m     . fromEitherDecode) d
+        vels' = (v     . fromEitherDecode) d
         xf'   = (xform . fromEitherDecode) d
-    return $ PGeo ids' as' cs' ns' uvws' ps' ms' xf'
+    return $ PGeo ids' as' cs' ns' uvws' ps' mts' mass' vels' xf'
 
       where
-        fromEitherDecode = fromMaybe (PGeo [[]] [] [] [] [] [] [] [[]]) . fromEither
+        fromEitherDecode = fromMaybe (PGeo [[]] [] [] [] [] [] [] [] [] [[]]) . fromEither
         fromEither d =
           case d of
             Left err -> Nothing
             Right pt -> Just pt
 
+            
+
 fromPGeo :: PGeo -> VGeo
-fromPGeo (PGeo idx' as' cs' ns' uvw' ps' ms' xf') = (VGeo idxs st vaos ms' xf')
+fromPGeo (PGeo idx' as' cs' ns' uvw' ps' mts' mass' vels' xf') = (VGeo idxs st vaos mts' mass' vels xf')
   where
     stride = 13 -- TODO: make it more elegant, right now VBO's are hard-coded to be have stride = 13...
     vao = (toVAO idx' as' cs' ns' uvw' ps')
     (idxs, vaos) = unzip $ fmap (toIdxVAO stride) vao -- that already outputs [[]], but vao, I think,is still a single element list?
     st           = take (length vaos) $ repeat stride
+    vels         = fmap (\(x,y,z)   -> fmap realToFrac [x,y,z]) vels'
 
 fromPGeo' :: PGeo -> VGeo
-fromPGeo' (PGeo idx' as' cs' ns' uvw' ps' ms' xf') = (VGeo idxs st vaos ms' xf')
+fromPGeo' (PGeo idx' as' cs' ns' uvw' ps' mts' mass' vels' xf') = (VGeo idxs st vaos mts' mass' vels xf')
   where
     stride = 13 -- TODO: make it more elegant, right now VBO's are hard-coded to be have stride = 13...
     vao = (toVAO idx' as' cs' ns' uvw' ps')
     (idxs, vaos) = unzip $ fmap (toIdxVAO' stride) vao -- that already outputs [[]], but vao, I think,is still a single element list?
     st           = take (length vaos) $ repeat stride
+    vels         = fmap (\(x,y,z)   -> fmap realToFrac [x,y,z]) vels'
