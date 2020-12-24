@@ -15,9 +15,10 @@ module Utils
   , rotateList
   ) where
 
+import GHC.Float
 import Graphics.Rendering.OpenGL as GL (GLfloat)
-
 import Data.Set                  as DS (fromList, toList)
+import Data.List                 as DL (transpose)
 import Data.List.Index                 (indexed)
 import Data.List                       (elemIndex)
 import Linear.V3
@@ -27,7 +28,7 @@ import Linear.Metric    as LM
 import Data.VectorSpace as DV
 import Control.Lens (view)
 
---import Debug.Trace as DT
+import Debug.Trace as DT
 
 instance VectorSpace (V3 Double) Double where
   zeroVector                   = (V3 0 0 0)
@@ -61,17 +62,17 @@ toVAO
   -> [[[Float]]]
 
 toVAO idxs as cds ns ts ps = vaos
-  where vaos =
-          fmap
-          (\idx ->
-              (fmap (\i ->
-                        (\x         -> [x])                       (as !!(idx!!i)) ++ -- 1
-                        (\(r,g,b)   -> fmap realToFrac [r,g,b])   (cds!!(idx!!i)) ++ -- 3
-                        (\(x,y,z)   -> fmap realToFrac [x,y,z])   (ns !!(idx!!i)) ++ -- 3
-                        (\(u,v,w)   -> fmap realToFrac [u,v,w])   (ts !!(idx!!i)) ++ -- 3
-                        (\(x,y,z)   -> fmap realToFrac [x,y,z])   (ps !!(idx!!i))    -- 3 -> 13 stride
-                    ) [0..(length idx)-1])
-          ) idxs
+  where
+    as'   = fmap (\a -> [a]) as
+    cds'  = fmap (\(r,g,b)   -> fmap double2Float [r,g,b]) cds :: [[Float]]
+    ns'   = fmap (\(x,y,z)   -> fmap double2Float [x,y,z]) ns
+    ts'   = fmap (\(u,v,w)   -> fmap double2Float [u,v,w]) ts
+    ps'   = fmap (\(x,y,z)   -> fmap double2Float [x,y,z]) ps
+    
+    cList = (\as'' cds'' ns'' ts'' ps'' -> concat [as'', cds'', ns'', ts'', ps''])
+            <$.> as' <*.> cds' <*.> ns' <*.> ts' <*.> ps' :: [[Float]]
+
+    vaos  = fmap (\idx -> (fmap (\i -> cList!!i) idx)) idxs
 
 -- | [Float]  ~= vertex
 --  [[Float]] ~= VAO

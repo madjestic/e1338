@@ -28,6 +28,12 @@ import Foreign.Storable                       (sizeOf)
 import Graphics.Rendering.OpenGL as GL hiding (color, normal, Size)
 import SDL                             hiding (Point, Event, Timer, (^+^), (*^), (^-^), dot, project)
 import Graphics.GLUtil                        (readTexture, texture2DWrap)
+import Linear.Vector
+import Linear.Matrix
+import Data.Foldable     as DF (toList)
+import Linear.Projection as LP (perspective, infinitePerspective)
+import Unsafe.Coerce
+import Control.Lens       hiding (xform, indexed)
 
 import LoadShaders
 import Game
@@ -39,17 +45,8 @@ import Material
 import Mouse
 import Project                 (Project)
 import Texture                 (path)
+import Utils                   
 
-import Linear.Vector
-import Linear.Matrix
-import Utils                   ()
-
-import Data.Foldable     as DF (toList)
-import Linear.Projection as LP (perspective, infinitePerspective)
-
-import Unsafe.Coerce
-
-import Control.Lens       hiding (xform, indexed)
 import Debug.Trace as DT
 
 #ifdef DEBUG
@@ -128,12 +125,6 @@ closeWindow window =
   do
     SDL.destroyWindow window
     SDL.quit
-
-(<$.>) :: (a -> b) -> [a] -> [b]
-(<$.>) = map
-
-(<*.>) :: [a -> b] -> [a] -> [b]
-(<*.>) = zipWith ($)
 
 fromGame :: Game -> [Object] -> Float -> [Drawable]
 fromGame game objs time = drs -- (drs, drs')
