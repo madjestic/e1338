@@ -37,6 +37,7 @@ import Linear (V3(..))
 
 import FromVector
 import Utils
+import VAO
 
 import Debug.Trace   as DT
 
@@ -125,8 +126,6 @@ readPGeo jsonFile =
           case d of
             Left err -> Nothing
             Right pt -> Just pt
-
-            
 
 fromPGeo :: PGeo -> VGeo
 fromPGeo (PGeo idx' as' cs' ns' uvw' ps' mts' mass' vels' xf') = (VGeo idxs st vaos mts' mass' vels xf')

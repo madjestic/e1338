@@ -94,4 +94,5 @@ main = do
   currentTime' <- getCurrentTime
   putStrLn $ "Finished converting PGeo: " ++ (formatTime' currentTime')
   writeBGeo (fileOut args) vgeo
+  putStrLn $ "Finished writing BGeo: " ++ (formatTime' currentTime')
   -- writeVGeo fileOut vgeo

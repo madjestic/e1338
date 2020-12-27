@@ -5,8 +5,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Utils
-  ( toVAO
-  , toIdxVAO
+  ( toIdxVAO
   , toIdxVAO'
   , Utils.fromList
   , (<$.>)
@@ -15,7 +14,6 @@ module Utils
   , rotateList
   ) where
 
-import GHC.Float
 import Graphics.Rendering.OpenGL as GL (GLfloat)
 import Data.Set                  as DS (fromList, toList)
 import Data.List                 as DL (transpose)
@@ -24,8 +22,8 @@ import Data.List                       (elemIndex)
 import Linear.V3
 import Linear.V4
 import Linear.Matrix
-import Linear.Metric    as LM
-import Data.VectorSpace as DV
+import Linear.Metric     as LM
+import Data.VectorSpace  as DV
 import Control.Lens (view)
 
 import Debug.Trace as DT
@@ -51,28 +49,6 @@ instance VectorSpace (V4 (V4 Double)) Double where
       tr = (view translation m) ^+^ (view translation n)
           
   dot    (m :: M44 Double) (n :: M44 Double) = DV.dot m n
-
-toVAO
-  :: [[Int]]
-  -> [Float]
-  -> [(Double, Double, Double)]
-  -> [(Double, Double, Double)]
-  -> [(Double, Double, Double)]
-  -> [(Double, Double, Double)]
-  -> [[[Float]]]
-
-toVAO idxs as cds ns ts ps = vaos
-  where
-    as'   = fmap (\a -> [a]) as
-    cds'  = fmap (\(r,g,b)   -> fmap double2Float [r,g,b]) cds :: [[Float]]
-    ns'   = fmap (\(x,y,z)   -> fmap double2Float [x,y,z]) ns
-    ts'   = fmap (\(u,v,w)   -> fmap double2Float [u,v,w]) ts
-    ps'   = fmap (\(x,y,z)   -> fmap double2Float [x,y,z]) ps
-    
-    cList = (\as'' cds'' ns'' ts'' ps'' -> concat [as'', cds'', ns'', ts'', ps''])
-            <$.> as' <*.> cds' <*.> ns' <*.> ts' <*.> ps' :: [[Float]]
-
-    vaos  = fmap (\idx -> (fmap (\i -> cList!!i) idx)) idxs
 
 -- | [Float]  ~= vertex
 --  [[Float]] ~= VAO

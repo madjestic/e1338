@@ -29,7 +29,7 @@ library
               , aeson-pretty        ^>= 0.8.8
               , bytestring          ^>= 0.10.8.2
               , containers          ^>= 0.6.0.1
-              , split      ^>= 0.2.3.4
+              , split               ^>= 0.2.3.4
               , GLUtil              ^>= 0.10.3
               , ilist               ^>= 0.2.0.0
               , lens                ^>= 4.19.1
@@ -41,7 +41,8 @@ library
               , bearriver           ^>= 0.13.1.2
               --, Yampa               ^>= 0.13.1
               , simple-affine-space ^>= 0.1.1
-              , sort                ^>= 1.0.0.0              
+              , sort                ^>= 1.0.0.0
+              , massiv              ^>= 0.5.9.0             
 
   exposed-modules:
                 AppInput
@@ -59,6 +60,7 @@ library
               , Solvable
               , Texture
               , Utils
+              , VAO
 
   other-modules:
                 Paths_e1338
@@ -96,7 +98,8 @@ executable e1338
               , bearriver  ^>= 0.13.1.2
               -- , Yampa      ^>= 0.13.1
               , simple-affine-space ^>= 0.1.1
-              , sort       ^>= 1.0.0.0              
+              , sort       ^>= 1.0.0.0
+              , massiv     ^>= 0.5.9.0
 
   other-modules:
                 Paths_e1338
@@ -118,6 +121,7 @@ executable e1338
               , Material
               , Solvable
               , Utils
+              , VAO
 --              , GUI              
   default-language:
                 Haskell2010
@@ -135,16 +139,23 @@ executable genMaterial
               , aeson        ^>= 1.4.7.1
               , aeson-pretty ^>= 0.8.8
               , bytestring   ^>= 0.10.8.2
+              , containers   ^>= 0.6.2.1
               , directory    ^>= 1.3.6.0
               , split        ^>= 0.2.3.4
               , lens         ^>= 4.19.1
               , OpenGL       ^>= 3.0.2.2
-              , text       ^>= 1.2.2.2
+              , text         ^>= 1.2.2.2
+              -- , simple-affine-space ^>= 0.1.1
+              -- , linear       ^>= 1.20.9
+              -- , massiv       ^>= 0.5.9.0
+              -- , ilist        ^>= 0.2.0.0
 
   other-modules:
                 Paths_e1338
               , Material
               , FromVector
+              -- , Utils
+              -- , VAO
 
   default-language:
                 Haskell2010
@@ -162,15 +173,23 @@ executable genProject
               , aeson        ^>= 1.4.7.1
               , aeson-pretty ^>= 0.8.8
               , bytestring   ^>= 0.10.8.2
+              , containers   ^>= 0.6.2.1
+              , ilist        ^>= 0.2.0.0              
+              , linear       ^>= 1.20.9                          
+              , massiv       ^>= 0.5.9.0
               , lens         ^>= 4.19.1
-              , text         ^>= 1.2.2.2
+              , OpenGL       ^>= 3.0.3.0
+              , simple-affine-space ^>= 0.1.1                            
               , sort         ^>= 1.0.0.0
+              , text         ^>= 1.2.2.2
 
   other-modules:
                 Paths_e1338
               , Model
               , Project
               , Texture
+              , Utils
+              , VAO
 
   default-language:
                 Haskell2010
@@ -180,25 +199,27 @@ executable geoIndexer
   hs-source-dirs:
                 app
               , src
-  ghc-options:         -threaded -O2
+  -- ghc-options:  -threaded -O2
+  ghc-options:  -O2 -threaded -fprof-auto -fprof-cafs "-with-rtsopts=-N -p -s -h -i0.1 -xc"
   --cpp-options:         -DDEBUG
   build-depends:
                 e1338
-              , base       ^>= 4.13.0.0
-              , OpenGL     ^>= 3.0.2.2
+              , base         ^>= 4.13.0.0
+              , OpenGL       ^>= 3.0.3.0
               , aeson        ^>= 1.4.7.1
               , aeson-pretty ^>= 0.8.8
-              , bytestring ^>= 0.10.8.2
-              , lens       ^>= 4.19.1
-              , containers ^>= 0.6.0.1
-              , ilist      ^>= 0.2.0.0
-              , store      ^>= 0.7.4
-              , text       ^>= 1.2.2.2
+              , bytestring   ^>= 0.10.8.2
+              , lens         ^>= 4.19.1
+              , containers   ^>= 0.6.2.1
+              , ilist        ^>= 0.2.0.0
+              , store        ^>= 0.7.4
+              , text         ^>= 1.2.2.2
               , simple-affine-space ^>= 0.1.1
-              , linear     ^>= 1.20.8
+              , linear       ^>= 1.20.9
               , optparse-applicative ^>= 0.15.1.0
               , time-compat          ^>= 1.9.4
-              , time       ^>= 1.9.3
+              , time         ^>= 1.9.3
+              , massiv       ^>= 0.5.9.0
               
   other-modules:
                 Paths_e1338
@@ -206,6 +227,7 @@ executable geoIndexer
               , FromVector
               , PGeo
               , Utils
+              , VAO
 
   default-language:
                 Haskell2010
@@ -231,7 +253,8 @@ executable rpcShuffler
               , lens       ^>= 4.19.1
               , store      ^>= 0.7.4
               , simple-affine-space ^>= 0.1.1
-              , linear     ^>= 1.20.8                        
+              , linear     ^>= 1.20.8
+              , massiv     ^>= 0.5.9.0              
               
   other-modules:
                 Paths_e1338
@@ -239,5 +262,7 @@ executable rpcShuffler
               , Material
               , PGeo
               , Utils
+              , VAO
+              
   default-language:
                 Haskell2010                   
