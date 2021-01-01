@@ -19,8 +19,9 @@ convertGeo(){
 	python ./resources/geoParser.py $SOURCE $PDG $INDEX
 	echo "Running geoIndexer..."
 	echo "cabal run geoIndexer" $PDG $TARGET $INDEX
-	# cabal run geoIndexer -- -i $PDG -o $TARGET $INDEX
-	cabal run +RTS -sstderr -RTS geoIndexer -- -i $PDG -o $TARGET $INDEX
+	cabal run geoIndexer -- -i $PDG -o $TARGET $INDEX
+	#cabal run +RTS -sstderr -qg -RTS geoIndexer -- -i $PDG -o $TARGET $INDEX
+	date
 	echo "Copying files..."
 	echo "cp" $PDG $PDGCPY
 	cp $PDG $PDGCPY

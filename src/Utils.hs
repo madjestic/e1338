@@ -19,6 +19,7 @@ import Data.Set                  as DS (fromList, toList)
 import Data.List                 as DL (transpose)
 import Data.List.Index                 (indexed)
 import Data.List                       (elemIndex)
+import Data.Vector               as DV (fromList, (!), map, toList)
 import Linear.V3
 import Linear.V4
 import Linear.Matrix
@@ -79,15 +80,17 @@ matchLists il nil =
     -- | il      - indexed list
     -- | nile    - non indexed list element
     -- | Replaces the target element with the first match from the matching list il
+    il' = DV.fromList il
+    cxs'  = DV.map (\(i,s) -> s) il'
     mFunc il nile@(iy, cy) =
       (\x -> case x of
-               Just idx -> il!!idx
+               Just idx -> il' ! idx
                Nothing  -> (-iy, cy) ) nili -- | if a unique index idx found - flip the sign
                                             -- | the idea idx to separate normal indexes
                                             -- | and unique indexes -> [idx:uidx] later
       where
-        nili = elemIndex cy cxs
-        cxs  = fmap (\(i,s) -> s) il :: [[GLfloat]]
+        nili = elemIndex cy (DV.toList cxs')
+        -- cxs  = DV.map (\(i,s) -> s) il' -- :: [[GLfloat]]
 
 -- TODO: create a fromList typeclass?
 -- [a] -> V3 a

@@ -4,7 +4,7 @@
     "resy": 360,
     "models": [
 	{ "path": "models/intro_square.bgeo" },
-	{ "path": "models/stars_200K.bgeo"},
+	{ "path": "models/stars.bgeo"},
 	{ "path": "models/sun.bgeo" },
 	{ "path": "models/earth.bgeo" },
 	{ "path": "models/moon.bgeo"  },

@@ -47,8 +47,12 @@ geoArgs = GeoArgs
          <> short 's'
          <> help "Whether to perform the indexing" )
 
+
 formatTime' :: UTCTime -> String
 formatTime' = take 8 . show . timeToTimeOfDay . utctDayTime
+
+formatTime'' :: UTCTime -> String
+formatTime'' = take 8 . drop 11 . show . (utcToLocalTime (TimeZone 60 False "AMS"))
 
 writeVGeo :: FilePath -> VGeo -> IO ()
 writeVGeo fileOut vgeo =
@@ -82,7 +86,7 @@ main = do
   --     index   =  (unsafeCoerce (args!!2) :: FilePath)
 
   currentTime <- getCurrentTime
-  -- putStrLn $ "reading PGeo: " ++ show args ++ (formatTime' currentTime) 
+  -- putStrLn $ "reading PGeo: " ++ show args ++ (formatTime'' currentTime) 
   pgeo <- readPGeo (fileIn args)
   -- print $ "geoIndexer.pgeo :" ++ show pgeo
   putStrLn "running indexer..."
@@ -92,7 +96,9 @@ main = do
         True  -> fromPGeo' pgeo
   -- _ <- DT.trace ("geoIndexer.vgeo :" ++ show vgeo) $ return ()
   currentTime' <- getCurrentTime
-  putStrLn $ "Finished converting PGeo: " ++ (formatTime' currentTime')
+  putStrLn $ "Finished converting PGeo: " ++ (formatTime'' currentTime')
+  
   writeBGeo (fileOut args) vgeo
-  putStrLn $ "Finished writing BGeo: " ++ (formatTime' currentTime')
+  currentTime' <- getCurrentTime
+  putStrLn $ "Finished writing BGeo   : " ++ (formatTime'' currentTime')
   -- writeVGeo fileOut vgeo

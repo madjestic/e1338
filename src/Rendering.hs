@@ -252,7 +252,7 @@ draw
     bindVertexArrayObject $= Just vao'
     drawElements (primitiveMode opts) numIndices' GL.UnsignedInt nullPtr
     
-    GL.pointSize $= 1
+    GL.pointSize $= 0.1
 
     cullFace  $= Just Back
     depthFunc $= Just Less
