@@ -103,8 +103,8 @@ openWindow title (sizex,sizey) =
                               , glDepthPrecision = 24
                               , glStencilPrecision = 8
                               , glMultisampleSamples = 8
-                              , glProfile = Compatibility Normal 2 1
-                              --, glProfile = Core Normal 4 5
+                              --, glProfile = Compatibility Normal 2 1
+                              , glProfile = Core Normal 4 5
                               }
 
     depthFunc $= Just Less
@@ -201,9 +201,9 @@ offsetChar (drw, offset) = drw'
     rot0 = view _m33 (view (uniforms . u_xform) drw)
     tr0  = view translation (view (uniforms . u_xform) drw)
     s1    = 0.035 -- scale Offset
-    s2    = 0.5   -- scale Size
+    s2    = 0.08  -- scale Size
     h     = -0.05 -- horizontal offset
-    v     = 0.45  -- vertical   offset
+    v     = 0.9  -- vertical   offset
     offsetM44 =
       mkTransformationMat
       (rot0 * s2)
@@ -252,7 +252,8 @@ draw
     bindVertexArrayObject $= Just vao'
     drawElements (primitiveMode opts) numIndices' GL.UnsignedInt nullPtr
     
-    GL.pointSize $= 0.1
+    GL.pointSize $= 0.001
+    --GL.pointSmooth $= Enabled
 
     cullFace  $= Just Back
     depthFunc $= Just Less

@@ -34,8 +34,14 @@
             "modelIDXs": [ 3 ],
             "solvers": [],
             "solverAttrs": []
+        },
+        {
+            "pname": "Moon",
+	    "objIDX": 3,
+            "modelIDXs": [ 4 ],
+            "solvers": [],
+            "solverAttrs": []
         }
-	
     ],
     "background": [
 	{
