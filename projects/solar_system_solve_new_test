@@ -41,6 +41,34 @@
             "modelIDXs": [ 4 ],
             "solvers": [],
             "solverAttrs": []
+        },
+        {
+            "pname": "Mercury",
+	    "objIDX": 4,
+            "modelIDXs": [ 5 ],
+            "solvers": [],
+            "solverAttrs": []
+        },
+        {
+            "pname": "Venus",
+	    "objIDX": 5,
+            "modelIDXs": [ 6 ],
+            "solvers": [],
+            "solverAttrs": []
+        },
+        {
+            "pname": "Mars",
+	    "objIDX": 6,
+            "modelIDXs": [ 7 ],
+            "solvers": [],
+            "solverAttrs": []
+        },
+        {
+            "pname": "Jupiter",
+	    "objIDX": 7,
+            "modelIDXs": [ 8 ],
+            "solvers": [],
+            "solverAttrs": []
         }
     ],
     "background": [
