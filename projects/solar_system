@@ -3,11 +3,20 @@
     "resx": 1280,
     "resy": 720,
     "models": [
-	{ "path": "models/square.bgeo" },
+	{ "path": "models/intro_square.bgeo" },
+	{ "path": "models/star_sector_00.bgeo"},	
+	{ "path": "models/star_sector_01.bgeo"},
+	{ "path": "models/star_sector_02.bgeo"},
+	{ "path": "models/star_sector_03.bgeo"},
+	{ "path": "models/star_sector_04.bgeo"},
+	{ "path": "models/star_sector_05.bgeo"},
+	{ "path": "models/star_sector_06.bgeo"},
+	{ "path": "models/star_sector_07.bgeo"},	
+	{ "path": "models/star_sector_08.bgeo"},
+	{ "path": "models/star_sector_09.bgeo"},
 	{ "path": "models/sun.bgeo" },
 	{ "path": "models/earth.bgeo" },
 	{ "path": "models/moon.bgeo"  },
-	{ "path": "models/stars_01.bgeo"},
 	{ "path": "models/mercury.bgeo" },
 	{ "path": "models/venus.bgeo" },
 	{ "path": "models/mars.bgeo" },
@@ -16,96 +25,132 @@
     "objects": [
         {
             "pname": "DummyIntroScreen",
+	    "objIDX": 0,
             "modelIDXs": [ 0 ],
-            "solvers": [
-                "spin"
-            ],
-            "solverAttrs": [
-                [ 0,0,0,0,0,0 ]
-            ]
+            "solvers": [],
+            "solverAttrs": []
         },
         {
             "pname": "Sun",
-            "modelIDXs": [ 1 ],
-            "solvers": [
-                "spin"
-            ],
-            "solverAttrs": [
-                [ 0,0,0,0,0,0 ]
-            ]
+	    "objIDX": 1,
+            "modelIDXs": [ 11 ],
+            "solvers": [],
+            "solverAttrs": []
         },
         {
             "pname": "Earth",
-            "modelIDXs": [ 2 ],
-            "solvers": [
-                "spin"
-            ],
-            "solverAttrs": [
-                [ 0,0,0,0,0,0 ]
-            ]
+	    "objIDX": 2,
+            "modelIDXs": [ 12 ],
+            "solvers": [],
+            "solverAttrs": []
         },
         {
             "pname": "Moon",
-            "modelIDXs": [ 3 ],
-            "solvers": [
-                "spin"
-            ],
-            "solverAttrs": [
-                [ 0,0,0,0,0,0 ]
-            ]
+	    "objIDX": 3,
+            "modelIDXs": [ 13 ],
+            "solvers": [],
+            "solverAttrs": []
         },
         {
             "pname": "Mercury",
-            "modelIDXs": [ 5 ],
-            "solvers": [
-                "spin"
-            ],
-            "solverAttrs": [
-                [ 0,0,0,0,0,0 ]
-            ]
+	    "objIDX": 4,
+            "modelIDXs": [ 14 ],
+            "solvers": [],
+            "solverAttrs": []
         },
         {
             "pname": "Venus",
-            "modelIDXs": [ 6 ],
-            "solvers": [
-                "spin"
-            ],
-            "solverAttrs": [
-                [ 0,0,0,0,0,0 ]
-            ]
+	    "objIDX": 5,
+            "modelIDXs": [ 15 ],
+            "solvers": [],
+            "solverAttrs": []
         },
         {
             "pname": "Mars",
-            "modelIDXs": [ 7 ],
-            "solvers": [
-                "spin"
-            ],
-            "solverAttrs": [
-                [ 0,0,0,0,0,0 ]
-            ]
+	    "objIDX": 6,
+            "modelIDXs": [ 16 ],
+            "solvers": [],
+            "solverAttrs": []
         },
         {
             "pname": "Jupiter",
-            "modelIDXs": [ 8 ],
-            "solvers": [
-                "spin"
-            ],
-            "solverAttrs": [
-                [ 0,0,0,0,0,0 ]
-            ]
-        }	
+	    "objIDX": 7,
+            "modelIDXs": [ 17 ],
+            "solvers": [],
+            "solverAttrs": []
+        }
     ],
     "background": [
-        {
-            "pname": "Stars",
+	{
+            "pname": "Star Sector 00",
+	    "objIDX": -1,
+            "modelIDXs": [ 1 ],
+            "solvers": [],
+            "solverAttrs": []
+        },
+	{
+            "pname": "Star Sector 01",
+	    "objIDX": -2,
+            "modelIDXs": [ 2 ],
+            "solvers": [],
+            "solverAttrs": []
+        },
+	{
+            "pname": "Star Sector 02",
+	    "objIDX": -3,
+            "modelIDXs": [ 3 ],
+            "solvers": [],
+            "solverAttrs": []
+        },
+	{
+            "pname": "Star Sector 03",
+	    "objIDX": -4,
             "modelIDXs": [ 4 ],
-            "solvers": [
-                "spin"
-            ],
-            "solverAttrs": [
-                [ 0,0,0,0,0,0 ]
-            ]
-        }		
+            "solvers": [],
+            "solverAttrs": []
+        },
+	{
+            "pname": "Star Sector 04",
+	    "objIDX": -5,
+            "modelIDXs": [ 5 ],
+            "solvers": [],
+            "solverAttrs": []
+        },
+	{
+            "pname": "Star Sector 05",
+	    "objIDX": -6,
+            "modelIDXs": [ 6 ],
+            "solvers": [],
+            "solverAttrs": []
+        },
+	{
+            "pname": "Star Sector 06",
+	    "objIDX": -7,
+            "modelIDXs": [ 7 ],
+            "solvers": [],
+            "solverAttrs": []
+        },
+	{
+            "pname": "Star Sector 07",
+	    "objIDX": -8,
+            "modelIDXs": [ 8 ],
+            "solvers": [],
+            "solverAttrs": []
+        },
+	{
+            "pname": "Star Sector 08",
+	    "objIDX": -9,
+            "modelIDXs": [ 9 ],
+            "solvers": [],
+            "solverAttrs": []
+        },
+	{
+            "pname": "Star Sector 09",
+	    "objIDX": -10,
+            "modelIDXs": [ 10 ],
+            "solvers": [],
+            "solverAttrs": []
+        }
     ],
     "fonts": [
         { "path": "models/fnt_0.bgeo" },
@@ -174,6 +219,15 @@
              0,0,0,1],
 	    "pFoc": 200,
 	    "pApt": 50
-	}
+	},
+	{
+	    "pTransform":
+            [1,0,0, 0,
+             0,1,0, 0,
+             0,0,1,-20,
+             0,0,0, 1],
+	    "pFoc": 100,
+	    "pApt": 50
+	}	
     ]
 }

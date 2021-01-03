@@ -6,7 +6,7 @@
 
 # Solar System
 cabal build exe:e1338
-cabal run e1338 ./projects/intro_XXII ./projects/solar_system_solve_new_test
+cabal run e1338 ./projects/intro_XXII ./projects/solar_system
 
 
 # A test scene with a spinning cube

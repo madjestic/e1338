@@ -42,4 +42,14 @@ planets:
 	./resources/convertGeo.sh jupiter
 
 stars:
-	./resources/convertGeo.sh stars --skip
+#	./resources/convertGeo.sh stars --skip
+	./resources/convertGeo.sh star_sector_00 --skip
+	./resources/convertGeo.sh star_sector_01 --skip
+	./resources/convertGeo.sh star_sector_02 --skip
+	./resources/convertGeo.sh star_sector_03 --skip
+	./resources/convertGeo.sh star_sector_04 --skip
+	./resources/convertGeo.sh star_sector_05 --skip
+	./resources/convertGeo.sh star_sector_06 --skip
+	./resources/convertGeo.sh star_sector_07 --skip
+	./resources/convertGeo.sh star_sector_08 --skip
+	./resources/convertGeo.sh star_sector_09 --skip
