@@ -1,0 +1,82 @@
+{
+    "name": "3 Body Problem",
+    "resx": 800,
+    "resy": 600,
+    "models": [
+        { "path": "models/body_0.bgeo" },
+	{ "path": "models/body_1.bgeo" },
+	{ "path": "models/body_2.bgeo" }
+    ],
+    "objects": [
+        {
+            "pname": "Body 0",
+            "objIDX": 0,
+            "modelIDXs": [
+                0
+            ],
+            "solvers": [
+		"translate",
+                "rotate"
+            ],
+            "solverAttrs": [
+		[1000,0,0],
+                [0,0,0,0,0,1000]
+            ]
+        },
+        {
+            "pname": "Body 1",
+            "objIDX": 1,
+            "modelIDXs": [
+                1
+            ],
+            "solvers": [
+		"translate",
+                "rotate"
+            ],
+            "solverAttrs": [
+		[0,-1000,0],
+                [0,0,0,0,0,-10000]
+            ]
+        },
+	{
+            "pname": "Body 2",
+            "objIDX": 2,
+            "modelIDXs": [
+                2
+            ],
+            "solvers": [
+		"translate",
+                "rotate"
+            ],
+            "solverAttrs": [
+		[-1000,0,0],
+                [0,0,0,0,0,20000]
+            ]
+        }	
+    ],
+    "background": [],
+    "fonts": [
+        { "path": "models/fnt_0.bgeo" },
+        { "path": "models/fnt_1.bgeo" },
+        { "path": "models/fnt_2.bgeo" },
+        { "path": "models/fnt_3.bgeo" },
+        { "path": "models/fnt_4.bgeo" },
+        { "path": "models/fnt_5.bgeo" },
+        { "path": "models/fnt_6.bgeo" },
+        { "path": "models/fnt_7.bgeo" },
+        { "path": "models/fnt_8.bgeo" },
+        { "path": "models/fnt_9.bgeo" }
+    ],
+    "cameras": [
+        {
+            "pApt": 50,
+            "pFoc": 100,
+            "pTransform": [
+                1,0,0,0,
+                0,1,0,0,
+                0,0,1,-30,
+                0,0,0,1
+            ]
+        }
+    ]
+}

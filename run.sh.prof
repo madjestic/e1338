@@ -2,8 +2,12 @@
 
 # N-body, gravity solver test
 # cabal build exe:e1338
-# cabal run +RTS -sstderr -RTS e1338 ./projects/intro_XXII ./projects/intro_XXII # ./projects/n_body
+# cabal run +RTS -sstderr -RTS e1338 ./projects/3body ./projects/3body
+
+# Solar System
+# cabal build exe:e1338
+# cabal run +RTS -sstderr -RTS e1338 ./projects/intro_XXII ./projects/solar_system
 
 # Solar System
 cabal build exe:e1338
-cabal run +RTS -sstderr -RTS e1338 ./projects/intro_XXII ./projects/solar_system_solve_new_test
+cabal run +RTS -sstderr -RTS e1338 ./projects/intro_XXII ./projects/solar_system

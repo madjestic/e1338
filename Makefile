@@ -53,3 +53,8 @@ stars:
 	./resources/convertGeo.sh star_sector_07 --skip
 	./resources/convertGeo.sh star_sector_08 --skip
 	./resources/convertGeo.sh star_sector_09 --skip
+
+3bodies:
+	./resources/convertGeo.sh body_0
+	./resources/convertGeo.sh body_1
+	./resources/convertGeo.sh body_2

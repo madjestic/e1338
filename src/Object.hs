@@ -121,10 +121,10 @@ initObjectTree initVAO project =
     -- _ <- Dt.trace ("project :" ++ show project) $ return ()
     print "Loading Models..."
 
-    pgeo <- readPGeo "./models/body_0.pgeo"
+    -- pgeo <- readPGeo "./models/body_0.pgeo"
     -- print $ "initObjectTree.pgeo" ++ show pgeo
 
-    vgeo <- readBGeo "./models/body_0.bgeo"
+    -- vgeo <- readBGeo "./models/body_0.bgeo"
     -- print $ "initObjectTree.vgeo" ++ show vgeo
 
     fgrVGeos  <-

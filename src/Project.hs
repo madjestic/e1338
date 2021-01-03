@@ -84,12 +84,12 @@ emptyProject =
 defaultProject :: Project
 defaultProject =
   Project
-  "Earth Test"
+  "Test Project"
   800
   600
   [(Model   "models/box.bgeo")]
   [(PreObject
-    "Earth"
+    "Box"
     0
     [0]
     ["rotate", "transform"]
@@ -113,7 +113,7 @@ defaultProject =
     100.0
     [1, 0, 0, 0,
      0, 1, 0, 0,
-     0, 0, 1,-1,
+     0, 0, 1,-10,
      0, 0, 0, 1])]
 
 writeProject :: Project -> FilePath -> IO ()

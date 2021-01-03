@@ -1,15 +1,15 @@
 {
-    "name": "Earth Test",
+    "name": "Test Project",
     "resx": 800,
     "resy": 600,
     "models": [
         {
-            "path": "models/earth.bgeo"
+            "path": "models/box.bgeo"
         }
     ],
     "objects": [
         {
-            "pname": "Earth",
+            "pname": "Test",
             "objIDX": 0,
             "modelIDXs": [
                 0
