@@ -6,12 +6,15 @@
 module Solvable
   ( Solver (..)
   , preTransformer
-  , transformer
+--  , transformer
+  , translate
   , rotate
+  , gravity
   , toSolver
   ) where
 
 import Control.Lens      hiding (Identity)
+import GHC.Float
 import Linear.Matrix     hiding (identity)
 import Linear.V3
 import Linear.V4
@@ -63,15 +66,15 @@ $(makeLenses ''Solver)
 
 toSolver :: (String, [Double]) -> Solver
 toSolver (x, ys) =
-  case x of
+  case (DT.trace ("toSolver.x :" ++ show x) $ x) of
     "pretranslate" -> PreTranslate (toV3 ys)
     "translate"    -> Translate    (toV3 ys)
     "prerotate"    -> PreRotate    (toV3 $ take 3 ys) (toV3 $ drop 3 ys)
     "rotate"       -> Rotate       (toV3 $ take 3 ys) (toV3 $ drop 3 ys)
-    "gravity"      -> Gravity      idxs'
+    "gravity"      -> Gravity      (double2Int <$> (DT.trace ("ys :" ++ show ys) $ ys))
     _              -> Identity
-  where
-    idxs' = undefined :: [Int]
+  -- where
+  --   idxs' = undefined :: [Int]
 
 preTransformer :: Solver -> M44 Double -> M44 Double
 preTransformer solver mtx0 = mtx
@@ -82,34 +85,35 @@ preTransformer solver mtx0 = mtx
       Identity           -> identity mtx0
       _                  -> mtx0
       
-transformer :: Solver -> M44 Double -> SF () (M44 Double)
-transformer solver mtx0 =
-  proc () -> do
-    state <- case solver of
-      Rotate _ _ ->
-        do
-          mtx' <- rotate mtx0 pv0 ypr0 -< ()
-          returnA -< mtx'
-      Translate _ ->
-        do
-          mtx' <- translate mtx0 txyz -< ()
-          returnA -< mtx'
-      Gravity _ ->
-        do
-          mtx' <- gravity mtx0 v0 m0 ps ms -< ()
-          returnA -< mtx'
-      _ ->
-        do
-          returnA -< mtx0
-    returnA -< state
-      where
-        v0 = undefined 
-        m0 = undefined
-        ps = undefined 
-        ms = undefined 
-        Rotate     pv0 ypr0 = solver
-        Translate  txyz     = solver
-        Gravity    idxs     = solver
+-- transformer :: [Object] -> Object -> Solver -> M44 Double -> SF () (M44 Double)
+-- transformer objs obj0 solver mtx0 =
+--   proc () -> do
+--     state <- case solver of
+--       Rotate _ _ ->
+--         do
+--           mtx' <- rotate mtx0 pv0 ypr0 -< ()
+--           returnA -< mtx'
+--       Translate _ ->
+--         do
+--           mtx' <- translate mtx0 txyz -< ()
+--           returnA -< mtx'
+--       Gravity _ ->
+--         do
+--           mtx' <- gravity mtx0 v0 m0 ps ms -< ()
+--           returnA -< mtx'
+--       _ ->
+--         do
+--           returnA -< mtx0
+--     returnA -< state
+--       where
+--         -- TODO: Fill it up:
+--         v0 = view velocity obj0
+--         m0 = undefined
+--         ps = undefined 
+--         ms = undefined 
+--         Rotate     pv0 ypr0 = solver
+--         Translate  txyz     = solver
+--         Gravity    idxs     = solver
 
 identity :: M44 Double -> M44 Double
 identity mtx0 = mtx
@@ -186,9 +190,13 @@ gravity mtx0 v0 m0 ps ms =
   proc () -> do
     let
       p0 = view (_w._xyz) mtx0
-      a0 = foldr1 (^+^) $ fmap (gravity' p0 m0) $ zip ps ms :: V3 Double
     --acc <- ((V3 0 0 0) ^+^) ^<< integral -< a0
+    
+      --a0 = foldr1 (^+^) $ fmap ((100000000000000.0 *^) . gravity' p0 m0) $ zip ps ms :: V3 Double
+      a0 = foldr1 (^+^) $ fmap ((100000000000000.0 *^) . gravity' p0 m0) $ zip (DT.trace ("gravity.ps :" ++ show ps) $ ps) ms :: V3 Double
+    --acc  <- (v0 ^+^) ^<< integral -< a0
     acc  <- (v0 ^+^) ^<< integral -< a0
+    
     -- mtx <- translate mtx0 acc -< ()
     let mtx =
           mkTransformationMat
@@ -199,12 +207,25 @@ gravity mtx0 v0 m0 ps ms =
                 (view _m33 mtx0)
               tr = acc
     returnA -< mtx
+    --returnA -< (DT.trace ("gravity.mtx :" ++ show mtx) $ mtx)
+    --returnA -< (DT.trace ("gravity.ps :" ++ show ps) $ mtx)
+
+gravity'' :: V3 Double -> Double -> (V3 Double, Double) -> SF () (V3 Double)
+gravity'' p0 m0 (p1, m1) =
+  proc () -> do
+    let
+      dir  = p1 ^-^ p0                                    :: V3 Double
+      dist = norm (DT.trace ("dir :" ++ show dir) $ dir)  :: Double
+      f    = g * m0 * m1 / dist**2.0                      :: Double
+      acc  = (f / m1) *^ (dir ^/ dist)                    :: V3 Double
+    returnA -< acc
   
 gravity' :: V3 Double -> Double -> (V3 Double, Double) -> V3 Double
 gravity' p0 m0 (p1, m1) = acc
   where
     dir  = p1 ^-^ p0                 :: V3 Double
-    dist = norm dir                  :: Double
+    --dist = norm dir                  :: Double
+    dist = norm (DT.trace ("dir :" ++ show dir) $ dir)                  :: Double
     f    = g * m0 * m1 / dist**2.0   :: Double
     acc  = (f / m1) *^ (dir ^/ dist) :: V3 Double
 -- | F = G*@mass*m2/(dist^2);       //  Newton's gravity equation
