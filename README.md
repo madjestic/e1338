@@ -3,7 +3,7 @@ a re-write of e1337 with BearRiver (and, maybe, MVars)
 
 ![](https://github.com/madjestic/e1338/blob/master/output.png)
 
-[a youtube demo](https://youtu.be/7d5-QfOqkbY)
+[a youtube demo](https://youtu.be/6kQezpAdazQ)
 
 clone repo, `cabal build`, `./run.sh`
 
@@ -23,6 +23,7 @@ Esc - quit
 
 ## Recent Progress:
 
+* Basic shading and animations.
 * Mercury, Venus, Earth (Moon), Mars, Jupiter.
 * Project file supports multiple cameras with individual params.
 * Logarithmic Space (rendering objects in real scale at 10 billion kilometers is ok).
