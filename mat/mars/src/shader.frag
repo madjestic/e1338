@@ -12,7 +12,6 @@ in vec3  Ng;
 in vec3  Cd;
 in vec3  uv;
 in vec3  P;
-//in vec3  sunP;
 
 out vec4 fragColor;
 

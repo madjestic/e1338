@@ -20,10 +20,10 @@ out vec4 fragColor;
 
 void main()
 {
-	vec3 normal =
-		vec3( N.x*0.5+0.5
-			, N.y*0.5+0.5
-			,-N.z*0.5+0.5 );
+	vec3 normal = N;
+		// vec3( N.x*0.5+0.5
+		//     , N.y*0.5+0.5
+		//     , N.z*0.5+0.5 );
 	
 	//vec3 sunP          = vec3 (299999999999.0, .0, .0);
 	vec4 day_map_clr   = texture(earth_daymap_4096,   vec2(uv.x, uv.y));
@@ -32,7 +32,7 @@ void main()
 	vec4 tint          = vec4 (1., .9804, .642, 1.);
 
 	vec3 dir               = sunP - P;
-	float dot_product_mask = dot(Ng, normalize(dir));
+	float dot_product_mask = dot(normal, normalize(dir));
 	float s                = 1.5f;
 	vec4 night_map_contr   = clamp((-dot_product_mask) * pow(clamp((night_map_clr), 0.0f, 1.0f) * 3.0f, vec4(s,s,s,s)), 0.0f, 1.0f);
 	
@@ -58,4 +58,5 @@ void main()
 		                   + cloud_mask;
 
 	fragColor = clr;
+	//fragColor = vec4 (normal, 1.0f);
 }

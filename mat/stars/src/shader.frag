@@ -36,7 +36,7 @@ vec3 blend3 (in vec3 a, in vec3 b, in float s)
 void main()
 {
 	vec3 tmp3 = vec3 (Cd.x, Cd.y, Cd.z);
-	tmp3 = fit3(tmp3, 0.75, 1.0, 0.5, 1.0);
+	tmp3 = fit3(tmp3, 0.85, 1.0, 0.6, 1.0);
 	tmp3 = blend3(avg3(tmp3), tmp3, 0.3);
 	//fragColor = vec4( Cd.x, Cd.y, Cd.z, A );
 	fragColor = vec4( tmp3, A );

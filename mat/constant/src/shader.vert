@@ -72,7 +72,8 @@ void main()
 			 , xform[2].xyz );	
 	
 	A  = alpha;
-	N  = normalize(perspRot * viewRot * xformRot * normal);
+	//N  = normalize(perspRot * viewRot * xformRot * normal);
+	N  = normalize(xformRot * normal);
 	Ng = normalize(normal);
 	Cd = color;
 	uv = uvCoords;

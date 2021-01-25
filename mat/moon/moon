@@ -2,5 +2,5 @@
     "name":"Moon",
     "vertShader": "./mat/moon/Moon/shader.vert",
     "fragShader": "./mat/moon/Moon/shader.frag",
-    "textures": ["textures/moon_256.jpg"]
+    "textures": ["textures/moon_512.jpg"]
 }
