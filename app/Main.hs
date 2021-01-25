@@ -76,7 +76,6 @@ main :: IO ()
 main = do
 
   let
-  --args = ["./projects/intro_XXII", "./projects/intro_XXII"]
   args <- getArgs
   introProj <- Prj.parse (unsafeCoerce (args!!0) :: FilePath)
   proj      <- Prj.parse (unsafeCoerce (args!!1) :: FilePath)
@@ -91,7 +90,7 @@ main = do
                (resX, resY)
 
   -- | SDL Mouse Options
-  -- setMouseLocationMode RelativeLocation
+  setMouseLocationMode RelativeLocation
 
   print "Initializing Game"
   intro <- initGame initVAO introProj
