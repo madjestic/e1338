@@ -11,6 +11,7 @@ layout(location = 4) in vec3 vPosition;
 uniform mat4 camera;
 uniform mat4 persp;
 uniform mat4 xform;
+//uniform vec3 sunP;
 
 // Output data ; will be interpolated for each fragment.
 out float A;
@@ -19,6 +20,7 @@ out vec3  Ng;
 out vec3  Cd;
 out vec3  uv;
 out vec3  P;
+//out vec3  sunP;
 
 float s1  = 1.0f;
 float s2  = 10.0f;
@@ -75,6 +77,7 @@ void main()
 	Cd = color;
 	uv = uvCoords;
 	P  =  transpose(xform)[3].xyz;
+	//sunP = SunP;
 	//P  = (transpose(xform)[3].xyz) * viewRot;
 	//P  = vec3(.0, .0, -1.0);
 	//P  =  (cameraRot * xform)[3].xyz;

@@ -323,9 +323,13 @@ initUniforms
     location5         <- get (uniformLocation program "xform")
     uniform location5 $= xform
 
-    xform1            <- GL.newMatrix RowMajor $ toList' u_xform' :: IO (GLmatrix GLfloat)
-    location6         <- get (uniformLocation program "xform1")
-    uniform location6 $= xform1
+    let sunP = GL.Vector3 299999999999.0 0.0 0.0 :: GL.Vector3 GLfloat
+    location6 <- get (uniformLocation program "sunP")
+    uniform location6 $= sunP
+
+    -- xform1            <- GL.newMatrix RowMajor $ toList' u_xform' :: IO (GLmatrix GLfloat)
+    -- location6         <- get (uniformLocation program "xform1")
+    -- uniform location6 $= xform1
 
     -- | Allocate Textures
     let texNames = fmap getTexName texPaths
