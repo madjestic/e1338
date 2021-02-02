@@ -12,6 +12,7 @@ module Utils
   , (<*.>)
   , toV3
   , rotateList
+  , rotateList'
   ) where
 
 import Graphics.Rendering.OpenGL as GL (GLfloat)
@@ -117,3 +118,10 @@ toV3 xs = V3 (xs!!0) (xs!!1) (xs!!2)
 rotateList :: Int -> [a] -> [a]
 rotateList _ [] = []
 rotateList n xs = zipWith const (drop n (cycle xs)) xs
+
+rotateList' :: (Int, [a]) -> [a]
+rotateList' (_, []) = []
+rotateList' (n, xs) = zipWith const (drop n (cycle xs)) xs
+
+-- rotateList :: (Int, [a]) -> [a]
+-- rotateList (n, l) = take (length l) . drop n $ cycle l

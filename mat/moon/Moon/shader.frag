@@ -30,6 +30,7 @@ void main()
 	vec4 cloud_map_clr = vec4 (.0, .0, .0, 1.0);
 	vec4 tint          = vec4 (1., .9804, .942, 1.);
 
+	//vec3 dir               = (sunP-vec3(9999999.0,.0,.0)) - P;
 	vec3 dir               = sunP - P;
 	float dot_product_mask = dot(Ng, normalize(dir));
 	float s                = 1.5f;

@@ -108,12 +108,15 @@ updateGame game =
   proc input -> do
     (cams, cam) <- updateCameras ((Game._cameras game), (Game._playCam game)) -< input
     objs        <- updateObjects $ _foreground (Game._objects game) -< ()
+    --objs'       <- updateObjects4 $ _foreground (Game._objects game) -< objs
+    objs'       <- updateObjects' -< objs
+    --objs        <- updateObjects4 $ _foreground (Game._objects game) -< (_foreground (Game._objects game))    
     objTree     <- updateObjTree game -< ()
 
     let
       objTree = Game._objects game
       result =
-        game { Game._objects = (objTree {_foreground = objs})
+        game { Game._objects = (objTree {_foreground = objs'})
         --game { Game._objects = (objTree {_foreground = (DT.trace ("updateGame.objs" ++ show objs) $ objs)})
              , Game._cameras = cams
              , _playCam      = cam             

@@ -1,12 +1,12 @@
 #!/bin/sh
 
 # N-body, gravity solver test
-# cabal build exe:e1338
-# cabal run e1338 ./projects/3body ./projects/3body
+cabal build exe:e1338
+cabal run e1338 ./projects/3bodySimple ./projects/3bodySimple 
 
 # Solar System Animated
-cabal build exe:e1338
-cabal run e1338 ./projects/intro_XXII ./projects/solar_system_animated
+# cabal build exe:e1338
+# cabal run e1338 ./projects/intro_XXII ./projects/solar_system_animated
 
 # Solar System
 # cabal build exe:e1338

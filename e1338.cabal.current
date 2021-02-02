@@ -43,7 +43,7 @@ library
               , simple-affine-space ^>= 0.1.1
               , sort                ^>= 1.0.0.0
               , massiv              ^>= 0.5.9.0
-              , vector              ^>= 0.12.1.2                                      
+              , vector              ^>= 0.12.1.2
   
   exposed-modules:
                 AppInput
@@ -101,7 +101,7 @@ executable e1338
               , hmatrix    ^>= 0.20.0.0
               , sort       ^>= 1.0.0.0
               , massiv     ^>= 0.5.9.0
-              , vector     ^>= 0.12.1.2              
+              , vector     ^>= 0.12.1.2
 
   other-modules:
                 Paths_e1338

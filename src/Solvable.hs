@@ -65,13 +65,13 @@ data Solver =
 $(makeLenses ''Solver)
 
 toSolver :: (String, [Double]) -> Solver
-toSolver (x, ys) =
-  case (DT.trace ("toSolver.x :" ++ show x) $ x) of
-    "pretranslate" -> PreTranslate (toV3 ys)
-    "translate"    -> Translate    (toV3 ys)
-    "prerotate"    -> PreRotate    (toV3 $ take 3 ys) (toV3 $ drop 3 ys)
-    "rotate"       -> Rotate       (toV3 $ take 3 ys) (toV3 $ drop 3 ys)
-    "gravity"      -> Gravity      (double2Int <$> (DT.trace ("ys :" ++ show ys) $ ys))
+toSolver (solver, parms) =
+  case (DT.trace ("toSolver.solver :" ++ show solver) $ solver) of
+    "pretranslate" -> PreTranslate (toV3 parms)
+    "translate"    -> Translate    (toV3 parms)
+    "prerotate"    -> PreRotate    (toV3 $ take 3 parms) (toV3 $ drop 3 parms)
+    "rotate"       -> Rotate       (toV3 $ take 3 parms) (toV3 $ drop 3 parms)
+    "gravity"      -> Gravity      (double2Int <$> (DT.trace ("parms :" ++ show parms) $ parms))
     _              -> Identity
   -- where
   --   idxs' = undefined :: [Int]
