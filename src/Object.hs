@@ -33,7 +33,7 @@ import GHC.Float
 import Linear.V4
 import Linear.Matrix as LM -- (M44, M33, identity, translation, fromQuaternion, (!*!), mkTransformationMat)
 import Linear (V3(..))
-import Control.Lens hiding (transform)
+import Control.Lens hiding (transformLinear)
 import FRP.Yampa    hiding (identity)
 import Graphics.Rendering.OpenGL (Program (..), ShaderType (..))
 import Data.List as DL (transpose)
@@ -249,41 +249,39 @@ fromVGeo initVAO (VGeo idxs st vaos matPaths mass vels xform) =
 solve :: [Object] -> Object -> SF () Object
 solve objs obj =
   proc () -> do
-    mtxs <- (parB . fmap (transform objs obj)) slvs0 -< ()
-    --mtxs <- (parB . fmap (transform (DT.trace ("solve.objs :" ++ show objs) $ objs) obj)) slvs0 -< ()
+    mtxs <- (parB . fmap (transformLinear objs obj)) slvs0 -< ()
+    --mtxs <- (parB . fmap (transformLinear (DT.trace ("solve.objs :" ++ show objs) $ objs) obj)) slvs0 -< ()
     returnA -< obj { _transforms = vectorizedCompose mtxs }
       where
         slvs0 = view Object.solvers obj
         mtxs0 = view transforms     obj
 
-transform :: [Object] -> Object -> Solver -> SF () ([M44 Double])
-transform objs obj0 slv0 = 
+transformLinear :: [Object] -> Object -> Solver -> SF () ([M44 Double])
+transformLinear objs obj0 slv0 = 
   proc () ->
     do
-      mtxs <- (parB . fmap (transformer objs obj0 slv0)) mtxs0 -< () -- TODO: pass object as arg to trabsformer
-      --mtxs <- (parB . fmap (transformer (DT.trace ("transform.objs :" ++ show objs) $ objs) obj0 slv0)) mtxs0 -< () -- TODO: pass object as arg to trabsformer
+      mtxs <- (parB . fmap (transformerLinear objs obj0 slv0)) mtxs0 -< () -- TODO: pass object as arg to trabsformer
+      --mtxs <- (parB . fmap (transformerLinear (DT.trace ("transformLinear.objs :" ++ show objs) $ objs) obj0 slv0)) mtxs0 -< () -- TODO: pass object as arg to trabsformer
       returnA -< mtxs
         where
           mtxs0 = view transforms obj0 :: [M44 Double]
 
-transformer :: [Object] -> Object -> Solver -> M44 Double -> SF () (M44 Double)
-transformer objs obj0 solver mtx0 =
+transformerLinear :: [Object] -> Object -> Solver -> M44 Double -> SF () (M44 Double)
+transformerLinear objs obj0 solver mtx0 =
   proc () -> do
     state <- case solver of
       Rotate _ _ ->
         do
           mtx' <- rotate mtx0 pv0 ypr0 -< ()
-          --mtx' <- rotate (DT.trace ("transformer.Rotate.objs :" ++ show objs) $ mtx0) pv0 ypr0 -< ()
+          --mtx' <- rotate (DT.trace ("transformerLinear.Rotate.objs :" ++ show objs) $ mtx0) pv0 ypr0 -< ()
           returnA -< mtx'
-          --returnA -< (DT.trace ("transformer.Rotate.mtx' :" ++ show mtx') $ mtx')
-          --returnA -< (DT.trace ("transformer.Rotate.objs :" ++ show objs) $ mtx')
       Translate _ ->
         do
           mtx' <- translate mtx0 txyz -< ()
           returnA -< mtx'
       Gravity _ ->
         do
-          mtx' <- gravity''' (objs, obj0) -< ()
+          mtx' <- gravityLinear (objs, obj0) -< ()
           returnA -< mtx'
       _ ->
         do
@@ -298,23 +296,23 @@ transformer objs obj0 solver mtx0 =
         Translate  txyz     = solver
         Gravity    idxs     = solver
 
-gravity''' :: ([Object], Object) -> SF () (M44 Double)
-gravity''' (objs, obj0) =
+gravityLinear :: ([Object], Object) -> SF () (M44 Double)
+gravityLinear (objs, obj0) =
   proc () -> do
     let
       mtxs0 = view transforms obj0
-      mtx0 = mtxs0!!0
-
-      objs' = take 2 objs
       
+      mtx0 = mtxs0!!0
+      objs' = take 2 objs
+
       v0 = view velocity obj0
       m0 = view mass obj0
       ps = fmap (view (_w._xyz) . head . (view transforms)) objs' :: [V3 Double]
       ms = fmap (view mass) objs' :: [Double]
       
       p0 = view (_w._xyz) mtx0
-      --a0 = foldr1 (^+^) $ fmap ((100000000000000.0 *^) . gravity' p0 m0) $ zip (DT.trace ("gravity.ps :" ++ show ps) $ ps) ms :: V3 Double
-      a0 = foldr1 (^+^) $ fmap ((100000000000000.0 *^) . gravity' p0 m0) $ zip ps ms :: V3 Double
+      --a0 = foldr1 (^+^) $ fmap ((100000000000000.0 *^) . gravityLinear' p0 m0) $ zip (DT.trace ("gravity.ps :" ++ show ps) $ ps) ms :: V3 Double
+      a0 = foldr1 (^+^) $ fmap ((1000000000000000.0 *^) . gravityLinear' p0 m0) $ zip ps ms :: V3 Double
 
     acc  <- ((view velocity obj0) ^+^) ^<< integral -< a0
 
@@ -330,13 +328,13 @@ gravity''' (objs, obj0) =
 
 g = 6.673**(-11.0) :: Double
 
-gravity' :: V3 Double -> Double -> (V3 Double, Double) -> V3 Double
-gravity' p0 m0 (p1, m1) = acc
+gravityLinear' :: V3 Double -> Double -> (V3 Double, Double) -> V3 Double
+gravityLinear' p0 m0 (p1, m1) = acc
   where
     dir  = p1 ^-^ p0                 :: V3 Double
-    --dir  = (DT.trace ("gravity'.p1 :" ++ show p1) $ p1) ^-^ (DT.trace ("gravity'.p0 :" ++ show p0)$ p0) :: V3 Double
+    --dir  = (DT.trace ("gravityLinear'.p1 :" ++ show p1) $ p1) ^-^ (DT.trace ("gravityLinear'.p0 :" ++ show p0)$ p0) :: V3 Double
     dist = norm dir                  :: Double
-    --dist = norm (DT.trace ("gravity'.dir :" ++ show dir) $ dir)                        :: Double
+    --dist = norm (DT.trace ("gravityLinear'.dir :" ++ show dir) $ dir)                        :: Double
     f    = g * m0 * m1 / dist**2.0   :: Double
     acc  = (f / m1) *^ (dir ^/ dist) :: V3 Double
 -- | F = G*@mass*m2/(dist^2);       // Newton's gravity equation
@@ -388,7 +386,7 @@ gravitySolver' (obj0, objs0) = obj
       where
         rot = (view _m33 xform0)
         --tr  = (vel) + p0
-        tr  = s*acc -- + p0*0.01
+        tr  = s*(DT.trace ("acc :" ++ show acc) $ acc) -- + p0*0.01
         --tr  = p0
 
     obj = obj0 { _transforms = [mtx]
