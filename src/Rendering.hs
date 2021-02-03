@@ -45,15 +45,12 @@ import Material
 import Mouse
 import Project                 (Project)
 import Texture                 (path)
-import Utils                   
+import Utils
 
 import Debug.Trace as DT
 
-#ifdef DEBUG
-debug = True
-#else
+
 debug = False
-#endif
 
 data Backend
   = OpenGL
@@ -61,7 +58,7 @@ data Backend
 
 data BackendOptions
   =  BackendOptions
-     {
+     { 
        primitiveMode :: PrimitiveMode -- Triangles | Points
      } deriving Show
 
@@ -75,7 +72,7 @@ data Drawable
 data Uniforms
   =  Uniforms
      {
-       _u_mats  :: Material 
+       _u_mats  :: Material
      , _u_prog  :: Program
      , _u_mouse :: (Double, Double)
      , _u_time  :: Float
@@ -84,7 +81,7 @@ data Uniforms
      , _u_cam   :: M44 Double
      , _u_cam_a :: Double
      , _u_cam_f :: Double
-     , _u_xform :: M44 Double 
+     , _u_xform :: M44 Double
      } deriving Show
 
 $(makeLenses ''Drawable)
@@ -94,11 +91,11 @@ openWindow :: Text -> (CInt, CInt) -> IO SDL.Window
 openWindow title (sizex,sizey) =
   do
     SDL.initialize [SDL.InitVideo]
-    SDL.HintRenderScaleQuality $= SDL.ScaleLinear                    
-    do renderQuality <- SDL.get SDL.HintRenderScaleQuality          
-       when (renderQuality /= SDL.ScaleLinear) $                    
+    SDL.HintRenderScaleQuality $= SDL.ScaleLinear
+    do renderQuality <- SDL.get SDL.HintRenderScaleQuality
+       when (renderQuality /= SDL.ScaleLinear) $
          putStrLn "Warning: Linear texture filtering not enabled!"
-         
+
     let config = OpenGLConfig { glColorPrecision = V4 8 8 8 0
                               , glDepthPrecision = 24
                               , glStencilPrecision = 8
@@ -117,7 +114,7 @@ openWindow title (sizex,sizey) =
 
     SDL.showWindow window
     _ <- SDL.glCreateContext window
-    
+
     return window
 
 closeWindow :: SDL.Window -> IO ()
@@ -132,14 +129,14 @@ fromGame game objs time = drs -- (drs, drs')
     mpos = unsafeCoerce $ view (playCam . controller . device' . mouse . pos) game -- :: (Double, Double)
     resX = fromEnum $ view (options . resx) game :: Int
     resY = fromEnum $ view (options . resy) game :: Int
-    res  = ((toEnum resX), (toEnum resY)) :: (CInt, CInt)
+    res  = (toEnum resX, toEnum resY) :: (CInt, CInt)
     cam  = view playCam game :: Camera
-    drs  = concat $ fmap (fromObject mpos time res cam) objs :: [Drawable]
-              
+    drs  = concatMap (fromObject mpos time res cam) objs :: [Drawable]
+
 fromObject :: (Double, Double) -> Float -> (CInt, CInt) -> Camera -> Object -> [Drawable]
 fromObject mpos time res cam obj = drs
   where
-    drs      = 
+    drs      =
       (\u_mats' u_prog' u_mouse' u_time' u_res' u_cam' u_cam_a' u_cam_f' u_xform' ds' ps'
         -> (Drawable (Uniforms u_mats' u_prog' u_mouse' u_time' u_res' u_cam' u_cam_a' u_cam_f' u_xform') ds' ps'))
       <$.> mats <*.> progs <*.> mpos_ <*.> time_ <*.> res_ <*.> cam_ <*.> cam_a_ <*.> cam_f_ <*.> xforms <*.> ds <*.> progs
@@ -148,16 +145,16 @@ fromObject mpos time res cam obj = drs
     mpos_  = replicate n $ mpos :: [(Double, Double)]
     time_  = replicate n $ time :: [Float]
     res_   = replicate n $ res  :: [(CInt, CInt)]
-    cam_   = replicate n $ (view (controller . Controllable.transform) cam)  :: [M44 Double]
-    cam_a_ = replicate n $ (_apt cam) :: [Double]
-    cam_f_ = replicate n $ (_foc cam) :: [Double]
+    cam_   = replicate n $ view (controller . Controllable.transform) cam  :: [M44 Double]
+    cam_a_ = replicate n $ _apt cam :: [Double]
+    cam_f_ = replicate n $ _foc cam :: [Double]
 
     mats   = view Object.materials   obj :: [Material]
     progs  = view Object.programs    obj :: [Program]
     xforms = concat $ replicate n $ view Object.transforms obj :: [M44 Double]
     ds     = view Object.descriptors obj :: [Descriptor]
 
-render :: (MVar Double) -> Backend -> BackendOptions -> SDL.Window -> Game -> IO ()
+render :: MVar Double -> Backend -> BackendOptions -> SDL.Window -> Game -> IO ()
 render lastInteraction Rendering.OpenGL opts window game =
   do
     GL.clearColor $= Color4 0.0 0.0 0.0 1.0
@@ -169,7 +166,7 @@ render lastInteraction Rendering.OpenGL opts window game =
         fntObjs = concat $ toListOf (objects . gui . fonts) game :: [Object]
         fgrObjs = concat $ toListOf (objects . foreground)  game :: [Object]
         bgrObjs = concat $ toListOf (objects . background)  game :: [Object]
-        
+
         fntsDrs = fromGame game fntObjs currentTime :: [Drawable]
         objsDrs = fromGame game fgrObjs currentTime :: [Drawable]
         bgrsDrs = fromGame game bgrObjs currentTime :: [Drawable]
@@ -179,13 +176,13 @@ render lastInteraction Rendering.OpenGL opts window game =
     _ <- mapM_ (draw texPaths (opts { primitiveMode = Triangles }) window) objsDrs
     _ <- mapM_ (draw texPaths (opts { primitiveMode = Points })    window) bgrsDrs
 
-    -- | render FPS
-    currentTime <- SDL.time                          
+-- | render FPS
+    currentTime <- SDL.time
     dt <- (currentTime -) <$> readMVar lastInteraction
-    _ <- drawString (draw texPaths opts window) fntsDrs $ show $ round (1/dt) 
-    
+    _ <- drawString (draw texPaths opts window) fntsDrs $ show $ round (1/dt)
+
     SDL.glSwapWindow window
-    
+
 render _ Vulkan _ _ _ = undefined
 
 -- | given a string of drawables, return a formatted string (e.g. add offsets for drawable chars)
@@ -207,9 +204,9 @@ offsetChar (drw, offset) = drw'
     offsetM44 =
       mkTransformationMat
       (rot0 * s2)
-      (tr0 ^+^ (V3 (h + fromIntegral offset*s1) v 0))
+      (tr0 ^+^ V3 (h + fromIntegral offset*s1) v 0)
     drw' = set (uniforms . u_xform) offsetM44 drw
-    
+
 -- | Alphabet of drawables -> String -> String of drawables
 drawableString :: [Drawable] -> String -> [Drawable]
 drawableString drs str = drws
@@ -248,10 +245,10 @@ draw
     prog) =
   do
     initUniforms texPaths unis
-    
+
     bindVertexArrayObject $= Just vao'
     drawElements (primitiveMode opts) numIndices' GL.UnsignedInt nullPtr
-    
+
     GL.pointSize $= 0.001
     --GL.pointSmooth $= Enabled
 
@@ -265,8 +262,8 @@ bindTexureUniforms objsDrs =
     _ <- mapM bindTexture $ zip ids txs
     print "Finished loading textures."
       where
-        txs = concat $ concat $ fmap (toListOf (materials . traverse . Material.textures)) objsDrs
-        ids = take (length txs) $ [0..]
+        txs = concat $ concatMap (toListOf (materials . traverse . Material.textures)) objsDrs
+        ids = take (length txs) [0..]
 
 bindTexture :: (GLuint, FilePath) -> IO ()
 bindTexture (txid, tx) =
@@ -280,7 +277,7 @@ initUniforms :: [FilePath] -> Uniforms -> IO ()
 initUniforms
   texPaths
   (Uniforms u_mat' u_prog' u_mouse' u_time' u_res' u_cam' u_cam_a' u_cam_f' u_xform') =
-  
+
   do
     let programDebug = loadShaders
                        [ ShaderInfo VertexShader   (FileSource (_vertShader u_mat' ))
@@ -304,15 +301,15 @@ initUniforms
 
     let apt = u_cam_a' -- aperture
         foc = u_cam_f' -- focal length
-        proj =          
+        proj =
           LP.infinitePerspective
           (2.0 * atan ( (apt/2.0) / foc )) -- | FOV
           (resX/resY)                      -- | Aspect
           (0.01)                           -- | Near
-                  
+
     persp             <- GL.newMatrix RowMajor $ toList' proj   :: IO (GLmatrix GLfloat)
-    location3         <- get (uniformLocation program "persp")        
-    uniform location3 $= persp                                        
+    location3         <- get (uniformLocation program "persp")
+    uniform location3 $= persp
 
     --print $ show u_cam'
     camera            <- GL.newMatrix RowMajor $ toList' u_cam' :: IO (GLmatrix GLfloat)
@@ -333,8 +330,8 @@ initUniforms
 
     -- | Allocate Textures
     let texNames = fmap getTexName texPaths
-    _ <- mapM (allocateTextures program) $ zip texNames $ [0..]
-    
+    _ <- mapM_ (allocateTextures program) $ zip texNames [0..]
+
     -- | Unload buffers
     --bindVertexArrayObject         $= Nothing
     --bindBuffer ElementArrayBuffer $= Nothing
@@ -360,46 +357,46 @@ fromV3M44 v3 w = V4 (v3 ^. _x) (v3 ^. _y) (v3 ^. _z) w
 
 fromV3V4 :: V3 a -> a -> V4 a
 fromV3V4 v3 w = V4 (v3 ^. _x) (v3 ^. _y) (v3 ^. _z) w
-              
+
 getTexName :: FilePath -> String
-getTexName f = (splitOn "." $ (splitOn "/" f)!!1)!!0
+getTexName f = head (splitOn "." $ splitOn "/" f!!1)
 
 allocateTextures :: Program -> (String, GLuint) -> IO ()
 allocateTextures program (tx, txU) =
   do
     location <- get (uniformLocation program tx)
-    uniform location $= (TextureUnit txU)
-    
+    uniform location $= TextureUnit txU
+
        -- | Indices -> Stride -> ListOfFloats -> Material -> Descriptor
 initVAO :: ([Int], Int, [Float], Material) -> IO Descriptor
 initVAO (idx', st', vs', matPath) =
   do
     let
-      idx = (fmap unsafeCoerce idx') :: [GLuint]
-      vs  = (fmap unsafeCoerce vs')  :: [GLfloat]
+      idx = unsafeCoerce <$> idx' :: [GLuint]
+      vs  = unsafeCoerce <$> vs'  :: [GLfloat]
     -- | VAO
     vao <- genObjectName
-    bindVertexArrayObject $= Just vao 
+    bindVertexArrayObject $= Just vao
     -- | VBO
     vertexBuffer <- genObjectName
     bindBuffer ArrayBuffer $= Just vertexBuffer
     withArray vs $ \ptr ->
       do
-        let sizev = fromIntegral ((length vs) * sizeOf (head vs))
+        let sizev = fromIntegral (length vs * sizeOf (head vs))
         bufferData ArrayBuffer $= (sizev, ptr, StaticDraw)
     -- | EBO
     elementBuffer <- genObjectName
     bindBuffer ElementArrayBuffer $= Just elementBuffer
-    let numIndices = length (idx)
-    withArray (idx) $ \ptr ->
+    let numIndices = length idx
+    withArray idx $ \ptr ->
       do
-        let indicesSize = fromIntegral (numIndices * sizeOf (head (idx)))
+        let indicesSize = fromIntegral (numIndices * sizeOf (head idx))
         bufferData ElementArrayBuffer $= (indicesSize, ptr, StaticDraw)
-        
+
         -- | Bind the pointer to the vertex attribute data
         let floatSize  = (fromIntegral $ sizeOf (0.0::GLfloat)) :: GLsizei
-            stride     = (fromIntegral st') * floatSize
-        
+            stride     = fromIntegral st' * floatSize
+
         -- | Alpha
         vertexAttribPointer (AttribLocation 0) $= (ToFloat, VertexArrayDescriptor 1 Float stride ((plusPtr nullPtr . fromIntegral) (0 * floatSize)))
         vertexAttribArray   (AttribLocation 0) $= Enabled

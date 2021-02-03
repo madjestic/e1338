@@ -3,7 +3,7 @@
 
 module Game
   ( Game    (..)
-  , Stage   (..) 
+  , Stage   (..)
   , Options (..)
   , options
   , Game.name
@@ -72,7 +72,7 @@ $(makeLenses ''Game)
 
 mainGame :: Game -> Game -> SF AppInput Game
 mainGame game0 game1 =
-  loopPre game0 $ 
+  loopPre game0 $
   proc (input, gameState) -> do
     gs <- case _gStg gameState of
             GameIntro   -> gameIntro            -< (input, gameState)
@@ -91,7 +91,7 @@ gameIntro =
                skipE      <- keyInput SDL.ScancodeSpace "Pressed" -< input
                waitE      <- after loadDelay () -< ()
                returnA    -< (introState, (skipE `lMerge` waitE) $> playState)
-           cont game  = 
+           cont game  =
              proc input -> returnA -< game
 
 gamePlay :: Game -> Game -> SF AppInput Game
@@ -104,32 +104,27 @@ gamePlay intro game =
                returnA -< (game', reset $> game)
 
 updateGame :: Game -> SF AppInput Game
-updateGame game = 
+updateGame game =
   proc input -> do
-    (cams, cam) <- updateCameras ((Game._cameras game), (Game._playCam game)) -< input
-    --objs        <- updateObjects $ _foreground (Game._objects game)   -< ()
-    --objs'       <- updateObjects' -< objs
-    --objs'       <- updateObjects'' $ _foreground (Game._objects game) -< objs
-    objs'       <- updateObjects2 $ _foreground (Game._objects game) -< (_foreground (Game._objects game))
+    (cams, cam) <- updateCameras (Game._cameras game, Game._playCam game) -< input
+    objs'       <- updateObjects $ _foreground (Game._objects game) -< (_foreground (Game._objects game))
     objTree     <- updateObjTree game -< ()
 
     let
       objTree = Game._objects game
       result =
         game { Game._objects = (objTree {_foreground = objs'})
-        --game { Game._objects = (objTree {_foreground = (DT.trace ("updateGame.objs" ++ show objs) $ objs)})
              , Game._cameras = cams
-             , _playCam      = cam             
+             , _playCam      = cam
              }
 
     returnA  -< result
-    -- returnA  -< (DT.trace (show (view (playCam . controller . Controllable.transform ) result)) $ result)
 
-updateObjTree :: Game -> SF () ObjectTree -- TODO
+updateObjTree :: Game -> SF () ObjectTree
 updateObjTree game =
   proc () -> do
     returnA -< (view Game.objects game)
-    
+
 handleExit :: SF AppInput Bool
 handleExit = quitEvent >>^ isEvent
 
@@ -145,15 +140,15 @@ initGame ::
   -> IO Game
 initGame initVAO project =
   do
-    print "initializing game resources..."
-    print $ "project name :" ++ (view Prj.name project)
-    objTree <- (initObjectTree initVAO project)
+    print   "initializing game resources..."
+    print $ "project name :" ++ view Prj.name project
+    objTree <- initObjectTree initVAO project
 
     let
-      cams = fmap fromProjectCamera $ view Prj.cameras project
-      pCam = cams!!0
-      camerasP = fmap fromList $ toListOf (Prj.cameras . traverse . pTransform) project
-      playCamP = camerasP!!0 --fromList $ camerasP!!0
+      cams = fromProjectCamera <$> view Prj.cameras project
+      pCam = head cams
+      camerasP = fromList <$> toListOf (Prj.cameras . traverse . pTransform) project
+      playCamP = head camerasP --fromList $ camerasP!!0
     --pc <- fromVGeo $ fromPGeo pCloud  -- PCloud Point Cloud
     --let objTree = [pc]
     let game =
@@ -170,9 +165,9 @@ initGame initVAO project =
           pCam
           cams
 
-    print "finished initializing game resources..."          
+    print "finished initializing game resources..."
     return game
-      where        
+      where
         name' = view Prj.name project
         resX' = (unsafeCoerce $ view Prj.resx project) :: CInt
         resY' = (unsafeCoerce $ view Prj.resy project) :: CInt
