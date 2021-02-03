@@ -15,10 +15,12 @@
                 0
             ],
             "solvers": [
+		"pretranslate",
 		"translate"
             ],
             "solverAttrs": [
-		[0,0,0]
+		[-0.1,0,0],
+		[1000,0,0]
             ]
         },
         {
@@ -28,10 +30,10 @@
                 1
             ],
             "solvers": [
-		"translate"
+		"pretranslate"
             ],
             "solverAttrs": [
-		[0,0,0]
+		[0,0.1,0]
             ]
         },
 	{
@@ -41,10 +43,10 @@
                 2
             ],
             "solvers": [
-                "gravity"
+                "pretranslate"
             ],
             "solverAttrs": [
-                [0,1]
+		[0.1,0,0]
             ]
         }	
     ],

@@ -12,7 +12,7 @@ module Object
   , programs
   , descriptors
   , transforms
-  , solve
+  , solveLinear
   , Object.solvers
   , ObjectTree (..)
   , gui
@@ -27,6 +27,8 @@ module Object
   , initObject
   , updateObjects
   , updateObjects'
+  , updateObjects''
+  , updateObjects2
   ) where
 
 import GHC.Float
@@ -246,15 +248,41 @@ fromVGeo initVAO (VGeo idxs st vaos matPaths mass vels xform) =
 
     return object
     
-solve :: [Object] -> Object -> SF () Object
-solve objs obj =
+solveLinear :: [Object] -> Object -> SF () Object
+solveLinear objs obj =
   proc () -> do
     mtxs <- (parB . fmap (transformLinear objs obj)) slvs0 -< ()
-    --mtxs <- (parB . fmap (transformLinear (DT.trace ("solve.objs :" ++ show objs) $ objs) obj)) slvs0 -< ()
+    --mtxs <- (parB . fmap (transformLinear (DT.trace ("solveLinear.objs :" ++ show objs) $ objs) obj)) slvs0 -< ()
     returnA -< obj { _transforms = vectorizedCompose mtxs }
       where
         slvs0 = view Object.solvers obj
-        mtxs0 = view transforms     obj
+        -- mtxs0 = view transforms     obj
+
+solveLinear' :: Object -> SF [Object] Object
+solveLinear' obj0 =
+  proc objs -> do
+
+    mtxs <- (parB . fmap (transformLinear' obj0)) slvs0 -< objs
+    returnA -< obj0 { _transforms = vectorizedCompose mtxs }
+      where
+        slvs0 = view Object.solvers obj0
+
+-- solveLinear' :: SF [Object] [Object]
+-- solveLinear' =
+--   proc objs0 -> do
+--     objs <- transformLinear' -< objs0
+--     returnA -< objs
+
+transformLinear' :: Object -> Solver -> SF [Object] ([M44 Double])
+transformLinear' obj0 slv0 =
+  proc objs ->
+    do
+      mtxs <- (parB . fmap (transformerLinear' obj0 slv0)) mtxs0 -< objs -- TODO: pass object as arg to trabsformer
+      --mtxs <- (parB . fmap (transformerLinear (DT.trace ("transformLinear.objs :" ++ show objs) $ objs) obj0 slv0)) mtxs0 -< () -- TODO: pass object as arg to trabsformer
+      returnA -< mtxs
+        where
+          mtxs0 = view transforms obj0 :: [M44 Double]
+
 
 transformLinear :: [Object] -> Object -> Solver -> SF () ([M44 Double])
 transformLinear objs obj0 slv0 = 
@@ -279,10 +307,10 @@ transformerLinear objs obj0 solver mtx0 =
         do
           mtx' <- translate mtx0 txyz -< ()
           returnA -< mtx'
-      Gravity _ ->
-        do
-          mtx' <- gravityLinear (objs, obj0) -< ()
-          returnA -< mtx'
+      -- Gravity _ ->
+      --   do
+      --     mtx' <- gravityLinear (objs, obj0) -< ()
+      --     returnA -< mtx'
       _ ->
         do
           returnA -< mtx0
@@ -295,6 +323,36 @@ transformerLinear objs obj0 solver mtx0 =
         Rotate     pv0 ypr0 = solver
         Translate  txyz     = solver
         Gravity    idxs     = solver
+
+transformerLinear' :: Object -> Solver -> M44 Double -> SF [Object] (M44 Double)
+transformerLinear' obj0 solver mtx0 =
+  proc objs -> do
+    state <- case solver of
+      -- Rotate _ _ ->
+      --   do
+      --     mtx' <- rotate mtx0 pv0 ypr0 -< ()
+      --     --mtx' <- rotate (DT.trace ("transformerLinear.Rotate.objs :" ++ show objs) $ mtx0) pv0 ypr0 -< ()
+      --     returnA -< mtx'
+      Translate _ ->
+        do
+          mtx' <- translate mtx0 txyz -< ()
+          returnA -< mtx'
+      -- Gravity _ ->
+      --   do
+      --     mtx' <- gravityLinear (objs, obj0) -< ()
+      --     returnA -< mtx'
+      _ ->
+        do
+          returnA -< mtx0
+    returnA -< state
+      where
+    --     v0 = view velocity obj0
+    --     m0 = view mass obj0
+    --     ps = fmap (view (_w._xyz) . head . (view transforms)) ([objs!!0]):: [V3 Double]
+    --     ms = fmap (view mass) objs :: [Double]
+    --     Rotate     pv0 ypr0 = solver
+        Translate  txyz     = solver
+    --     Gravity    idxs     = solver
 
 gravityLinear :: ([Object], Object) -> SF () (M44 Double)
 gravityLinear (objs, obj0) =
@@ -404,15 +462,33 @@ vectorizedCompose = fmap (foldr1 (^*^)) . DL.transpose
 updateObjects :: [Object] -> SF () [Object]
 updateObjects objs0 =
   proc () -> do
-    objs <- parB . fmap (solve objs0) $ objs0 -< ()
-    --objs <- parB . fmap (solve objs0) $ (DT.trace ("updateObjects.objs0 " ++ show objs0 ) $ objs0) -< ()
+    objs <- parB . fmap (solveLinear objs0) $ objs0 -< ()
+    --objs <- parB . fmap (solveLinear objs0) $ (DT.trace ("updateObjects.objs0 " ++ show objs0 ) $ objs0) -< ()
     returnA -< objs
     --returnA -< (DT.trace ("updateObjects.objs :" ++ show objs ) $ objs)
+
+updateObjects2 :: [Object] -> SF [Object] [Object]
+updateObjects2 objs0 =
+  proc objs -> do
+    objs' <- parB . fmap solveLinear' $ objs0 -< objs
+    objs'' <- gravitySolver -< objs'
+    returnA -< objs''
 
 updateObjects' :: SF [Object] [Object] -- 013121, latest iteration
 updateObjects' =
   proc objs -> do
     --rec objs  <- iPre objs -< objs'
     objs'   <- gravitySolver -< objs
+    --objs' <- parB (fmap gravitySolver objs0) -< objs
+    returnA -< objs'
+
+updateObjects'' :: [Object] -> SF [Object] [Object] -- 013121, latest iteration
+updateObjects'' objs0 =
+  proc objs -> do
+    --rec objs  <- iPre objs0 -< objs'
+    rec
+      objs  <- iPre objs0 -< objs'
+      --objs' <- gravitySolver -< objs
+      objs'  <- updateObjects objs0 -< ()
     --objs' <- parB (fmap gravitySolver objs0) -< objs
     returnA -< objs'

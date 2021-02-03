@@ -85,36 +85,6 @@ preTransformer solver mtx0 = mtx
       Identity           -> identity mtx0
       _                  -> mtx0
       
--- transformer :: [Object] -> Object -> Solver -> M44 Double -> SF () (M44 Double)
--- transformer objs obj0 solver mtx0 =
---   proc () -> do
---     state <- case solver of
---       Rotate _ _ ->
---         do
---           mtx' <- rotate mtx0 pv0 ypr0 -< ()
---           returnA -< mtx'
---       Translate _ ->
---         do
---           mtx' <- translate mtx0 txyz -< ()
---           returnA -< mtx'
---       Gravity _ ->
---         do
---           mtx' <- gravity mtx0 v0 m0 ps ms -< ()
---           returnA -< mtx'
---       _ ->
---         do
---           returnA -< mtx0
---     returnA -< state
---       where
---         -- TODO: Fill it up:
---         v0 = view velocity obj0
---         m0 = undefined
---         ps = undefined 
---         ms = undefined 
---         Rotate     pv0 ypr0 = solver
---         Translate  txyz     = solver
---         Gravity    idxs     = solver
-
 identity :: M44 Double -> M44 Double
 identity mtx0 = mtx
   where

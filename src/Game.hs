@@ -107,8 +107,10 @@ updateGame :: Game -> SF AppInput Game
 updateGame game = 
   proc input -> do
     (cams, cam) <- updateCameras ((Game._cameras game), (Game._playCam game)) -< input
-    objs        <- updateObjects $ _foreground (Game._objects game) -< ()
-    objs'       <- updateObjects' -< objs
+    --objs        <- updateObjects $ _foreground (Game._objects game)   -< ()
+    --objs'       <- updateObjects' -< objs
+    --objs'       <- updateObjects'' $ _foreground (Game._objects game) -< objs
+    objs'       <- updateObjects2 $ _foreground (Game._objects game) -< (_foreground (Game._objects game))
     objTree     <- updateObjTree game -< ()
 
     let
