@@ -22,10 +22,12 @@ module Object
   , Object.fonts
   , icons
   , ObjectClass (..)
+  , ObjectFeature (..)
 -- | utility functions:  
   , initObject
+  , updateObjectsGravity
   , updateObjects
-  , updateObjects'
+  , objectCompose
   ) where
 
 import GHC.Float
@@ -72,6 +74,10 @@ data Object
      , _solvers     :: [Solver]
      } deriving Show
 $(makeLenses ''Object)
+
+data ObjectFeature
+  = Transforms
+  | Velocity
 
 data ObjectClass = Foreground | Background | Font
 
@@ -229,50 +235,32 @@ fromVGeo initVAO (VGeo idxs st vaos matPaths mass vels xform) =
 
     return object
 
-updateObjects :: [Object] -> SF [Object] [Object]
+updateObjects :: [Object] -> SF () [Object]
 updateObjects objs0 =
-  proc objs -> do
-    --objs' <- parB . fmap solve $ objs0 -< objs
-    --objs'' <- gravitySolver -< objs'
-    rec objs   <- iPre objs0 -< objs'
-        --objs' <- parB . fmap solve $ objs0 -< objs
-        objs'  <- gravitySolver -< objs
-
-    -- objs''' <- parB . fmap solve $ objs0 -< objs'
-    returnA -< objs
-
-updateObjects' :: [Object] -> SF [Object] [Object]
-updateObjects' objs0 =
-  proc objs -> do
-    --objs' <- parB . fmap solve $ objs0 -< objs
-    --objs'' <- gravitySolver -< objs'
-    -- rec objs'   <- iPre objs0 -< objs''
-    --     --objs' <- parB . fmap solve $ objs0 -< objs
-    --     objs''  <- gravitySolver -< objs'
-
-    objs' <- parB . fmap solve $ objs0 -< objs
+  proc () -> do
+    objs' <- parB . fmap solve $ objs0 -< ()
     returnA -< objs'
     
-solve :: Object -> SF [Object] Object
+solve :: Object -> SF () Object
 solve obj0 =
-  proc objs -> do
-    mtxs    <- (parB . fmap (transform obj0)) slvs0 -< objs
+  proc () -> do
+    mtxs    <- (parB . fmap (transform obj0)) slvs0 -< ()
     returnA -< obj0 { _transforms = vectorizedCompose mtxs }
       where
         slvs0 = view Object.solvers obj0
 
-transform :: Object -> Solver -> SF [Object] ([M44 Double])
+transform :: Object -> Solver -> SF () ([M44 Double])
 transform obj0 slv0 =
-  proc objs ->
+  proc () ->
     do
-      mtxs <- (parB . fmap (transform' obj0 slv0)) mtxs0 -< objs -- TODO: pass object as arg to transformer
+      mtxs <- (parB . fmap (transform' obj0 slv0)) mtxs0 -< () -- TODO: pass object as arg to transformer
       returnA -< mtxs
         where
           mtxs0 = view transforms obj0 :: [M44 Double]
 
-transform' :: Object -> Solver -> M44 Double -> SF [Object] (M44 Double)
+transform' :: Object -> Solver -> M44 Double -> SF () (M44 Double)
 transform' obj0 solver mtx0 =
-  proc objs -> do
+  proc () -> do
     state <- case solver of
       Rotate _ _ ->
         do
@@ -294,11 +282,17 @@ transform' obj0 solver mtx0 =
         Translate  txyz     = solver
         Gravity    idxs     = solver
 
+updateObjectsGravity :: [Object] -> SF [Object] [Object]
+updateObjectsGravity objs0 =
+  proc objs -> do
+    rec objs   <- iPre objs0 -< objs'
+        objs'  <- gravitySolver -< objs
+    returnA -< objs
+
 gravitySolver :: SF [Object] [Object]
 gravitySolver =
   proc objs0 -> do
     -- let objsG = filter (\x -> any (\case Gravity {} -> True; _ -> False) (view Object.solvers x)) objs'
-    --     objsNG = filter (\x -> any (\case Gravity {} -> False; _ -> True) (view Object.solvers x)) objs'
     let objs = (gravitySolver' <$> decomp objs0) :: [Object]
     returnA -< objs
 
@@ -369,3 +363,6 @@ vectorizedCompose = fmap (foldr1 (^*^)) . DL.transpose
   where
     rot = view _m33 mtx0 !*! view _m33 mtx1 :: M33 Double
     tr  = view translation mtx0 ^+^ view translation mtx1
+
+objectCompose :: ObjectFeature -> (Double, Double) -> [Object] -> [Object] -> [Object]
+objectCompose f ratios objs0 objs1 = undefined

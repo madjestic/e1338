@@ -107,9 +107,12 @@ updateGame :: Game -> SF AppInput Game
 updateGame game =
   proc input -> do
     (cams, cam) <- updateCameras (Game._cameras game, Game._playCam game) -< input
-    objs'       <- updateObjects $ _foreground (Game._objects game) -< (_foreground (Game._objects game))
+    objs        <- updateObjects $ _foreground (Game._objects game) -< ()
+    objs'       <- updateObjectsGravity $ _foreground (Game._objects game) -< objs
 
     let
+      -- composeObjs Transform = undefined --TODO: make objects composable acc.to some feature, like transform or color
+      cObjs  = objectCompose Transforms (1,1) objs objs'
       objTree = Game._objects game
       result =
         game { Game._objects = (objTree {_foreground = objs'})
