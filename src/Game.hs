@@ -108,7 +108,6 @@ updateGame game =
   proc input -> do
     (cams, cam) <- updateCameras (Game._cameras game, Game._playCam game) -< input
     objs'       <- updateObjects $ _foreground (Game._objects game) -< (_foreground (Game._objects game))
-    objTree     <- updateObjTree game -< ()
 
     let
       objTree = Game._objects game
@@ -119,11 +118,6 @@ updateGame game =
              }
 
     returnA  -< result
-
-updateObjTree :: Game -> SF () ObjectTree
-updateObjTree game =
-  proc () -> do
-    returnA -< (view Game.objects game)
 
 handleExit :: SF AppInput Bool
 handleExit = quitEvent >>^ isEvent

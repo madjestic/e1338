@@ -129,12 +129,9 @@ translate mtx0 v0 =
     tr' <- (V3 0 0 0 ^+^) ^<< integral -< v0
     let mtx =
           mkTransformationMat
-            rot
-            tr
-            where
-              rot =
-                (view _m33 mtx0)
-              tr = tr'
+            (view _m33 mtx0)
+            tr'
+
     returnA -< mtx
 
 rotate :: M44 Double -> V3 Double -> V3 Double -> SF () (M44 Double)
@@ -151,7 +148,7 @@ rotate mtx0 pv0 ypr0 =
                 !*! fromQuaternion (axisAngle (view _x (view _m33 mtx0)) (view _x ypr')) -- yaw
                 !*! fromQuaternion (axisAngle (view _y (view _m33 mtx0)) (view _y ypr')) -- pitch
                 !*! fromQuaternion (axisAngle (view _z (view _m33 mtx0)) (view _z ypr')) -- roll
-              tr  = view (_w._xyz) mtx0
+              tr  = (view (_w._xyz) . transpose) mtx0 
     returnA -< mtx
 
 g = 6.673**(-11.0) :: Double

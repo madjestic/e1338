@@ -1,5 +1,5 @@
 {
-    "name": "3 Body Problem",
+    "name": "2 Body Problem",
     "resx": 800,
     "resy": 600,
     "models": [
@@ -15,40 +15,19 @@
                 0
             ],
             "solvers": [
-		"pretranslate",
-		"translate"
             ],
             "solverAttrs": [
-		[0,0,0],
-		[-1000,0,0]
             ]
         },
-        {
-            "pname": "Body 1",
+	{
+            "pname": "Body 2",
             "objIDX": 1,
             "modelIDXs": [
                 1
             ],
             "solvers": [
-		"pretranslate"
             ],
             "solverAttrs": [
-		[-5,0,0]
-            ]
-        },
-	{
-            "pname": "Body 2",
-            "objIDX": 2,
-            "modelIDXs": [
-                2
-            ],
-            "solvers": [
-                "pretranslate",
-		"gravity"
-            ],
-            "solverAttrs": [
-		[0,0,0],
-		[]
             ]
         }	
     ],
