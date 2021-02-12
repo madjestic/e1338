@@ -25,22 +25,22 @@ module Object
   , ObjectFeature (..)
 -- | utility functions:  
   , initObject
-  , updateObjectsGravity
   , updateObjects
   , objectCompose
   ) where
 
+import Control.Lens hiding (transform, pre)
+import Data.Bifunctor  as BF (second)
+import Data.List       as DL (transpose)
+import Data.Functor              (($>))
+import qualified Data.IntMap.Lazy as IM
+import Data.List.Index as DL (indexed)
+import FRP.Yampa    hiding (identity)
 import GHC.Float
+import Graphics.Rendering.OpenGL (Program (..), ShaderType (..))
 import Linear.V4
 import Linear.Matrix as LM -- (M44, M33, identity, translation, fromQuaternion, (!*!), mkTransformationMat)
 import Linear (V3(..))
-import Control.Lens hiding (transform, pre)
-import FRP.Yampa    hiding (identity)
-import Graphics.Rendering.OpenGL (Program (..), ShaderType (..))
-import Data.List as DL (transpose)
-import Data.Functor              (($>))
---import Data.VectorSpace
-import Data.List.Index as DL (indexed)
 
 import LoadShaders
 import Material
@@ -49,7 +49,7 @@ import Solvable
 import PGeo
 import Project
 import Model
-import Utils
+import Utils          as U
 --import GUI
 
 import Debug.Trace    as DT
@@ -171,7 +171,7 @@ initObject project
     let (VGeo is_ st_ vs_ mts_ ms_ vels_ xf_) = vgeo
         vaoArgs       = (\idx' st' vao' mat' -> (idx', st', vao', mat'))
                         <$.> is_ <*.> st_ <*.> vs_ <*.> mats
-        offset        = fmap (view _w.fromList) xf_
+        offset        = fmap (view _w . U.fromList) xf_
         vel           = toV3 (fmap float2Double (head vels_)) :: V3 Double -- TODO: this can be a list of vels, representing animated series, could be used later to create animations
         m             = realToFrac (head ms_):: Double      -- TODO: same here
 
@@ -184,8 +184,8 @@ initObject project
         solvs         = toSolver <$> zip solversF attrsF
         preTransforms =
           case cls of
-            Font -> fromList <$> xf_
-            _    -> uncurry preTransformer <$> (zip solvs (fmap fromList xf_)::[(Solver, M44 Double)]) :: [M44 Double]
+            Font -> U.fromList <$> xf_
+            _    -> uncurry preTransformer <$> (zip solvs (fmap U.fromList xf_)::[(Solver, M44 Double)]) :: [M44 Double]
          -- _    -> (\(s0, xf0) -> preTransformer s0 xf0) <$> (zip solvs (fmap fromList xf_)::[(Solver, M44 Double)]) :: [M44 Double]
 
     ds    <- mapM initVAO vaoArgs
@@ -223,7 +223,7 @@ fromVGeo initVAO (VGeo idxs st vaos matPaths mass vels xform) =
     mats <- mapM readMaterial matPaths -- (ms vgeo)
     let
       vaoargs         = (\idx' st' vao' mat' ->  (idx', st', vao', mat')) <$.> idxs <*.> st <*.> vaos <*.> mats
-      offset = view _w (fromList (xform!!0) :: M44 Double) -- xform!!0 - at conversion stage, there can be only a single element in a list of transforms, therefore I don't want to overcomplicate it at the moment and keep it adhoc.
+      offset = view _w (U.fromList (head xform) :: M44 Double) -- xform!!0 - at conversion stage, there can be only a single element in a list of transforms, therefore I don't want to overcomplicate it at the moment and keep it adhoc.
 
     ds   <- mapM initVAO vaoargs
 
@@ -240,7 +240,7 @@ updateObjects objs0 =
   proc () -> do
     objs' <- parB . fmap solve $ objs0 -< ()
     returnA -< objs'
-    
+
 solve :: Object -> SF () Object
 solve obj0 =
   proc () -> do

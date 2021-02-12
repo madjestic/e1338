@@ -1,5 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE Arrows #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Game
   ( Game    (..)
@@ -24,10 +25,12 @@ module Game
 import Control.Lens
 import Data.Functor              (($>))
 import FRP.Yampa
-import Foreign.C                              (CInt)
+import Foreign.C                 (CInt)
 import Linear.Matrix
 import SDL.Input.Keyboard.Codes as SDL
 import Unsafe.Coerce
+import Data.List.Index          as DL     (indexed)
+import Data.IntMap.Lazy         as IM
 
 import AppInput
 import Camera
@@ -37,6 +40,7 @@ import Material
 import Object
 import Project     as Prj
 import Utils
+import Solvable
 
 import Debug.Trace as DT
 
@@ -107,20 +111,34 @@ updateGame :: Game -> SF AppInput Game
 updateGame game =
   proc input -> do
     (cams, cam) <- updateCameras (Game._cameras game, Game._playCam game) -< input
-    objs        <- updateObjects $ _foreground (Game._objects game) -< ()
-    objs'       <- updateObjectsGravity $ _foreground (Game._objects game) -< objs
+
+    objs        <- updateObjects        filteredNonGravityObjs -< ()
+    let objsIntMap = IM.fromList (zip filteredNonGravityObjsIdxs objs)
+    
+    objs'       <- updateObjectsGravity filteredGravityObjs -< filteredGravityObjs
+    let objs'IntMap = IM.fromList (zip filteredGravityObjsIdxs objs')
 
     let
-      -- composeObjs Transform = undefined --TODO: make objects composable acc.to some feature, like transform or color
-      cObjs  = objectCompose Transforms (1,1) objs objs'
+      unionObjs = IM.union objs'IntMap objsIntMap
       objTree = Game._objects game
       result =
-        game { Game._objects = (objTree {_foreground = objs'})
+        game { Game._objects = (objTree {_foreground = snd <$> IM.toList unionObjs})
              , Game._cameras = cams
              , _playCam      = cam
              }
 
     returnA  -< result
+      where
+        idxObjs    = DL.indexed $ _foreground (Game._objects game)
+        intObjMap  = IM.fromList idxObjs :: IntMap Object
+        
+        filterGravityIntObjMap  = IM.filter (any (\case Gravity {} -> True; _ -> False) . view Object.solvers) intObjMap
+        filteredGravityObjs     = snd <$> IM.toList filterGravityIntObjMap
+        filteredGravityObjsIdxs = fst <$> IM.toList filterGravityIntObjMap
+
+        filterNonGravityIntObjMap  = IM.filter (any (\case Gravity {} -> False; _ -> True) . view Object.solvers) intObjMap
+        filteredNonGravityObjs     = snd <$> IM.toList filterNonGravityIntObjMap
+        filteredNonGravityObjsIdxs = fst <$> IM.toList filterNonGravityIntObjMap
 
 handleExit :: SF AppInput Bool
 handleExit = quitEvent >>^ isEvent
@@ -144,7 +162,7 @@ initGame initVAO project =
     let
       cams = fromProjectCamera <$> view Prj.cameras project
       pCam = head cams
-      camerasP = fromList <$> toListOf (Prj.cameras . traverse . pTransform) project
+      camerasP = Utils.fromList <$> toListOf (Prj.cameras . traverse . pTransform) project
       playCamP = head camerasP --fromList $ camerasP!!0
     --pc <- fromVGeo $ fromPGeo pCloud  -- PCloud Point Cloud
     --let objTree = [pc]

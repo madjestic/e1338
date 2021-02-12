@@ -42,7 +42,7 @@ library
               , Yampa               ^>= 0.13.1
               , simple-affine-space ^>= 0.1.1
               , sort                ^>= 1.0.0.0
-              , massiv              ^>= 0.5.9.0
+              , massiv              ^>= 0.6.0.0
               , vector              ^>= 0.12.1.2
   
   exposed-modules:
@@ -100,7 +100,7 @@ executable e1338
               , simple-affine-space ^>= 0.1.1
               , hmatrix    ^>= 0.20.0.0
               , sort       ^>= 1.0.0.0
-              , massiv     ^>= 0.5.9.0
+              , massiv     ^>= 0.6.0.0
               , vector     ^>= 0.12.1.2
 
   other-modules:
@@ -202,7 +202,7 @@ executable geoIndexer
               , optparse-applicative ^>= 0.15.1.0
               , time-compat          ^>= 1.9.4
               , time       ^>= 1.9.3
-              , massiv     ^>= 0.5.9.0
+              , massiv     ^>= 0.6.0.0
               , vector     ^>= 0.12.1.2              
               
   other-modules:
@@ -237,7 +237,7 @@ executable rpcShuffler
               , store      ^>= 0.7.4
               , simple-affine-space ^>= 0.1.1
               , linear     ^>= 1.20.8
-              , massiv     ^>= 0.5.9.0
+              , massiv     ^>= 0.6.0.0
               , vector     ^>= 0.12.1.2              
               
   other-modules:
