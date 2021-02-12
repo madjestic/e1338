@@ -25,6 +25,7 @@ module Object
   , ObjectFeature (..)
 -- | utility functions:  
   , initObject
+  , updateObjectsGravity
   , updateObjects
   , objectCompose
   ) where
