@@ -56,26 +56,20 @@ data Solver =
      }
   |  Gravity
     {
-    --   _vel  :: V3 Double
-    -- , _m    :: Double
-    --   _ps   :: [V3 Double]
-    -- , _ms   :: [Double]
       _idxs :: [Int]
     } deriving Show
 $(makeLenses ''Solver)
 
 toSolver :: (String, [Double]) -> Solver
 toSolver (solver, parms) =
-  --case (DT.trace ("toSolver.solver :" ++ show solver) $ solver) of
-  case solver of
+  case DT.trace ("toSolver.solver :" ++ show solver) solver of
+  --case solver ofsaazzd
     "pretranslate" -> PreTranslate (toV3 parms)
     "translate"    -> Translate    (toV3 parms)
     "prerotate"    -> PreRotate    (toV3 $ take 3 parms) (toV3 $ drop 3 parms)
     "rotate"       -> Rotate       (toV3 $ take 3 parms) (toV3 $ drop 3 parms)
     "gravity"      -> Gravity      (double2Int <$> parms)
     _              -> Identity
-  -- where
-  --   idxs' = undefined :: [Int]
 
 preTransformer :: Solver -> M44 Double -> M44 Double
 preTransformer solver mtx0 = mtx
@@ -148,5 +142,5 @@ rotate mtx0 pv0 ypr0 =
                 !*! fromQuaternion (axisAngle (view _x (view _m33 mtx0)) (view _x ypr')) -- yaw
                 !*! fromQuaternion (axisAngle (view _y (view _m33 mtx0)) (view _y ypr')) -- pitch
                 !*! fromQuaternion (axisAngle (view _z (view _m33 mtx0)) (view _z ypr')) -- roll
-              tr  = (view (_w._xyz) . transpose) mtx0 
+              tr  = (view (_w._xyz)) mtx0
     returnA -< mtx

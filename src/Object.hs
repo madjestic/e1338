@@ -266,6 +266,7 @@ transform' obj0 solver mtx0 =
       Rotate _ _ ->
         do
           mtx' <- rotate mtx0 pv0 ypr0 -< ()
+          --mtx' <- translate mtx0 ypr0 -< ()
           returnA -< mtx'
       Translate _ ->
         do

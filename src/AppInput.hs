@@ -4,6 +4,7 @@ module AppInput
     , parseWinInput
     , mousePos
     , mouseRelPos
+    , runSFEveryOtherTick
     , mouseMoving
     , mouseStopped
     , lbp
@@ -36,7 +37,8 @@ mousePos :: SF AppInput (Double,Double)
 mousePos = arr inpMousePos
 
 mouseRelPos :: SF AppInput (Double,Double)
-mouseRelPos = iPre initAppInput >>> arr inpMouseRelPos
+--mouseRelPos = iPre initAppInput >>> arr inpMouseRelPos
+mouseRelPos = arr inpMouseRelPos
 
 runSFEveryOtherTick :: SF a (Event b) -> SF a (Event b)
 runSFEveryOtherTick sf =

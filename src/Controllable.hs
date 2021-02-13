@@ -247,7 +247,7 @@ updateMouse ctl0 =
 mouseMovedEvent :: Controllable -> SF AppInput (Event (Double, Double))
 mouseMovedEvent ctl =
   proc input -> do
-    mouseMoved <- mouseMoving  -< input
+    mouseMoved <- mouseMoving -< input
     returnA -< mouseMoved
     
 mouseStoppedEvent :: Controllable -> SF AppInput (Event ())
