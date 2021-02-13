@@ -1,0 +1,57 @@
+{
+    "name": "Unit Sphere",
+    "resx": 800,
+    "resy": 600,
+    "models": [
+        {
+            "path": "models/unit_sphere.bgeo"
+        }
+    ],
+    "objects": [
+        {
+            "pname": "Unit Sphere",
+            "objIDX": 0,
+            "modelIDXs": [
+                0
+            ],
+            "solvers": [
+                "rotate",
+                "translate"
+            ],
+            "solverAttrs": [
+                [
+                    0,0,0,
+                    0,0,100
+                ],
+                [
+                    0,0,0
+                ]
+            ]
+        }
+    ],
+    "background": [],
+    "fonts": [
+        { "path": "models/fnt_0.bgeo" },
+        { "path": "models/fnt_1.bgeo" },
+        { "path": "models/fnt_2.bgeo" },
+        { "path": "models/fnt_3.bgeo" },
+        { "path": "models/fnt_4.bgeo" },
+        { "path": "models/fnt_5.bgeo" },
+        { "path": "models/fnt_6.bgeo" },
+        { "path": "models/fnt_7.bgeo" },
+        { "path": "models/fnt_8.bgeo" },
+        { "path": "models/fnt_9.bgeo" }
+    ],
+    "cameras": [
+        {
+            "pApt": 50,
+            "pFoc": 100,
+            "pTransform": [
+                1,0,0,0,
+                0,1,0,0,
+                0,0,1,-10,
+                0,0,0,1
+            ]
+        }
+    ]
+}

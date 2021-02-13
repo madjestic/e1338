@@ -87,15 +87,16 @@ defaultProject =
   "Test Project"
   800
   600
-  [(Model   "models/box.bgeo")]
-  [(PreObject
+  [ (Model   "models/box.bgeo")]
+  [ (PreObject
     "Box"
     0
     [0]
-    ["rotate", "transform"]
+    ["rotate", "translate"]
     [[0,0,0,0,0,1000]
     ,[1000,0,0]]
-   )]
+    )
+  ]
   []
   [(Model   "models/fnt_0.bgeo")
   ,(Model   "models/fnt_1.bgeo")
