@@ -1,0 +1,6 @@
+{
+    "name": "preview",
+    "fragShader": "./mat/preview/src/shader.frag",
+    "vertShader": "./mat/preview/src/shader.vert",
+    "textures": []
+}

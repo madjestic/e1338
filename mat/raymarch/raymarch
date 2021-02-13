@@ -1,0 +1,6 @@
+{
+    "name": "raymarch",
+    "fragShader": "./mat/raymarch/src/shader.frag",
+    "vertShader": "./mat/raymarch/src/shader.vert",
+    "textures": []
+}

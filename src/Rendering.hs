@@ -49,8 +49,11 @@ import Utils
 
 import Debug.Trace as DT
 
-
+#ifdef DEBUG
+debug = True
+#else
 debug = False
+#endif
 
 data Backend
   = OpenGL

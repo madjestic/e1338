@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Raymarch Sphere
+cabal build exe:e1338
+cabal run e1338 ./projects/raymarch_sphere ./projects/raymarch_sphere
+
 # N-body, gravity solver test
 # cabal build exe:e1338
 # cabal run e1338 ./projects/2body ./projects/2body 
@@ -25,5 +29,5 @@
 # cabal run e1338 ./projects/test_box ./projects/test_box
 
 # Unit Sphere
-cabal build exe:e1338
-cabal run e1338 ./projects/unit_sphere ./projects/unit_sphere
+# cabal build exe:e1338
+# cabal run e1338 ./projects/unit_sphere ./projects/unit_sphere
