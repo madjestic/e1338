@@ -59,7 +59,7 @@ void main()
 		mat4 (-camera[0]
 		     , camera[1]
 		     , camera[2]
-		     , vec4(0,0,-10,1));
+		     , vec4(0,0,xform[3].z,1));
 
 	mat3 perspRot =
 		mat3 ( persp[0].xyz
