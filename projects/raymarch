@@ -1,0 +1,48 @@
+{
+    "name": "Raymarch Shader Test",
+    "resx": 400,
+    "resy": 300,
+    "models": [
+        {
+            "path": "models/raymarch_square.bgeo"
+        }
+    ],
+    "objects": [
+        {
+            "pname": "Raymarch Sphere",
+            "objIDX": 0,
+            "modelIDXs": [
+                0
+            ],
+            "solvers": [
+            ],
+            "solverAttrs": [
+            ]
+        }
+    ],
+    "background": [],
+    "fonts": [
+        { "path": "models/fnt_0.bgeo" },
+        { "path": "models/fnt_1.bgeo" },
+        { "path": "models/fnt_2.bgeo" },
+        { "path": "models/fnt_3.bgeo" },
+        { "path": "models/fnt_4.bgeo" },
+        { "path": "models/fnt_5.bgeo" },
+        { "path": "models/fnt_6.bgeo" },
+        { "path": "models/fnt_7.bgeo" },
+        { "path": "models/fnt_8.bgeo" },
+        { "path": "models/fnt_9.bgeo" }
+    ],
+    "cameras": [
+        {
+            "pApt": 50,
+            "pFoc": 100,
+            "pTransform": [
+                1,0,0,0,
+                0,1,0,0,
+                0,0,1,-8,
+                0,0,0,1
+            ]
+        }
+    ]
+}

@@ -55,7 +55,7 @@ void main()
 		    , camera[1].xyz
 		    , camera[2].xyz );
 	
-	mat4 cameraRot =
+	mat4 cameraM =
 		mat4 (-camera[0]
 		     , camera[1]
 		     , camera[2]
@@ -83,7 +83,7 @@ void main()
 
 	gl_Position
 		= persp
-		* cameraRot
+		* cameraM
 		* position;
 
 	float x = length(gl_Position.xyz);
