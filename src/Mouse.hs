@@ -3,6 +3,7 @@
 module Mouse
   ( Mouse (..)
   , pos
+  , rpos
   , mmov
   ) where
 
@@ -13,9 +14,9 @@ import Linear.V3
 data Mouse
   =  Mouse
   { -- | Mouse State
-    lmb   :: Maybe (Double, Double)
+    _lmb   :: Maybe (Double, Double)
   --, mmb
-  , rmb   :: Maybe (Double, Double)
+  , _rmb   :: Maybe (Double, Double)
   , _pos  ::       (Double, Double)
   , _rpos ::       (Double, Double)
   , _mmov ::        Bool

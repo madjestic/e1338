@@ -78,11 +78,10 @@ updateCamera :: Camera -> SF AppInput Camera
 updateCamera cam0 = 
   proc input ->
     do
-      ctl' <- updateController (view controller cam0) -< input -- add a switch for mouse moving / stopped, switch between integral and static
+      ctl <- updateController (view controller cam0) -< (input, (view controller cam0))
       let
-        cam' = cam0 { Camera._controller = ctl' }
-
-      returnA -< cam'
+        cam = cam0 { Camera._controller = ctl }
+      returnA -< cam
 
 updateCameras :: ([Camera], Camera) -> SF AppInput ([Camera], Camera)
 updateCameras (cams0, cam0) =
@@ -91,9 +90,9 @@ updateCameras (cams0, cam0) =
     sf =
       proc input -> do
         cams <- switchCameras cams0 -< ()
-        cam  <- updateCamera  $ cams0!!0 -< input
+        cam  <- updateCamera  $ head cams0 -< input
 
-        kev <- keyInput SDL.ScancodeC "Pressed" -< input
+        kev <- keyInput SDL.ScancodeC "Pressed" -< input -- switch camera
 
         let
           result  = (cams0, cam)  

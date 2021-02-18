@@ -29,7 +29,7 @@ import           Linear.Affine (Point(..))
 import           SDL.Input.Keyboard.Codes
 import qualified SDL
 
--- import Debug.Trace as DT
+import Debug.Trace as DT
 
 -- <| Signal Functions |> --
 -- | Current mouse position
@@ -330,7 +330,9 @@ nextAppInput inp (SDL.MouseMotionEvent ev) =
   inp { inpMouseMoving  = Just (fromIntegral x', fromIntegral y')
       , inpMouseStopped = False
       , inpMousePos     = (fromIntegral x, fromIntegral y)
-      , inpMouseRelPos  = (fromIntegral x', fromIntegral y') } --Just (0.0::Double, 0.0::Double) }
+      , inpMouseRelPos  = (fromIntegral x', fromIntegral y')
+      }
+  --where (P (V2 x  y ))  = SDL.mouseMotionEventPos ev
   where (P (V2 x  y ))  = SDL.mouseMotionEventPos ev
         (  (V2 x' y'))  = SDL.mouseMotionEventRelMotion ev
 -- | keyInput events
@@ -530,10 +532,7 @@ nextAppInput inp (SDL.MouseButtonEvent ev)
                 -- (SDL.Pressed,  SDL.ButtonMiddle) -> second (const (Just pos))
                 _ -> id
                 
--- nextAppInput inp (SDL.KeyModifier ev)
---   = undefined
-
-nextAppInput inp _ = --inp
+nextAppInput inp _ =
   inp { inpMouseMoving  = Nothing
       , inpMouseStopped = True
       , inpMouseRelPos  = (0,0)

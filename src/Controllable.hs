@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE Arrows #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Controllable
   ( Controllable (..)
@@ -10,7 +11,7 @@ module Controllable
   , Mouse (..)
   , transform
 --  , transform'
-  , ypr      
+  , ypr
   , device
   , device'
   , mouse
@@ -56,8 +57,8 @@ data Controllable
 data Device
   =  Device
      {
-       _keyboard :: Keyboard 
-     , _mouse    :: Mouse    
+       _keyboard :: Keyboard
+     , _mouse    :: Mouse
      } deriving Show
 
 -- transform' :: Lens' Controllable (M44 Double)
@@ -70,26 +71,28 @@ $(makeLenses ''Device)
 $(makeLenses ''Controllable)
 
 -- | ~inspired by foldrWith mtx0 keys - for every keyInput apply a folding transform to mtx0
-updateController :: Controllable -> SF AppInput Controllable
+updateController :: Controllable -> SF (AppInput, Controllable) Controllable
 updateController ctl0 =
   switch sf cont
   where
-    sf = 
-      proc input -> do
-        (mouse', mevs) <- updateMouse ctl0    -< input
-        (mrx,    mry)  <- mouseRelPos         -< input
+    sf =
+      proc (input, ctl') -> do
+        (mouse', mevs) <- updateMouse         -< input
         (kbrd',  kevs) <- updateKeyboard ctl0 -< input
 
         let
           keyVecs1 = keyVecs kbrd'
           ypr1  =
-            (1500 * (V3 mry mrx 0.0) +) $
+            (1500 * (V3 (case (abs mry' <= 1) of True -> 0; _ -> mry')
+                        (case (abs mrx' <= 1) of True -> 0; _ -> mrx')
+                         0.0) +) $
             foldr1 (+) $
             fmap ((scalar) *) $ -- <- make it keyboard controllabe: speed up/down            
             zipWith (*^) ((\x -> if x then (1.0::Double) else 0) . ($ keys kbrd') <$>
                           [ keyUp,  keyDown, keyLeft, keyRight, keyPageUp,  keyPageDown ])
                           [ pPitch, nPitch,  pYaw,    nYaw,     pRoll, nRoll ]
             where
+              (mrx', mry') = view rpos mouse'
               pPitch = (keyVecs1)!!6  -- positive  pitch
               nPitch = (keyVecs1)!!7  -- negative  pitch
               pYaw   = (keyVecs1)!!8  -- positive  yaw
@@ -108,11 +111,12 @@ updateController ctl0 =
                 | shift        = baseSpeed * 1.5   -- fast
                 | ctl          = baseSpeed * 0.1   -- slow
                 | otherwise    = baseSpeed         -- base speed
-              
-        
+
+
         ypr'     <- ((V3 0 0 0) ^+^) ^<< integral -< ypr1
 
         let
+          mtx0 = view Controllable.transform ctl0
           rot = -- identity :: M33 Double
             (view _m33 mtx0)
             !*! fromQuaternion (axisAngle (view _x (view _m33 mtx0)) (view _x ypr')) -- yaw
@@ -126,14 +130,14 @@ updateController ctl0 =
             zipWith (*^) ((\x -> if x then (1::Double) else 0) . ($ (keys kbrd')) <$>
                           [keyW, keyS, keyA, keyD, keyQ, keyE])
                           [fVel, bVel, lVel, rVel, uVel, dVel]
-       
+
             where fVel   = (keyVecs1)!!0  -- forwards  velocity
                   bVel   = (keyVecs1)!!1  -- backwards velocity
                   lVel   = (keyVecs1)!!2  -- left      velocity
                   rVel   = (keyVecs1)!!3  -- right     velocity
                   uVel   = (keyVecs1)!!4  -- up        velocity
                   dVel   = (keyVecs1)!!5  -- down      velocity
-                  
+
                   baseSpeed     = 5000000
                   ctl    = keyLCtrl  $ (keys kbrd')
                   shift  = keyLShift $ (keys kbrd')
@@ -145,28 +149,28 @@ updateController ctl0 =
                     | shift        = baseSpeed * 10000  -- fast
                     | ctl          = baseSpeed * 0.1    -- slow
                     | otherwise    = baseSpeed          -- base speed
-    
+
         tr'  <- ((view translation (Controllable._transform ctl0)) ^+^) ^<< integral -< tr1
-               
+
         let
-          mtx' = 
+          mtx' =
             mkTransformationMat
             rot
             tr'
-            
+
         let result =
-              ctl0
+              ctl'
               { Controllable._transform = mtx' -- DT.trace ("mtx' :" ++ show mtx') $ mtx'
               , Controllable._ypr       = ypr'
               , Controllable._device =
-                  (_device ctl0) {_mouse = mouse', _keyboard = kbrd' }
+                  (_device ctl0) { _keyboard = kbrd'
+                                 , _mouse    = mouse' }
               }
-     
+
         returnA -<
           ( result
-          , catEvents (mevs ++ kevs) $> result ) 
-          where
-            mtx0 = view Controllable.transform ctl0
+          , catEvents (kevs ++ ((tagWith ()) <$> mevs)) $> result )
+          --, catEvents ((DT.trace ("kevs :" ++ show kevs)kevs) ++ ((tagWith ()) <$> (DT.trace ("mevs :" ++ show mevs)mevs))) $> result )
     cont = updateController
 
 updateKeyboard :: Controllable -> SF AppInput (Keyboard, [Event ()])
@@ -176,11 +180,11 @@ updateKeyboard ctl0 =
         let
           events = [(catEvents kevs) $> ()]
           keyboard = (_keyboard._device $ ctl0) { keys = kkeys}
-          
+
         returnA -< (keyboard, events)
 
 updateKeys :: Controllable -> SF AppInput (Keys, [Event ()])
-updateKeys ctl0 = 
+updateKeys ctl0 =
   proc input -> do
     (keyW_, keyWe) <- keyEvent SDL.ScancodeW keyW ctl0 -< input
     (keyS_, keySe) <- keyEvent SDL.ScancodeS keyS ctl0 -< input
@@ -197,7 +201,7 @@ updateKeys ctl0 =
     (keyLShift_, keyLShiftE) <- keyEvent SDL.ScancodeLShift keyLShift ctl0 -< input
     (keyLCtrl_ , keyLCtrlE)  <- keyEvent SDL.ScancodeLCtrl  keyLCtrl  ctl0 -< input
     (keyLAlt_ , keyLAltE)    <- keyEvent SDL.ScancodeLAlt   keyLAlt   ctl0 -< input
-  
+
     (keyUp_,    keyUpE)    <- keyEvent SDL.ScancodeUp    keyUp    ctl0 -< input
     (keyDown_,  keyDownE)  <- keyEvent SDL.ScancodeDown  keyDown  ctl0 -< input
     (keyLeft_,  keyLeftE)  <- keyEvent SDL.ScancodeLeft  keyLeft  ctl0 -< input
@@ -209,7 +213,7 @@ updateKeys ctl0 =
     returnA -< (keys, events)
 
 keyEvent :: SDL.Scancode -> (Keys -> Bool) -> Controllable -> SF AppInput (Bool, Event ())
-keyEvent code keyFunc ctl = 
+keyEvent code keyFunc ctl =
   proc input -> do
     keyPressed     <- keyInput code  "Pressed"  -< input
     keyReleased    <- keyInput code  "Released" -< input
@@ -225,40 +229,36 @@ keyState state pressed released
   | isEvent released = False
   | otherwise        = state
 
-updateMouse :: Controllable -> SF AppInput (Mouse, [Event ()])
-updateMouse ctl0 = 
+updateMouse :: SF AppInput (Mouse, [Event (Double, Double)])
+updateMouse =
   proc input -> do
-    mouseMovedE   <- mouseMovedEvent   ctl0 -< input -- relative motion event
-    mouseStoppedE <- mouseStoppedEvent ctl0 -< input
-    rpos <- mouseRelPos -< input
+    lmbE <- lbpPos       -< input
+    rmbE <- rbpPos       -< input
+    mmovE <- mouseMoving -< input
+
+    mpos' <- mousePos     -< input
+    rpos' <- mouseRelPos  -< input
+
     let
-      events = [(mouseMovedE $> ())
-               ,(mouseStoppedE $> ())]
+      events = [lmbE, rmbE, mmovE]
       mouse  =
         Mouse
-        (lmb._mouse._device $ ctl0)
-        (rmb._mouse._device $ ctl0)
-        (_pos._mouse._device $ ctl0)
-        ((\e -> if isEvent e then fromEvent e else (0,0)) mouseMovedE)
-        ((\e -> if isEvent e then False else True) mouseStoppedE)
+        (case isEvent lmbE of
+           True -> Just $ fromEvent lmbE
+           _    -> Nothing)
+        (case isEvent rmbE of
+           True -> Just $ fromEvent rmbE
+           _    -> Nothing)
+        mpos'
+        rpos'
+        (isEvent mmovE)
         []
     returnA -< (mouse, events)
-
-mouseMovedEvent :: Controllable -> SF AppInput (Event (Double, Double))
-mouseMovedEvent ctl =
-  proc input -> do
-    mouseMoved <- mouseMoving -< input
-    returnA -< mouseMoved
-    
-mouseStoppedEvent :: Controllable -> SF AppInput (Event ())
-mouseStoppedEvent ctl =
-  proc input -> do
-    mouseStop <- mouseStopped -< input
-    returnA -< mouseStop
+    --returnA -< (mouse, DT.trace ("mouse :" ++ show events) events)
 
 -- is mouse moving or stopped?
 mouseState :: Bool -> Event () -> Event () -> Bool
 mouseState state moving stopped
   | isEvent moving  = True
   | isEvent stopped = False
-  | otherwise       = state    
+  | otherwise       = state
