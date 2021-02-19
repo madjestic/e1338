@@ -2,6 +2,7 @@
     "name": "Raymarch Shader Test",
     "resx": 400,
     "resy": 300,
+    "camMode": "AbsoluteLocation",
     "models": [
         {
             "path": "models/raymarch_square.bgeo"

@@ -81,16 +81,23 @@ main = do
   proj      <- Prj.parse (unsafeCoerce (args!!1) :: FilePath)
   
   let
-    title = pack $ view Prj.name proj
-    resX  = (unsafeCoerce $ view Prj.resx proj) :: CInt
-    resY  = (unsafeCoerce $ view Prj.resy proj) :: CInt
+    title   = pack $ view Prj.name proj
+    resX    = (unsafeCoerce $ view Prj.resx proj) :: CInt
+    resY    = (unsafeCoerce $ view Prj.resy proj) :: CInt
+    --camMode = view Prj.camMode proj :: String
 
   window    <- openWindow
                title
                (resX, resY)
 
+  let camMode =
+        case view Prj.camMode proj of
+          "RelativeLocation" -> RelativeLocation
+          "AbsoluteLocation" -> AbsoluteLocation
+          _ -> error "wrong mouse mode"
+
   -- | SDL Mouse Options
-  -- setMouseLocationMode RelativeLocation
+  setMouseLocationMode camMode
 
   print "Initializing Game"
   intro <- initGame initVAO introProj
@@ -107,4 +114,4 @@ main = do
   animate
     window
     (parseWinInput >>> (mainGame intro (game {_gStg = GamePlaying}) &&& handleExit))
-  return ()
+  return ()    

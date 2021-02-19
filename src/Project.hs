@@ -10,6 +10,7 @@ module Project
   , name
   , resx
   , resy
+  , camMode
   , models
   , objects
   , background
@@ -33,7 +34,6 @@ import Data.ByteString.Lazy as B hiding (drop, pack)
 import Data.Maybe                (fromMaybe)
 import Data.Sort (sortOn)                              
 import Data.Text                 hiding (drop)
-
 import Texture
 import Model
 
@@ -68,6 +68,7 @@ data Project
        _name    :: String
      , _resx    :: Int
      , _resy    :: Int
+     , _camMode :: String
      , _models  :: [Model]
      , _objects :: [PreObject]
      , _background :: [PreObject]
@@ -79,7 +80,7 @@ deriveJSON defaultOptions {fieldLabelModifier = drop 1} ''Project
 
 emptyProject :: Project
 emptyProject =
-  Project "foobar" (-1) (-1) [] [] [] [] []
+  Project "foobar" (-1) (-1) "AbsoluteLocation" [] [] [] [] []
 
 defaultProject :: Project
 defaultProject =
@@ -87,6 +88,7 @@ defaultProject =
   "Test Project"
   800
   600
+  "AbsoluteLocation"
   [ (Model   "models/box.bgeo")]
   [ (PreObject
     "Box"
@@ -124,7 +126,7 @@ writeProject prj fileOut =
     config = defConfig { confCompare = comp }
 
 comp :: Text -> Text -> Ordering
-comp = keyOrder . (fmap pack) $ ["name", "resx", "resy", "models", "objects", "background", "pname", "objIDX", "modelIDXs", "solvers", "solverAttrs", "fonts", "cameras", "pApt", "pFoc", "pTransform"]
+comp = keyOrder . (fmap pack) $ ["name", "resx", "resy", "camMode", "models", "objects", "background", "pname", "objIDX", "modelIDXs", "solvers", "solverAttrs", "fonts", "cameras", "pApt", "pFoc", "pTransform"]
 
 parse :: FilePath -> IO Project
 parse filePath =
@@ -133,6 +135,7 @@ parse filePath =
     let name'     = (_name     . fromEitherDecode) d
         resx'     = (_resx     . fromEitherDecode) d
         resy'     = (_resy     . fromEitherDecode) d
+        camMode'  = (_camMode  . fromEitherDecode) d
         models'   = (_models   . fromEitherDecode) d
         preObjs'  = (_objects  . fromEitherDecode) d
         bgrObjs'  = (_background . fromEitherDecode) d
@@ -143,6 +146,7 @@ parse filePath =
       name'
       resx'
       resy'
+      camMode'
       models'
       --(sortOn (view objIDX) preObjs')
       (sortOn (view objIDX) preObjs')
