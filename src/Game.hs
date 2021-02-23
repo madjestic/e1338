@@ -111,7 +111,7 @@ updateGame :: Game -> SF AppInput Game
 updateGame game =
   proc input -> do
     --(cams, cam) <- updateCameras (Game._cameras game, Game._playCam game) -< input
-    (cams, cam) <- updateCameras' (Game._cameras game, Game._playCam game) -< (input, Game._playCam game)
+    (cams, cam) <- updateCameras (Game._cameras game, Game._playCam game) -< (input, Game._playCam game)
 
     objs        <- updateObjects        filteredNonGravityObjs -< ()
     let objsIntMap = IM.fromList (zip filteredNonGravityObjsIdxs objs)
