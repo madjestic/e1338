@@ -2,6 +2,7 @@
     "name": "Intro: Earth, Moon, ISS, Stars",
     "resx": 320,
     "resy": 200,
+    "camMode": "AbsoluteLocation",
     "models": [
         { "path": "models/intro_square.bgeo" }
     ],

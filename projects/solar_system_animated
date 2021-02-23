@@ -1,7 +1,8 @@
 {
     "name": "The Solar System",
-    "resx": 1280,
-    "resy": 720,
+    "resx": 640,
+    "resy": 360,
+    "camMode": "RelativeLocation",
     "models": [
 	{ "path": "models/intro_square.bgeo" },
 	{ "path": "models/star_sector_00.bgeo"},	

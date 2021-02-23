@@ -18,6 +18,8 @@ module Controllable
   , keyboard
   , updateController
   , updateKeyboard
+  , updateKeyboard'
+  , updateMouse
   ) where
 
 import Linear.Matrix
@@ -41,6 +43,7 @@ data Controllable
      {
        _debug      :: (Double, Double)
      , _transform  :: M44 Double
+     , _vel        :: V3 Double  -- velocity
      , _ypr        :: V3 Double  -- yaw/pitch/roll
      , _device     :: Device     -- store as index in the proj file: 0 - keyboard, 1 - mouse, etc.
      }
@@ -83,11 +86,13 @@ updateController ctl0 =
         let
           keyVecs1 = keyVecs kbrd'
           ypr1  =
-            (1500 * (V3 (case (abs mry' <= 1) of True -> 0; _ -> mry')
-                        (case (abs mrx' <= 1) of True -> 0; _ -> mrx')
-                         0.0) +) $
+            -- (1500 * (V3 (case (abs mry' <= 2) of True -> 0; _ -> mry')
+            --             (case (abs mrx' <= 2) of True -> 0; _ -> mrx')
+            --              0.0) +) $
+            -- (view ypr ctl' +) $
+            (150 * (V3 mry' mrx' 0.0) +) $
             foldr1 (+) $
-            fmap ((scalar) *) $ -- <- make it keyboard controllabe: speed up/down            
+            fmap (scalar *) $ -- <- make it keyboard controllabe: speed up/down            
             zipWith (*^) ((\x -> if x then (1.0::Double) else 0) . ($ keys kbrd') <$>
                           [ keyUp,  keyDown, keyLeft, keyRight, keyPageUp,  keyPageDown ])
                           [ pPitch, nPitch,  pYaw,    nYaw,     pRoll, nRoll ]
@@ -161,7 +166,7 @@ updateController ctl0 =
         let result =
               ctl'
               { Controllable._transform = mtx' -- DT.trace ("mtx' :" ++ show mtx') $ mtx'
-              , Controllable._ypr       = ypr'
+              --, Controllable._ypr       = ypr'
               , Controllable._device =
                   (_device ctl0) { _keyboard = kbrd'
                                  , _mouse    = mouse' }
@@ -182,6 +187,17 @@ updateKeyboard ctl0 =
           keyboard = (_keyboard._device $ ctl0) { keys = kkeys}
 
         returnA -< (keyboard, events)
+
+updateKeyboard' :: Keyboard -> SF (AppInput, Keyboard) (Keyboard, [Event ()])
+updateKeyboard' kbd0 =
+  proc (input, kbd) -> do
+        (keys', kevs) <- updateKeys' (keys kbd0) -< (input, (keys kbd))
+        let
+          events = [(catEvents kevs) $> ()]
+          kbd' = kbd { keys = keys' }
+
+        returnA -< (kbd', events)
+        --returnA -< (kbd', (DT.trace ("events: " ++ show events)events))
 
 updateKeys :: Controllable -> SF AppInput (Keys, [Event ()])
 updateKeys ctl0 =
@@ -212,6 +228,35 @@ updateKeys ctl0 =
 
     returnA -< (keys, events)
 
+updateKeys' :: Keys -> SF (AppInput, Keys) (Keys, [Event ()])
+updateKeys' keys0 =
+  proc (input, keys) -> do
+    (keyW_, keyWe) <- keyEvent' SDL.ScancodeW keyW keys0 -< input
+    (keyS_, keySe) <- keyEvent' SDL.ScancodeS keyS keys0 -< input
+    (keyA_, keyAe) <- keyEvent' SDL.ScancodeA keyA keys0 -< input
+    (keyD_, keyDe) <- keyEvent' SDL.ScancodeD keyD keys0 -< input
+
+    (keyQ_, keyQe) <- keyEvent' SDL.ScancodeQ keyQ keys0 -< input
+    (keyE_, keyEe) <- keyEvent' SDL.ScancodeE keyE keys0 -< input
+    (keyZ_, keyZe) <- keyEvent' SDL.ScancodeZ keyZ keys0 -< input
+    (keyC_, keyCe) <- keyEvent' SDL.ScancodeC keyC keys0 -< input
+    (keyPageUp_,   keyPageUpE)   <- keyEvent' SDL.ScancodePageUp   keyPageUp   keys0 -< input
+    (keyPageDown_, keyPageDownE) <- keyEvent' SDL.ScancodePageDown keyPageDown keys0 -< input
+
+    (keyLShift_, keyLShiftE) <- keyEvent' SDL.ScancodeLShift keyLShift keys0 -< input
+    (keyLCtrl_ , keyLCtrlE)  <- keyEvent' SDL.ScancodeLCtrl  keyLCtrl  keys0 -< input
+    (keyLAlt_ , keyLAltE)    <- keyEvent' SDL.ScancodeLAlt   keyLAlt   keys0 -< input
+
+    (keyUp_,    keyUpE)    <- keyEvent' SDL.ScancodeUp    keyUp    keys0 -< input
+    (keyDown_,  keyDownE)  <- keyEvent' SDL.ScancodeDown  keyDown  keys0 -< input
+    (keyLeft_,  keyLeftE)  <- keyEvent' SDL.ScancodeLeft  keyLeft  keys0 -< input
+    (keyRight_, keyRightE) <- keyEvent' SDL.ScancodeRight keyRight keys0 -< input
+
+    let events = [      keyWe, keySe, keyAe, keyDe, keyQe, keyEe, keyZe, keyCe, keyUpE, keyDownE, keyLeftE,   keyRightE,    keyPageUpE, keyPageDownE, keyLShiftE, keyLCtrlE, keyLAltE ]
+        keys'  = ( Keys keyW_  keyS_  keyA_  keyD_  keyQ_  keyE_  keyZ_  keyC_  keyUp_  keyDown_  keyLeft_    keyRight_     keyPageUp_  keyPageDown_  keyLShift_  keyLCtrl_  keyLAlt_ )
+
+    returnA -< (keys', events)
+
 keyEvent :: SDL.Scancode -> (Keys -> Bool) -> Controllable -> SF AppInput (Bool, Event ())
 keyEvent code keyFunc ctl =
   proc input -> do
@@ -219,6 +264,16 @@ keyEvent code keyFunc ctl =
     keyReleased    <- keyInput code  "Released" -< input
     let
       keys0  = keys._keyboard._device $ ctl
+      result = keyState (keyFunc keys0) keyPressed keyReleased
+      event  = lMerge keyPressed keyReleased
+    returnA -< (result, event)
+
+keyEvent' :: SDL.Scancode -> (Keys -> Bool) -> Keys -> SF AppInput (Bool, Event ())
+keyEvent' code keyFunc keys0 =
+  proc input -> do
+    keyPressed     <- keyInput code  "Pressed"  -< input
+    keyReleased    <- keyInput code  "Released" -< input
+    let
       result = keyState (keyFunc keys0) keyPressed keyReleased
       event  = lMerge keyPressed keyReleased
     returnA -< (result, event)

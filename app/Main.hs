@@ -90,13 +90,13 @@ main = do
                title
                (resX, resY)
 
+  -- | SDL Mouse Options
   let camMode =
         case view Prj.camMode proj of
           "RelativeLocation" -> RelativeLocation
           "AbsoluteLocation" -> AbsoluteLocation
           _ -> error "wrong mouse mode"
 
-  -- | SDL Mouse Options
   setMouseLocationMode camMode
 
   print "Initializing Game"
