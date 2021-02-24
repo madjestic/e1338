@@ -92,29 +92,28 @@ updateCameraController cam0 =
           let
             s'       = 1.0  :: Double -- | mouse sensiticity scale
             t'       = 2    :: Double -- | mouse idle threshold
-            lag      = 0.95            -- | mouse stop lag/innertia
+            rlag     = 0.95           -- | rotation    stop lag/innertia
+            tlag     = 0.9            -- | translation stop lag/innertia
             
-            keyVecs1 = keyVecs kbrd'
-
-            ypr1     =
+            ypr'     =
               (view (controller.ypr) cam +) $
               (0.00001 *
                 (V3 (case (abs mry' <= t') of True -> 0; _ -> (mry' / t') * (abs mry')**s')
                     (case (abs mrx' <= t') of True -> 0; _ -> (mrx' / t') * (abs mrx')**s')
                      0.0) +) $
               foldr1 (+) $
-              fmap (scalar *) $ -- <- make it keyboard controllabe: speed up/down            
+              fmap ( 0.0000001 * scalar *) $ -- <- make it keyboard controllabe: speed up/down            
               zipWith (*^) ((\x -> if x then (1.0::Double) else 0) . ($ keys kbrd') <$>
                             [ keyUp,  keyDown, keyLeft, keyRight, keyPageUp,  keyPageDown ])
                             [ pPitch, nPitch,  pYaw,    nYaw,     pRoll, nRoll ]
               where
                 (mrx', mry') = view rpos mouse'
-                pPitch = (keyVecs1)!!6  -- positive  pitch
-                nPitch = (keyVecs1)!!7  -- negative  pitch
-                pYaw   = (keyVecs1)!!8  -- positive  yaw
-                nYaw   = (keyVecs1)!!9  -- negative  yaw
-                pRoll  = (keyVecs1)!!10 -- positive  roll
-                nRoll  = (keyVecs1)!!11 -- negative  roll
+                pPitch = (keyVecs kbrd')!!6  -- positive  pitch
+                nPitch = (keyVecs kbrd')!!7  -- negative  pitch
+                pYaw   = (keyVecs kbrd')!!8  -- positive  yaw
+                nYaw   = (keyVecs kbrd')!!9  -- negative  yaw
+                pRoll  = (keyVecs kbrd')!!10 -- positive  roll
+                nRoll  = (keyVecs kbrd')!!11 -- negative  roll
            
                 baseSpeed     = 5000
                 ctl    = keyLCtrl  $ (keys kbrd')
@@ -129,31 +128,29 @@ updateCameraController cam0 =
                   | otherwise    = baseSpeed         -- base speed
 
           let
-            ypr' = ypr1 -- This
             ctl0 = view controller cam -- change cam to cam0 has a drastic difference
             mtx0 = view Controllable.transform ctl0
-            rot = -- identity :: M33 Double
+            rot =
               (view _m33 mtx0)
               !*! fromQuaternion (axisAngle (view _x (view _m33 mtx0)) (view _x ypr')) -- yaw
               !*! fromQuaternion (axisAngle (view _y (view _m33 mtx0)) (view _y ypr')) -- pitch
               !*! fromQuaternion (axisAngle (view _z (view _m33 mtx0)) (view _z ypr')) -- roll
    
-            tr1  = -- V3
-              --(view translation (Controllable._transform (view controller cam)) +) $
+            vel' =
               (view (controller.vel) cam +) $
               foldr1 (+) $
-              fmap ((scalar) *) $ -- <- make it keyboard controllabe: speed up/down
+              fmap ( 0.1 * (scalar) *) $ -- <- make it keyboard controllabe: speed up/down
               fmap (transpose (rot) !*) $
               zipWith (*^) ((\x -> if x then (1::Double) else 0) . ($ (keys kbrd')) <$>
                             [keyW, keyS, keyA, keyD, keyQ, keyE])
                             [fVel, bVel, lVel, rVel, uVel, dVel]
    
-              where fVel   = (keyVecs1)!!0  -- forwards  velocity
-                    bVel   = (keyVecs1)!!1  -- backwards velocity
-                    lVel   = (keyVecs1)!!2  -- left      velocity
-                    rVel   = (keyVecs1)!!3  -- right     velocity
-                    uVel   = (keyVecs1)!!4  -- up        velocity
-                    dVel   = (keyVecs1)!!5  -- down      velocity
+              where fVel   = (keyVecs kbrd')!!0  -- forwards  velocity
+                    bVel   = (keyVecs kbrd')!!1  -- backwards velocity
+                    lVel   = (keyVecs kbrd')!!2  -- left      velocity
+                    rVel   = (keyVecs kbrd')!!3  -- right     velocity
+                    uVel   = (keyVecs kbrd')!!4  -- up        velocity
+                    dVel   = (keyVecs kbrd')!!5  -- down      velocity
    
                     baseSpeed     = 5000000
                     ctl    = keyLCtrl  $ (keys kbrd')
@@ -167,25 +164,20 @@ updateCameraController cam0 =
                       | ctl          = baseSpeed   * 0.1          -- slow
                       | otherwise    = baseSpeed                -- base speed
 
-          -- tr'  <- ((view translation (Controllable._transform (view controller cam0))) ^+^) ^<< integral -< tr1
-          -- vel' <- ((V3 0 0 0) ^+^) ^<< integral -< tr1
-   
           let
-            vel' = tr1
-            tr' = (view translation (Controllable._transform (view controller cam)) +) vel'
+            tr'  = (view translation (Controllable._transform (view controller cam)) +) vel'
             mtx' =
               mkTransformationMat
               rot
               tr'
-              -- (DT.trace ("tr' :" ++ show tr') tr')
    
           let
             dev' = view (controller.device) cam
             ctl' = (view controller cam)
                    {
                      Controllable._transform = mtx'
-                   , Controllable._vel       = vel' * lag
-                   , Controllable._ypr       = ypr' * lag
+                   , Controllable._vel       = vel' * tlag
+                   , Controllable._ypr       = ypr' * rlag
                    , Controllable._device    =
                        (dev' { _keyboard = kbrd'
                              , _mouse    = mouse' })
@@ -203,7 +195,6 @@ updateCamera :: Camera -> SF (AppInput, Camera) Camera
 updateCamera cam0 = 
   proc (input, cam) -> do
     rec cam  <- iPre cam0 -< cam'
-        --cam' <- updateCameraLinear cam0 -< (input, cam)
         cam' <- updateCameraController cam0 -< (input, cam)
     -- cam <- updateCameraController cam0 -< (input, cam)
     returnA -< cam
