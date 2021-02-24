@@ -12,6 +12,7 @@ module Controllable
   , transform
 --  , transform'
   , ypr
+  , vel
   , device
   , device'
   , mouse
