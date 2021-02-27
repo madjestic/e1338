@@ -160,7 +160,7 @@ updateCameraController cam0 =
                     s ctl shift alt
                       | ctl && shift && alt = baseSpeed^2 * 100 -- superduperfast
                       | ctl && shift = baseSpeed^2 * 0.5        -- superfast
-                      | shift        = baseSpeed   * 10000        -- fast
+                      | shift        = baseSpeed   * 100        -- fast
                       | ctl          = baseSpeed   * 0.1          -- slow
                       | otherwise    = baseSpeed                -- base speed
 

@@ -113,5 +113,5 @@ main = do
   print "Starting Game."
   animate
     window
-    (parseWinInput >>> (mainGame intro (game {_gStg = GamePlaying}) &&& handleExit))
+    (parseWinInput >>> (mainGame intro (game {_gStg = GamePlay Default}) &&& handleExit))
   return ()    

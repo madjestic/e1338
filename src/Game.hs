@@ -4,6 +4,7 @@
 
 module Game
   ( Game    (..)
+  , GamePlay (..)
   , Stage   (..)
   , Options (..)
   , options
@@ -44,12 +45,15 @@ import Solvable
 
 import Debug.Trace as DT
 
+data GamePlay = Default
+  deriving Show
+
 data Stage =
      GameIntro
-   | GamePlaying
+   | GamePlay GamePlay
    | GameFinished
    | GameMenu
-   deriving Show
+  deriving Show
 
 data Game =
      Game
@@ -79,8 +83,8 @@ mainGame game0 game1 =
   loopPre game0 $
   proc (input, gameState) -> do
     gs <- case _gStg gameState of
-            GameIntro   -> gameIntro            -< (input, gameState)
-            GamePlaying -> gamePlay game0 game1 -< input
+            GameIntro -> gameIntro            -< (input, gameState)
+            GamePlay Default -> gamePlay game0 game1 -< input
     returnA -< (gs, gs)
 
 loadDelay = 10.0  :: Double -- make it into Game options value                           
@@ -91,7 +95,7 @@ gameIntro =
      where sf =
              proc (input, gameState) -> do
                introState <- returnA -< gameState
-               playState  <- returnA -< gameState { _gStg =  GamePlaying }
+               playState  <- returnA -< gameState { _gStg =  GamePlay Default }
                skipE      <- keyInput SDL.ScancodeSpace "Pressed" -< input
                waitE      <- after loadDelay () -< ()
                returnA    -< (introState, (skipE `lMerge` waitE) $> playState)
@@ -175,7 +179,7 @@ initGame initVAO project =
             resX'
             resY'
           )
-          --GamePlaying
+          --GamePlay
           GameIntro
           objTree
           pCam
