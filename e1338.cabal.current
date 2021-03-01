@@ -8,7 +8,7 @@ license-file:  LICENSE
 author:        madjestic
 maintainer:    madjestic13@gmail.com
 copyright:     Vladimir Lopatin
-category:      Game
+category:      App
 build-type:    Simple
 cabal-version: >=2.0
 
@@ -50,7 +50,7 @@ library
               , Camera
               , Controllable
               , Descriptor
-              , Game
+              , App
               , Keyboard
               , Material
               , Model
@@ -115,7 +115,7 @@ executable e1338
               , Controllable
               , Descriptor
               , FromVector
-              , Game
+              , App
               , PGeo
               , AppInput
               , Keyboard

@@ -2,25 +2,25 @@
 {-# LANGUAGE Arrows #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Game
-  ( Game    (..)
-  , GamePlay (..)
+module App
+  ( App    (..)
+  , AppRun (..)
   , Stage   (..)
   , Options (..)
   , options
-  , Game.name
-  , Game.resx
-  , Game.resy
-  , Game.objects
+  , App.name
+  , App.resx
+  , App.resy
+  , App.objects
   , playCam
-  , Game.cameras
-  , mainGame
-  , gameIntro
-  , gamePlay
-  , updateGame
+  , App.cameras
+  , mainApp
+  , appIntro
+  , appPlay
+  , updateApp
   , handleExit
   , centerView
-  , initGame
+  , initApp
   ) where
 
 import Control.Lens
@@ -45,18 +45,18 @@ import Solvable
 
 import Debug.Trace as DT
 
-data GamePlay = Default
+data AppRun = Default
   deriving Show
 
 data Stage =
-     GameIntro
-   | GamePlay GamePlay
-   | GameFinished
-   | GameMenu
+     AppIntro
+   | AppRun AppRun
+   | AppFinished
+   | AppMenu
   deriving Show
 
-data Game =
-     Game
+data App =
+     App
      {
        _debug   :: (Double, Double)
      , _options :: Options
@@ -74,48 +74,48 @@ data Options
    } deriving Show
 
 $(makeLenses ''Options)
-$(makeLenses ''Game)
+$(makeLenses ''App)
 
--- < Game Logic > ---------------------------------------------------------
+-- < App Logic > ---------------------------------------------------------
 
-mainGame :: Game -> Game -> SF AppInput Game
-mainGame game0 game1 =
-  loopPre game0 $
-  proc (input, gameState) -> do
-    gs <- case _gStg gameState of
-            GameIntro -> gameIntro            -< (input, gameState)
-            GamePlay Default -> gamePlay game0 game1 -< input
+mainApp :: App -> App -> SF AppInput App
+mainApp app0 app1 =
+  loopPre app0 $
+  proc (input, appState) -> do
+    gs <- case _gStg appState of
+            AppIntro -> appIntro            -< (input, appState)
+            AppRun Default -> appPlay app0 app1 -< input
     returnA -< (gs, gs)
 
-loadDelay = 10.0  :: Double -- make it into Game options value                           
+loadDelay = 10.0  :: Double -- make it into App options value                           
 
-gameIntro :: SF (AppInput, Game) Game
-gameIntro =
+appIntro :: SF (AppInput, App) App
+appIntro =
   switch sf cont
      where sf =
-             proc (input, gameState) -> do
-               introState <- returnA -< gameState
-               playState  <- returnA -< gameState { _gStg =  GamePlay Default }
+             proc (input, appState) -> do
+               introState <- returnA -< appState
+               playState  <- returnA -< appState { _gStg =  AppRun Default }
                skipE      <- keyInput SDL.ScancodeSpace "Pressed" -< input
                waitE      <- after loadDelay () -< ()
                returnA    -< (introState, (skipE `lMerge` waitE) $> playState)
-           cont game  =
-             proc input -> returnA -< game
+           cont app  =
+             proc input -> returnA -< app
 
-gamePlay :: Game -> Game -> SF AppInput Game
-gamePlay intro game =
-  switch sf (const (mainGame intro game))
+appPlay :: App -> App -> SF AppInput App
+appPlay intro app =
+  switch sf (const (mainApp intro app))
      where sf =
              proc input -> do
-               game'   <- updateGame game -< input
+               app'   <- updateApp app -< input
                reset   <- keyInput SDL.ScancodeSpace "Pressed" -< input
-               returnA -< (game', reset $> game)
+               returnA -< (app', reset $> app)
 
-updateGame :: Game -> SF AppInput Game
-updateGame game =
+updateApp :: App -> SF AppInput App
+updateApp app =
   proc input -> do
-    --(cams, cam) <- updateCameras (Game._cameras game, Game._playCam game) -< input
-    (cams, cam) <- updateCameras (Game._cameras game, Game._playCam game) -< (input, Game._playCam game)
+    --(cams, cam) <- updateCameras (App._cameras app, App._playCam app) -< input
+    (cams, cam) <- updateCameras (App._cameras app, App._playCam app) -< (input, App._playCam app)
 
     objs        <- updateObjects        filteredNonGravityObjs -< ()
     let objsIntMap = IM.fromList (zip filteredNonGravityObjsIdxs objs)
@@ -125,16 +125,16 @@ updateGame game =
 
     let
       unionObjs = IM.union objs'IntMap objsIntMap
-      objTree = Game._objects game
+      objTree = App._objects app
       result =
-        game { Game._objects = (objTree {_foreground = snd <$> IM.toList unionObjs})
-             , Game._cameras = cams
+        app { App._objects = (objTree {_foreground = snd <$> IM.toList unionObjs})
+             , App._cameras = cams
              , _playCam      = cam
              }
 
     returnA  -< result
       where
-        idxObjs    = DL.indexed $ _foreground (Game._objects game)
+        idxObjs    = DL.indexed $ _foreground (App._objects app)
         intObjMap  = IM.fromList idxObjs :: IntMap Object
         
         filterGravityIntObjMap  = IM.filter (any (\case Gravity {} -> True; _ -> False) . view Object.solvers) intObjMap
@@ -152,15 +152,15 @@ centerView :: SF AppInput Bool
 centerView = centerEvent >>^ isEvent
 
 
--- -- < Init Game State > ------------------------------------------------------
+-- -- < Init App State > ------------------------------------------------------
 
-initGame ::
+initApp ::
      (([Int], Int, [Float], Material) -> IO Descriptor)
   -> Project
-  -> IO Game
-initGame initVAO project =
+  -> IO App
+initApp initVAO project =
   do
-    print   "initializing game resources..."
+    print   "initializing app resources..."
     print $ "project name :" ++ view Prj.name project
     objTree <- initObjectTree initVAO project
 
@@ -171,22 +171,22 @@ initGame initVAO project =
       playCamP = head camerasP --fromList $ camerasP!!0
     --pc <- fromVGeo $ fromPGeo pCloud  -- PCloud Point Cloud
     --let objTree = [pc]
-    let game =
-          Game
+    let app =
+          App
           (-42,-17)
           ( Options
             name'
             resX'
             resY'
           )
-          --GamePlay
-          GameIntro
+          --AppRun
+          AppIntro
           objTree
           pCam
           cams
 
-    print "finished initializing game resources..."
-    return game
+    print "finished initializing app resources..."
+    return app
       where
         name' = view Prj.name project
         resX' = (unsafeCoerce $ view Prj.resx project) :: CInt
