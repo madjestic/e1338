@@ -6,10 +6,8 @@
 module Solvable
   ( Solver (..)
   , preTransformer
---  , transformer
   , translate
   , rotate
---  , gravity
   , toSolver
   ) where
 
@@ -120,7 +118,7 @@ preRotate mtx0 pv0 ypr0 = mtx
 translate :: M44 Double -> V3 Double -> SF () (M44 Double)
 translate mtx0 v0 =
   proc () -> do
-    tr' <- (V3 0 0 0 ^+^) ^<< integral -< v0
+    tr' <- (V3 0 0 0 +) ^<< integral -< v0
     let mtx =
           mkTransformationMat
             (view _m33 mtx0)
@@ -131,7 +129,7 @@ translate mtx0 v0 =
 rotate :: M44 Double -> V3 Double -> V3 Double -> SF () (M44 Double)
 rotate mtx0 pv0 ypr0 =
   proc () -> do
-    ypr' <- (V3 0 0 0 ^+^) ^<< integral -< ypr0
+    ypr' <- (V3 0 0 0 +) ^<< integral -< ypr0
     let mtx =
           mkTransformationMat
             rot

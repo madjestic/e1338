@@ -4,8 +4,8 @@
 
 module App
   ( App    (..)
-  , AppRun (..)
-  , Stage   (..)
+  , MainApp (..)
+  , Interface   (..)
   , Options (..)
   , options
   , App.name
@@ -16,7 +16,7 @@ module App
   , App.cameras
   , mainApp
   , appIntro
-  , appPlay
+  , appRun
   , updateApp
   , handleExit
   , centerView
@@ -45,14 +45,14 @@ import Solvable
 
 import Debug.Trace as DT
 
-data AppRun = Default
+data MainApp = Default
   deriving Show
 
-data Stage =
-     AppIntro
-   | AppRun AppRun
-   | AppFinished
-   | AppMenu
+data Interface =
+     Intro
+   | Main MainApp
+   | Finished
+   | Menu
   deriving Show
 
 data App =
@@ -60,7 +60,7 @@ data App =
      {
        _debug   :: (Double, Double)
      , _options :: Options
-     , _gStg    :: Stage
+     , _inter   :: Interface
      , _objects :: ObjectTree
      , _playCam :: Camera
      , _cameras :: [Camera]
@@ -82,9 +82,9 @@ mainApp :: App -> App -> SF AppInput App
 mainApp app0 app1 =
   loopPre app0 $
   proc (input, appState) -> do
-    gs <- case _gStg appState of
-            AppIntro -> appIntro            -< (input, appState)
-            AppRun Default -> appPlay app0 app1 -< input
+    gs <- case _inter appState of
+            Intro        -> appIntro            -< (input, appState)
+            Main Default -> appRun app0 app1 -< input
     returnA -< (gs, gs)
 
 loadDelay = 10.0  :: Double -- make it into App options value                           
@@ -95,15 +95,15 @@ appIntro =
      where sf =
              proc (input, appState) -> do
                introState <- returnA -< appState
-               playState  <- returnA -< appState { _gStg =  AppRun Default }
+               playState  <- returnA -< appState { _inter =  Main Default }
                skipE      <- keyInput SDL.ScancodeSpace "Pressed" -< input
                waitE      <- after loadDelay () -< ()
                returnA    -< (introState, (skipE `lMerge` waitE) $> playState)
            cont app  =
              proc input -> returnA -< app
 
-appPlay :: App -> App -> SF AppInput App
-appPlay intro app =
+appRun :: App -> App -> SF AppInput App
+appRun intro app =
   switch sf (const (mainApp intro app))
      where sf =
              proc input -> do
@@ -179,8 +179,8 @@ initApp initVAO project =
             resX'
             resY'
           )
-          --AppRun
-          AppIntro
+          --Main
+          Intro
           objTree
           pCam
           cams

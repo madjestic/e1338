@@ -103,7 +103,7 @@ main = do
   intro <- initApp initVAO introProj
   app   <- initApp initVAO proj
   
-  print "Initializing Resources1"
+  print "Initializing Resources"
   let fntObjs = concat $ toListOf (App.objects . gui . Obj.fonts) app :: [Object]
       fgrObjs = concat $ toListOf (App.objects . Obj.foreground)  app :: [Object]
       bgrObjs = concat $ toListOf (App.objects . Obj.background)  app :: [Object]
@@ -113,5 +113,5 @@ main = do
   print "Starting App."
   animate
     window
-    (parseWinInput >>> (mainApp intro (app {_gStg = AppRun Default}) &&& handleExit))
+    (parseWinInput >>> (mainApp intro (app {_inter = Main Default}) &&& handleExit))
   return ()    

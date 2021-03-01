@@ -236,6 +236,7 @@ fromVGeo initVAO (VGeo idxs st vaos matPaths mass vels xform) =
 
     return object
 
+-- | Linear Objects that only depend on initial conditions, i.e. Linear.
 updateObjects :: [Object] -> SF () [Object]
 updateObjects objs0 =
   proc () -> do
@@ -284,6 +285,7 @@ transform' obj0 solver mtx0 =
         Translate  txyz     = solver
         Gravity    idxs     = solver
 
+-- | Objects that evolve over iterations, i.e. non-Linear
 updateObjects' :: [Object] -> SF [Object] [Object]
 updateObjects' objs0 =
   proc objs -> do
