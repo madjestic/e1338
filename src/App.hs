@@ -5,7 +5,7 @@
 module App
   ( App    (..)
   , MainApp (..)
-  , Interface   (..)
+  , UI   (..)
   , Options (..)
   , options
   , App.name
@@ -48,7 +48,7 @@ import Debug.Trace as DT
 data MainApp = Default
   deriving Show
 
-data Interface =
+data UI =
      Intro
    | Main MainApp
    | Finished
@@ -60,7 +60,7 @@ data App =
      {
        _debug   :: (Double, Double)
      , _options :: Options
-     , _inter   :: Interface
+     , _ui      :: UI
      , _objects :: ObjectTree
      , _playCam :: Camera
      , _cameras :: [Camera]
@@ -82,7 +82,7 @@ mainApp :: App -> App -> SF AppInput App
 mainApp app0 app1 =
   loopPre app0 $
   proc (input, appState) -> do
-    gs <- case _inter appState of
+    gs <- case _ui appState of
             Intro        -> appIntro            -< (input, appState)
             Main Default -> appRun app0 app1 -< input
     returnA -< (gs, gs)
@@ -95,7 +95,7 @@ appIntro =
      where sf =
              proc (input, appState) -> do
                introState <- returnA -< appState
-               playState  <- returnA -< appState { _inter =  Main Default }
+               playState  <- returnA -< appState { _ui =  Main Default }
                skipE      <- keyInput SDL.ScancodeSpace "Pressed" -< input
                waitE      <- after loadDelay () -< ()
                returnA    -< (introState, (skipE `lMerge` waitE) $> playState)

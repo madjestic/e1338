@@ -113,5 +113,5 @@ main = do
   print "Starting App."
   animate
     window
-    (parseWinInput >>> (mainApp intro (app {_inter = Main Default}) &&& handleExit))
+    (parseWinInput >>> (mainApp intro (app {_ui = Main Default}) &&& handleExit))
   return ()    
