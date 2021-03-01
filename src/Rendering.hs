@@ -36,7 +36,7 @@ import Unsafe.Coerce
 import Control.Lens       hiding (xform, indexed)
 
 import LoadShaders
-import Game
+import App
 import Object
 import Camera    as C
 import Controllable
@@ -126,7 +126,7 @@ closeWindow window =
     SDL.destroyWindow window
     SDL.quit
 
-fromGame :: Game -> [Object] -> Float -> [Drawable]
+fromGame :: App -> [Object] -> Float -> [Drawable]
 fromGame game objs time = drs -- (drs, drs')
   where
     mpos = unsafeCoerce $ view (playCam . controller . device' . mouse . pos) game -- :: (Double, Double)
@@ -157,7 +157,7 @@ fromObject mpos time res cam obj = drs
     xforms = concat $ replicate n $ view Object.transforms obj :: [M44 Double]
     ds     = view Object.descriptors obj :: [Descriptor]
 
-render :: MVar Double -> Backend -> BackendOptions -> SDL.Window -> Game -> IO ()
+render :: MVar Double -> Backend -> BackendOptions -> SDL.Window -> App -> IO ()
 render lastInteraction Rendering.OpenGL opts window game =
   do
     GL.clearColor $= Color4 0.0 0.0 0.0 1.0

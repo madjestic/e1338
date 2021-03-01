@@ -117,11 +117,11 @@ updateApp app =
     --(cams, cam) <- updateCameras (App._cameras app, App._playCam app) -< input
     (cams, cam) <- updateCameras (App._cameras app, App._playCam app) -< (input, App._playCam app)
 
-    objs        <- updateObjects        filteredNonGravityObjs -< ()
-    let objsIntMap = IM.fromList (zip filteredNonGravityObjsIdxs objs)
+    objs        <- updateObjects        filteredLinObjs -< ()
+    let objsIntMap = IM.fromList (zip filteredLinObjsIdxs objs)
     
-    objs'       <- updateObjectsGravity filteredGravityObjs -< filteredGravityObjs
-    let objs'IntMap = IM.fromList (zip filteredGravityObjsIdxs objs')
+    objs'       <- updateObjects' filteredNonLinObjs -< filteredNonLinObjs
+    let objs'IntMap = IM.fromList (zip filteredNonLinObjsIdxs objs')
 
     let
       unionObjs = IM.union objs'IntMap objsIntMap
@@ -137,13 +137,13 @@ updateApp app =
         idxObjs    = DL.indexed $ _foreground (App._objects app)
         intObjMap  = IM.fromList idxObjs :: IntMap Object
         
-        filterGravityIntObjMap  = IM.filter (any (\case Gravity {} -> True; _ -> False) . view Object.solvers) intObjMap
-        filteredGravityObjs     = snd <$> IM.toList filterGravityIntObjMap
-        filteredGravityObjsIdxs = fst <$> IM.toList filterGravityIntObjMap
+        filterNonLinIntObjMap  = IM.filter (any (\case Gravity {} -> True; _ -> False) . view Object.solvers) intObjMap
+        filteredNonLinObjs     = snd <$> IM.toList filterNonLinIntObjMap
+        filteredNonLinObjsIdxs = fst <$> IM.toList filterNonLinIntObjMap
 
-        filterNonGravityIntObjMap  = IM.filter (any (\case Gravity {} -> False; _ -> True) . view Object.solvers) intObjMap
-        filteredNonGravityObjs     = snd <$> IM.toList filterNonGravityIntObjMap
-        filteredNonGravityObjsIdxs = fst <$> IM.toList filterNonGravityIntObjMap
+        filterLinIntObjMap  = IM.filter (any (\case Gravity {} -> False; _ -> True) . view Object.solvers) intObjMap
+        filteredLinObjs     = snd <$> IM.toList filterLinIntObjMap
+        filteredLinObjsIdxs = fst <$> IM.toList filterLinIntObjMap
 
 handleExit :: SF AppInput Bool
 handleExit = quitEvent >>^ isEvent

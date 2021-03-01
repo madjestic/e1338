@@ -26,7 +26,7 @@ import Graphics.Rendering.OpenGL ( PrimitiveMode(..))
 import System.Environment       (getArgs)
 import Unsafe.Coerce
 
-import Game
+import App
 import Object         as Obj
 import Project        as Prj
 import AppInput                 (parseWinInput) 
@@ -36,7 +36,7 @@ import Debug.Trace    as DT
 
 -- -- < Animate > ------------------------------------------------------------
 type WinInput = Event SDL.EventPayload
-type WinOutput = (Game, Bool)
+type WinOutput = (App, Bool)
 
 animate :: SDL.Window
         -> SF WinInput WinOutput  -- ^ signal function to animate
@@ -59,7 +59,7 @@ animate window sf =
             
             return (dt, Event . SDL.eventPayload <$> mEvent)
             
-        renderOutput _ (game, shouldExit) =
+        renderOutput _ (app, shouldExit) =
           do
             lastInteraction <- newMVar =<< SDL.time
             
@@ -68,7 +68,7 @@ animate window sf =
               R.OpenGL
               (BackendOptions { primitiveMode = Triangles})
               window
-              game
+              app
             return shouldExit
 
 -- < Main Function > -----------------------------------------------------------
@@ -99,19 +99,19 @@ main = do
 
   setMouseLocationMode camMode
 
-  print "Initializing Game"
-  intro <- initGame initVAO introProj
-  game  <- initGame initVAO proj
+  print "Initializing App"
+  intro <- initApp initVAO introProj
+  app   <- initApp initVAO proj
   
   print "Initializing Resources1"
-  let fntObjs = concat $ toListOf (Game.objects . gui . Obj.fonts) game :: [Object]
-      fgrObjs = concat $ toListOf (Game.objects . Obj.foreground)  game :: [Object]
-      bgrObjs = concat $ toListOf (Game.objects . Obj.background)  game :: [Object]
+  let fntObjs = concat $ toListOf (App.objects . gui . Obj.fonts) app :: [Object]
+      fgrObjs = concat $ toListOf (App.objects . Obj.foreground)  app :: [Object]
+      bgrObjs = concat $ toListOf (App.objects . Obj.background)  app :: [Object]
 
   _ <- bindTexureUniforms $ fgrObjs ++ fntObjs ++ bgrObjs
   
-  print "Starting Game."
+  print "Starting App."
   animate
     window
-    (parseWinInput >>> (mainGame intro (game {_gStg = GamePlay Default}) &&& handleExit))
+    (parseWinInput >>> (mainApp intro (app {_gStg = AppRun Default}) &&& handleExit))
   return ()    

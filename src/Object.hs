@@ -25,7 +25,7 @@ module Object
   , ObjectFeature (..)
 -- | utility functions:  
   , initObject
-  , updateObjectsGravity
+  , updateObjects'
   , updateObjects
   , objectCompose
   ) where
@@ -284,8 +284,8 @@ transform' obj0 solver mtx0 =
         Translate  txyz     = solver
         Gravity    idxs     = solver
 
-updateObjectsGravity :: [Object] -> SF [Object] [Object]
-updateObjectsGravity objs0 =
+updateObjects' :: [Object] -> SF [Object] [Object]
+updateObjects' objs0 =
   proc objs -> do
     rec objs   <- iPre objs0 -< objs'
         objs'  <- gravitySolver -< objs
