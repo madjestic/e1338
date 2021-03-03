@@ -166,7 +166,6 @@ initObject project
            cls
            (vgeo, idx) =
   do
-    print "Loading Materials..."
     mats  <- mapM readMaterial $ mts vgeo :: IO [Material]
 
     let (VGeo is_ st_ vs_ mts_ ms_ vels_ xf_) = vgeo

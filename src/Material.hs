@@ -47,8 +47,11 @@ readMaterial jsonFile =
   do
     -- print $ "jsonFile :" ++ jsonFile
     d <- (eitherDecode <$> B.readFile jsonFile) :: IO (Either String Material)
-    -- print "readMaterial :"
-    -- print d
+    print $ "Loading Material :"
+      ++ case d of
+           Right m -> view name m
+           _ -> "error"
+
     let name'       = (_name       . fromEitherDecode) d
         vertShader' = (_vertShader . fromEitherDecode) d
         fragShader' = (_fragShader . fromEitherDecode) d

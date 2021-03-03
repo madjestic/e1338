@@ -60,8 +60,8 @@ $(makeLenses ''Solver)
 
 toSolver :: (String, [Double]) -> Solver
 toSolver (solver, parms) =
-  case DT.trace ("toSolver.solver :" ++ show solver) solver of
-  --case solver ofsaazzd
+  --case DT.trace ("toSolver.solver :" ++ show solver) solver of
+  case solver of
     "pretranslate" -> PreTranslate (toV3 parms)
     "translate"    -> Translate    (toV3 parms)
     "prerotate"    -> PreRotate    (toV3 $ take 3 parms) (toV3 $ drop 3 parms)

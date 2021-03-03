@@ -4,8 +4,8 @@
 
 module App
   ( App    (..)
-  , MainApp (..)
-  , UI   (..)
+  , Main (..)
+  , Interface   (..)
   , Options (..)
   , options
   , App.name
@@ -14,9 +14,9 @@ module App
   , App.objects
   , playCam
   , App.cameras
-  , mainApp
-  , appIntro
   , appRun
+  , appIntro
+  , appMain
   , updateApp
   , handleExit
   , centerView
@@ -45,49 +45,49 @@ import Solvable
 
 import Debug.Trace as DT
 
-data MainApp = Default
+data Main = Default
   deriving Show
 
-data UI =
+data Interface =
      Intro
-   | Main MainApp
+   | Main Main
    | Finished
    | Menu
   deriving Show
 
-data App =
-     App
-     {
-       _debug   :: (Double, Double)
-     , _options :: Options
-     , _ui      :: UI
-     , _objects :: ObjectTree
-     , _playCam :: Camera
-     , _cameras :: [Camera]
-     } deriving Show
+data App
+  = App
+  {
+    _debug     :: (Double, Double)
+  , _options   :: Options
+  , _interface :: Interface
+  , _objects   :: ObjectTree
+  , _playCam   :: Camera
+  , _cameras   :: [Camera]
+  } deriving Show
 
 data Options
-   = Options
-   { _name  :: String
-   , _resx  :: CInt
-   , _resy  :: CInt
-   } deriving Show
+  = Options
+  { _name  :: String
+  , _resx  :: CInt
+  , _resy  :: CInt
+  } deriving Show
 
 $(makeLenses ''Options)
 $(makeLenses ''App)
 
 -- < App Logic > ---------------------------------------------------------
 
-mainApp :: App -> App -> SF AppInput App
-mainApp app0 app1 =
+appRun :: App -> App -> SF AppInput App
+appRun app0 app1 =
   loopPre app0 $
   proc (input, appState) -> do
-    gs <- case _ui appState of
+    gs <- case _interface appState of
             Intro        -> appIntro            -< (input, appState)
-            Main Default -> appRun app0 app1 -< input
+            Main Default -> appMain app0 app1 -< input
     returnA -< (gs, gs)
 
-loadDelay = 10.0  :: Double -- make it into App options value                           
+loadDelay = 10.0  :: Double -- make it into App options value
 
 appIntro :: SF (AppInput, App) App
 appIntro =
@@ -95,19 +95,19 @@ appIntro =
      where sf =
              proc (input, appState) -> do
                introState <- returnA -< appState
-               playState  <- returnA -< appState { _ui =  Main Default }
+               appState   <- returnA -< appState { _interface =  Main Default }
                skipE      <- keyInput SDL.ScancodeSpace "Pressed" -< input
                waitE      <- after loadDelay () -< ()
-               returnA    -< (introState, (skipE `lMerge` waitE) $> playState)
+               returnA    -< (introState, (skipE `lMerge` waitE) $> appState)
            cont app  =
              proc input -> returnA -< app
 
-appRun :: App -> App -> SF AppInput App
-appRun intro app =
-  switch sf (const (mainApp intro app))
+appMain :: App -> App -> SF AppInput App
+appMain intro app =
+  switch sf (const (appRun intro app))
      where sf =
              proc input -> do
-               app'   <- updateApp app -< input
+               app'    <- updateApp app -< input
                reset   <- keyInput SDL.ScancodeSpace "Pressed" -< input
                returnA -< (app', reset $> app)
 

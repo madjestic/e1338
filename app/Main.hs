@@ -99,7 +99,7 @@ main = do
 
   setMouseLocationMode camMode
 
-  print "Initializing App"
+  putStrLn "\n Initializing App"
   intro <- initApp initVAO introProj
   app   <- initApp initVAO proj
   
@@ -113,5 +113,5 @@ main = do
   print "Starting App."
   animate
     window
-    (parseWinInput >>> (mainApp intro (app {_ui = Main Default}) &&& handleExit))
+    (parseWinInput >>> (appRun intro (app {_interface = Main Default}) &&& handleExit))
   return ()    
