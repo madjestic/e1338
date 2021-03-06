@@ -3,9 +3,7 @@
 {-# LANGUAGE LambdaCase #-}
 
 module App
-  ( App    (..)
-  , Main (..)
-  , Interface   (..)
+  ( App     (..)
   , Options (..)
   , options
   , App.name
@@ -14,9 +12,6 @@ module App
   , App.objects
   , playCam
   , App.cameras
-  , appRun
-  , appIntro
-  , appMain
   , updateApp
   , handleExit
   , centerView
@@ -45,22 +40,11 @@ import Solvable
 
 import Debug.Trace as DT
 
-data Main = Default
-  deriving Show
-
-data Interface =
-     Intro
-   | Main Main
-   | Finished
-   | Menu
-  deriving Show
-
 data App
   = App
   {
     _debug     :: (Double, Double)
   , _options   :: Options
-  , _interface :: Interface
   , _objects   :: ObjectTree
   , _playCam   :: Camera
   , _cameras   :: [Camera]
@@ -76,45 +60,9 @@ data Options
 $(makeLenses ''Options)
 $(makeLenses ''App)
 
--- < App Logic > ---------------------------------------------------------
-
-appRun :: App -> App -> SF AppInput App
-appRun app0 app1 =
-  loopPre app0 $
-  proc (input, appState) -> do
-    gs <- case _interface appState of
-            Intro        -> appIntro            -< (input, appState)
-            Main Default -> appMain app0 app1 -< input
-    returnA -< (gs, gs)
-
-loadDelay = 10.0  :: Double -- make it into App options value
-
-appIntro :: SF (AppInput, App) App
-appIntro =
-  switch sf cont
-     where sf =
-             proc (input, appState) -> do
-               introState <- returnA -< appState
-               appState   <- returnA -< appState { _interface =  Main Default }
-               skipE      <- keyInput SDL.ScancodeSpace "Pressed" -< input
-               waitE      <- after loadDelay () -< ()
-               returnA    -< (introState, (skipE `lMerge` waitE) $> appState)
-           cont app  =
-             proc input -> returnA -< app
-
-appMain :: App -> App -> SF AppInput App
-appMain intro app =
-  switch sf (const (appRun intro app))
-     where sf =
-             proc input -> do
-               app'    <- updateApp app -< input
-               reset   <- keyInput SDL.ScancodeSpace "Pressed" -< input
-               returnA -< (app', reset $> app)
-
 updateApp :: App -> SF AppInput App
 updateApp app =
   proc input -> do
-    --(cams, cam) <- updateCameras (App._cameras app, App._playCam app) -< input
     (cams, cam) <- updateCameras (App._cameras app, App._playCam app) -< (input, App._playCam app)
 
     objs        <- updateObjects        filteredLinObjs -< ()
@@ -128,9 +76,9 @@ updateApp app =
       objTree = App._objects app
       result =
         app { App._objects = (objTree {_foreground = snd <$> IM.toList unionObjs})
-             , App._cameras = cams
-             , _playCam      = cam
-             }
+            , App._cameras = cams
+            , _playCam      = cam
+            }
 
     returnA  -< result
       where
@@ -180,7 +128,6 @@ initApp initVAO project =
             resY'
           )
           --Main
-          Intro
           objTree
           pCam
           cams

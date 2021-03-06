@@ -26,17 +26,19 @@ import Graphics.Rendering.OpenGL ( PrimitiveMode(..))
 import System.Environment       (getArgs)
 import Unsafe.Coerce
 
+import Application
 import App
 import Object         as Obj
 import Project        as Prj
 import AppInput                 (parseWinInput) 
 import Rendering      as R
+import Utils
 
 import Debug.Trace    as DT
 
 -- -- < Animate > ------------------------------------------------------------
 type WinInput = Event SDL.EventPayload
-type WinOutput = (App, Bool)
+type WinOutput = (Application, Bool)
 
 animate :: SDL.Window
         -> SF WinInput WinOutput  -- ^ signal function to animate
@@ -68,7 +70,7 @@ animate window sf =
               R.OpenGL
               (BackendOptions { primitiveMode = Triangles})
               window
-              app
+              (fromApplication app)
             return shouldExit
 
 -- < Main Function > -----------------------------------------------------------
@@ -108,10 +110,16 @@ main = do
       fgrObjs = concat $ toListOf (App.objects . Obj.foreground)  app :: [Object]
       bgrObjs = concat $ toListOf (App.objects . Obj.background)  app :: [Object]
 
+      app' =
+        Application
+        { _interface = Intro
+        , _intro = intro
+        , _main  = app }
+
   _ <- bindTexureUniforms $ fgrObjs ++ fntObjs ++ bgrObjs
   
   print "Starting App."
   animate
     window
-    (parseWinInput >>> (appRun intro (app {_interface = Main Default}) &&& handleExit))
+    (parseWinInput >>> appRun app' &&& handleExit)
   return ()    

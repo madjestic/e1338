@@ -18,6 +18,7 @@ module Controllable
   , mouse
   , keyboard
   , updateKeyboard
+  , updateKeyboard'
   , updateMouse
   ) where
 
@@ -71,6 +72,9 @@ device'    = lens _device    (\controllable newDevice    -> Controller { _device
 
 $(makeLenses ''Device)
 $(makeLenses ''Controllable)
+
+updateKeyboard' :: SF (AppInput, Keyboard) (Keyboard, [Event ()])
+updateKeyboard' = undefined
 
 -- | ~inspired by foldrWith mtx0 keys - for every keyInput apply a folding transform to mtx0
 updateKeyboard :: Keyboard -> SF (AppInput, Keyboard) (Keyboard, [Event ()])

@@ -50,6 +50,7 @@ library
               , Camera
               , Controllable
               , Descriptor
+              , Application
               , App
               , Keyboard
               , Material
@@ -115,6 +116,7 @@ executable e1338
               , Controllable
               , Descriptor
               , FromVector
+              , Application
               , App
               , PGeo
               , AppInput
