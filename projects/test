@@ -2,6 +2,7 @@
     "name": "Test Project",
     "resx": 800,
     "resy": 600,
+    "camMode": "AbsoluteLocation",
     "models": [
         {
             "path": "models/box.bgeo"
@@ -9,14 +10,14 @@
     ],
     "objects": [
         {
-            "pname": "Test",
-            "objIDX": 0,
+            "pname": "Box",
+            "objID": "daefd784-fc9d-4179-9327-509044d57183",
             "modelIDXs": [
                 0
             ],
             "solvers": [
                 "rotate",
-                "transform"
+                "translate"
             ],
             "solverAttrs": [
                 [
@@ -84,7 +85,7 @@
                 0,
                 0,
                 1,
-                -1,
+                -10,
                 0,
                 0,
                 0,

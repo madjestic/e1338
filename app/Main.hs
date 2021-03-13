@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP    #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE OverloadedStrings, Arrows #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -28,13 +29,19 @@ import Unsafe.Coerce
 
 import Application
 import App
-import Object         as Obj
-import Project        as Prj
+import Object         as O
+import Project        as P
 import AppInput                 (parseWinInput) 
 import Rendering      as R
 import Utils
 
 import Debug.Trace    as DT
+
+#ifdef DEBUG
+debug = True
+#else
+debug = False
+#endif
 
 -- -- < Animate > ------------------------------------------------------------
 type WinInput = Event SDL.EventPayload
@@ -77,16 +84,30 @@ animate window sf =
 main :: IO ()
 main = do
 
-  let
-  args <- getArgs
-  introProj <- Prj.parse (unsafeCoerce (args!!0) :: FilePath)
-  proj      <- Prj.parse (unsafeCoerce (args!!1) :: FilePath)
+  -- let argsDebug = return ["./projects/intro_XXII", "./projects/intro_XXII"]
+  let argsDebug = return ["./projects/test", "./projects/test"]
+  args <- if debug then argsDebug else getArgs
+
+  -- TODO: introduce propper CLI args parsing, as in:
+  
+  -- parseArgs :: [String] -> IO String
+  -- parseArgs ["-h"] = help    >> exit
+  -- parseArgs ["-v"] = version >> exit
+  -- parseArgs []     = getContents
+  -- parseArgs fs     = putStrLn ("(re)Generating UUIDs for  project file: " ++ show (head fs)) >> return (concat fs)
+   
+  -- help    = putStrLn "Usage: genUUID [-- -vh] [file ..]"
+  -- version = putStrLn "genUUID 0.1"
+  -- exit    = exitWith ExitSuccess
+  -- die     = exitWith (ExitFailure 1)
+  
+  introProj <- P.parse (unsafeCoerce (args!!0) :: FilePath)
+  mainProj  <- P.parse (unsafeCoerce (args!!1) :: FilePath)
   
   let
-    title   = pack $ view Prj.name proj
-    resX    = (unsafeCoerce $ view Prj.resx proj) :: CInt
-    resY    = (unsafeCoerce $ view Prj.resy proj) :: CInt
-    --camMode = view Prj.camMode proj :: String
+    title   = pack $ view P.name mainProj
+    resX    = (unsafeCoerce $ view P.resx mainProj) :: CInt
+    resY    = (unsafeCoerce $ view P.resy mainProj) :: CInt
 
   window    <- openWindow
                title
@@ -94,7 +115,7 @@ main = do
 
   -- | SDL Mouse Options
   let camMode =
-        case view Prj.camMode proj of
+        case view P.camMode mainProj of
           "RelativeLocation" -> RelativeLocation
           "AbsoluteLocation" -> AbsoluteLocation
           _ -> error "wrong mouse mode"
@@ -103,23 +124,25 @@ main = do
 
   putStrLn "\n Initializing App"
   intro <- initApp initVAO introProj
-  app   <- initApp initVAO proj
-  
-  print "Initializing Resources"
-  let fntObjs = concat $ toListOf (App.objects . gui . Obj.fonts) app :: [Object]
-      fgrObjs = concat $ toListOf (App.objects . Obj.foreground)  app :: [Object]
-      bgrObjs = concat $ toListOf (App.objects . Obj.background)  app :: [Object]
+  main  <- initApp initVAO mainProj
 
-      app' =
+  let app =
         Application
         { _interface = Intro
         , _intro = intro
-        , _main  = app }
+        , _main  = main }
+  
+  print "Binding Texture Uniforms"
+  let
+    fgrObjs'= concat $ toListOf (App.objects . O.foreground)  intro :: [Object]
+    fntObjs = concat $ toListOf (App.objects . gui . O.fonts) main  :: [Object]
+    fgrObjs = concat $ toListOf (App.objects . O.foreground)  main  :: [Object]
+    bgrObjs = concat $ toListOf (App.objects . O.background)  main  :: [Object]
 
-  _ <- bindTexureUniforms $ fgrObjs ++ fntObjs ++ bgrObjs
+  _ <- bindTexureUniforms $ fgrObjs' ++ fgrObjs ++ fntObjs ++ bgrObjs
   
   print "Starting App."
   animate
     window
-    (parseWinInput >>> appRun app' &&& handleExit)
+    (parseWinInput >>> appRun app &&& handleExit)
   return ()    

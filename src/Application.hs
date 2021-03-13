@@ -43,6 +43,7 @@ $(makeLenses ''Application)
 fromApplication :: Application -> App
 fromApplication app =
   case (view interface app) of
+  --case (view interface (DT.trace ("fromApplication.app :" ++ show app) app)) of
     Intro        -> view intro app
     Main Default -> view main  app
 

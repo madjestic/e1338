@@ -266,7 +266,8 @@ bindTexureUniforms objsDrs =
     print "Finished loading textures."
       where
         txs = concat $ concatMap (toListOf (materials . traverse . Material.textures)) objsDrs
-        ids = take (length txs) [0..]
+        ids = take (length txs) [0..] -- this means that texture ids may conflict
+                                      -- TODO : use uuid 
 
 bindTexture :: (GLuint, FilePath) -> IO ()
 bindTexture (txid, tx) =

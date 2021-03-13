@@ -14,6 +14,7 @@
 
 # Solar System Animated
 cabal build exe:e1338
+# cabal run e1338 ./projects/intro_XXII ./projects/solar_system_animated_nointro
 cabal run e1338 ./projects/intro_XXII ./projects/solar_system_animated
 ## Concurrent GC:
 # cabal run +RTS -xn -RTS e1338 ./projects/intro_XXII ./projects/solar_system_animated

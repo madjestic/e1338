@@ -17,12 +17,14 @@ module Project
   , PreObject (..)
   , pname
   , modelIDXs
+  , objID
   , solvers
   , solverAttrs
   , fonts
   , cameras
   , parse
   , writeProject
+  , writeProject'
   , defaultProject
   ) where
 
@@ -31,9 +33,11 @@ import Data.Aeson
 import Data.Aeson.TH
 import Data.Aeson.Encode.Pretty
 import Data.ByteString.Lazy as B hiding (drop, pack)
-import Data.Maybe                (fromMaybe)
-import Data.Sort (sortOn)                              
+import Data.Maybe                       (fromMaybe)
+import Data.Sort                        (sortOn)                              
 import Data.Text                 hiding (drop)
+import Data.UUID
+
 import Texture
 import Model
 
@@ -43,7 +47,7 @@ data PreObject
   =  PreObject
      {
        _pname       :: String
-     , _objIDX      :: Int
+     , _objID       :: UUID     --TODO: replace with uuid
      , _modelIDXs   :: [Int]
      , _solvers     :: [String]
      , _solverAttrs :: [[Double]]
@@ -65,15 +69,15 @@ deriveJSON defaultOptions {fieldLabelModifier = drop 1} ''ProjectCamera
 data Project
   =  Project
      {
-       _name    :: String
-     , _resx    :: Int
-     , _resy    :: Int
-     , _camMode :: String
-     , _models  :: [Model]
-     , _objects :: [PreObject]
+       _name       :: String
+     , _resx       :: Int
+     , _resy       :: Int
+     , _camMode    :: String
+     , _models     :: [Model]
+     , _objects    :: [PreObject]
      , _background :: [PreObject]
-     , _fonts   :: [Model]
-     , _cameras :: [ProjectCamera]
+     , _fonts      :: [Model]
+     , _cameras    :: [ProjectCamera]
      } deriving Show
 $(makeLenses ''Project)
 deriveJSON defaultOptions {fieldLabelModifier = drop 1} ''Project
@@ -92,7 +96,7 @@ defaultProject =
   [ (Model   "models/box.bgeo")]
   [ (PreObject
     "Box"
-    0
+    nil
     [0]
     ["rotate", "translate"]
     [[0,0,0,0,0,1000]
@@ -125,8 +129,14 @@ writeProject prj fileOut =
   where
     config = defConfig { confCompare = comp }
 
+writeProject' :: FilePath -> Project -> IO ()
+writeProject' fileOut prj =
+  B.writeFile fileOut $ encodePretty' config prj
+  where
+    config = defConfig { confCompare = comp }
+
 comp :: Text -> Text -> Ordering
-comp = keyOrder . (fmap pack) $ ["name", "resx", "resy", "camMode", "models", "objects", "background", "pname", "objIDX", "modelIDXs", "solvers", "solverAttrs", "fonts", "cameras", "pApt", "pFoc", "pTransform"]
+comp = keyOrder . (fmap pack) $ ["name", "resx", "resy", "camMode", "models", "objects", "background", "pname", "objID", "modelIDXs", "solvers", "solverAttrs", "fonts", "cameras", "pApt", "pFoc", "pTransform"]
 
 parse :: FilePath -> IO Project
 parse filePath =
@@ -148,9 +158,9 @@ parse filePath =
       resy'
       camMode'
       models'
-      --(sortOn (view objIDX) preObjs')
-      (sortOn (view objIDX) preObjs')
-      (sortOn (view objIDX) bgrObjs')
+      --(sortOn (view objID) preObjs')
+      (sortOn (view objID) preObjs')
+      (sortOn (view objID) bgrObjs')
       fonts'
       cameras'
       
@@ -162,5 +172,5 @@ parse filePath =
             Right pt -> Just pt
 
 -- sortByIDX  :: [PreObject] -> [PreObject]
--- sortByIDX = sortOn (view objIDX)
+-- sortByIDX = sortOn (view objID)
             
