@@ -40,6 +40,7 @@ import Data.UUID
 
 import Texture
 import Model
+import Utils                            (unsafeGenUUID)
 
 import Debug.Trace as DT
 
@@ -96,7 +97,7 @@ defaultProject =
   [ (Model   "models/box.bgeo")]
   [ (PreObject
     "Box"
-    nil
+    unsafeGenUUID
     [0]
     ["rotate", "translate"]
     [[0,0,0,0,0,1000]

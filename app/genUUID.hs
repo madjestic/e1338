@@ -24,7 +24,7 @@ import Utils
 import Debug.Trace as DT
 
 fixUUIDs :: String -> IO ()
-fixUUIDs path = P.parse path >>= \proj -> writeProject' "./projects/.temp" (over (objects . traverse . objID) unsafeGenUUID proj)
+fixUUIDs path = P.parse path >>= \proj -> writeProject' "./projects/.temp" (over (objects . traverse . objID) unsafeReGenUUID proj)
 
 main :: IO ()
 main = do

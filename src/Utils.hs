@@ -15,6 +15,7 @@ module Utils
   , rotateList'
   , fromUUID
   , unsafeGenUUID
+  , unsafeReGenUUID
   ) where
 
 import Graphics.Rendering.OpenGL as GL (GLfloat)
@@ -133,11 +134,18 @@ rotateList' (n, xs) = zipWith const (drop n (cycle xs)) xs
 fromUUID :: UUID -> Integer
 fromUUID x = read $ concatMap show $ (\ (x,y,z,w)-> fmap toInteger [x,y,z,w]) $ toWords x
 
-unsafeGenUUID :: UUID -> UUID
-unsafeGenUUID uuid =
-  case (U.null uuid) of
-    True -> unsafePerformIO nextRandom
-    _    -> uuid
+-- unsafeGenUUID :: UUID -> UUID
+-- unsafeGenUUID uuid =
+--   case (U.null uuid) of
+--     True -> unsafePerformIO nextRandom
+--     _    -> uuid
+
+unsafeReGenUUID :: UUID -> UUID
+unsafeReGenUUID uuid = unsafePerformIO nextRandom
+
+unsafeGenUUID :: UUID
+unsafeGenUUID = unsafePerformIO nextRandom
+
 
 -- over (objects . traverse . objID) unsafeGenUUID defaultProject
 -- read $ concatMap show [1,2,3] :: Integer
