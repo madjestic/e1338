@@ -48,7 +48,7 @@ data PreObject
   =  PreObject
      {
        _pname       :: String
-     , _objID       :: UUID     --TODO: replace with uuid
+     , _objID       :: UUID
      , _modelIDXs   :: [Int]
      , _solvers     :: [String]
      , _solverAttrs :: [[Double]]

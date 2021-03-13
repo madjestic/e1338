@@ -11,20 +11,24 @@ import Control.Applicative (liftA2)
 import Control.Monad       ((>=>))
 import Control.Lens        ( view
                            , over
-                           , traverse)
+                           , traverse
+                           , traverseOf
+                           , set)
 import Data.Aeson
+import Data.UUID
+import Data.UUID.V4
 import System.Directory
 import System.Environment
 import System.Exit
+import System.IO.Unsafe
 import Unsafe.Coerce
 
 import Project as P
-import Utils
 
 import Debug.Trace as DT
 
 fixUUIDs :: String -> IO ()
-fixUUIDs path = P.parse path >>= \proj -> writeProject' "./projects/.temp" (over (objects . traverse . objID) unsafeReGenUUID proj)
+fixUUIDs path = (P.parse path) >>= (\x -> traverseOf (objects . traverse . objID) (const nextRandom) x) >>= writeProject' "./projects/.temp"
 
 main :: IO ()
 main = do
