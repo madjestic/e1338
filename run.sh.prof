@@ -20,5 +20,7 @@ cabal build exe:e1338
 # cabal run +RTS -xn -xc -sstderr -RTS e1338 ./projects/intro_XXII ./projects/solar_system_animated
 # cabal run +RTS -xnc -sstderr -RTS e1338 ./projects/intro_XXII ./projects/solar_system_animated
 # cabal run +RTS -xnc -sstderr -RTS e1338 ./projects/intro_XXII ./projects/intro_XXII
-cabal run +RTS -xnc -sstderr -RTS e1338 ./projects/test ./projects/test
+# cabal run +RTS -xnc -sstderr -RTS e1338 ./projects/test ./projects/test
+# cabal run +RTS -xnc -sstderr -RTS e1338 ./projects/intro ./projects/green_box
+cabal run +RTS -xnc -sstderr -RTS e1338 ./projects/intro ./projects/2objects 
 

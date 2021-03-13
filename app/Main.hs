@@ -85,7 +85,9 @@ main :: IO ()
 main = do
 
   -- let argsDebug = return ["./projects/intro_XXII", "./projects/intro_XXII"]
-  let argsDebug = return ["./projects/test", "./projects/test"]
+  -- let argsDebug = return ["./projects/test", "./projects/test"]
+  -- let argsDebug = return ["./projects/intro", "./projects/green_box"]
+  let argsDebug = return ["./projects/intro", "./projects/2objects"]
   args <- if debug then argsDebug else getArgs
 
   -- TODO: introduce propper CLI args parsing, as in:

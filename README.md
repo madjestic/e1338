@@ -59,6 +59,11 @@ $ cabal run genMaterial mat/testMat01
 $ cabal run genProject ./projects/test
 ```
 
+## Regenerate UUIDs:
+```bash
+$ cabal run exe:genUUID -- ./projects/test
+```
+
 ## Working with REPL:
 - compiling:
 ```bash
