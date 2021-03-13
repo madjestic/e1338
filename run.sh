@@ -1,1 +1,1 @@
-run.sh.prof
+run.sh.current

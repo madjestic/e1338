@@ -40,7 +40,6 @@ import Data.UUID
 
 import Texture
 import Model
-import Utils                            (unsafeGenUUID)
 
 import Debug.Trace as DT
 
@@ -74,6 +73,8 @@ data Project
      , _resx       :: Int
      , _resy       :: Int
      , _camMode    :: String
+--   , _mouseS     :: Float -- | mouse    "sensitivity"
+--   , _keyboardS  :: Float -- | keyboard "sensitivity"     
      , _models     :: [Model]
      , _objects    :: [PreObject]
      , _background :: [PreObject]
@@ -97,7 +98,7 @@ defaultProject =
   [ (Model   "models/box.bgeo")]
   [ (PreObject
     "Box"
-    unsafeGenUUID
+    nil
     [0]
     ["rotate", "translate"]
     [[0,0,0,0,0,1000]
