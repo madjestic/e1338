@@ -5,6 +5,9 @@ module Camera
   ( Camera (..)
   , defaultCam
   , controller
+  , mouseS
+  , keyboardRS
+  , keyboardTS
   , defaultCamController
   , updateCameras
   , updateCamera
@@ -35,6 +38,10 @@ data Camera =
        _apt        :: Double
      , _foc        :: Double 
      , _controller :: Controllable
+     , _mouseS     :: V3 Double -- | mouse    "sensitivity"
+     , _keyboardRS :: V3 Double -- | keyboard "sensitivity"
+     , _keyboardTS :: V3 Double
+-- TODO: move sensitivity parms here     
      } deriving Show
 
 $(makeLenses ''Camera)
@@ -45,6 +52,9 @@ defaultCam =
   50.0
   100.0
   defaultCamController
+  1.0
+  1.0
+  1.0
 
 defaultCamController :: Controllable
 defaultCamController =
@@ -97,12 +107,12 @@ updateCameraController cam0 =
             
             ypr'     =
               (view (controller.ypr) cam +) $
-              (0.00001 *
+              (0.00001 * (view mouseS cam) *
                 (V3 (case (abs mry' <= t') of True -> 0; _ -> (mry' / t') * (abs mry')**s')
                     (case (abs mrx' <= t') of True -> 0; _ -> (mrx' / t') * (abs mrx')**s')
                      0.0) +) $
               foldr1 (+) $
-              fmap ( 0.0000001 * scalar *) $ -- <- make it keyboard controllabe: speed up/down            
+              fmap ( 0.0000001 * scalar * (view keyboardRS cam) *) $ -- <- make it keyboard controllabe: speed up/down            
               zipWith (*^) ((\x -> if x then (1.0::Double) else 0) . ($ keys kbrd') <$>
                             [ keyUp,  keyDown, keyLeft, keyRight, keyPageUp,  keyPageDown ])
                             [ pPitch, nPitch,  pYaw,    nYaw,     pRoll, nRoll ]
@@ -139,7 +149,7 @@ updateCameraController cam0 =
             vel' =
               (view (controller.vel) cam +) $
               foldr1 (+) $
-              fmap ( 0.1 * (scalar) *) $ -- <- make it keyboard controllabe: speed up/down
+              fmap ( 0.1 * (scalar) * (view keyboardTS cam) *) $ -- <- make it keyboard controllabe: speed up/down
               fmap (transpose (rot) !*) $
               zipWith (*^) ((\x -> if x then (1::Double) else 0) . ($ (keys kbrd')) <$>
                             [keyW, keyS, keyA, keyD, keyQ, keyE])
@@ -377,9 +387,12 @@ fromProjectCamera :: ProjectCamera -> Camera
 fromProjectCamera pcam =
   defaultCam
   {
-    _apt = ( _pApt pcam)
-  , _foc = ( _pFoc pcam)
+    _apt        = _pApt pcam
+  , _foc        = _pFoc pcam
   , _controller =
       defaultCamController
       { _transform = fromList ( _pTransform pcam) }
+  , _mouseS     = pure $ _pMouseS pcam    :: V3 Double
+  , _keyboardRS = pure $ _pKeyboardRS pcam :: V3 Double
+  , _keyboardTS = pure $ _pKeyboardTS pcam :: V3 Double
   }

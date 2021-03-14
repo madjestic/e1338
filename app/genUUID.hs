@@ -28,7 +28,9 @@ import Project as P
 import Debug.Trace as DT
 
 fixUUIDs :: String -> IO ()
-fixUUIDs path = (P.parse path) >>= (\x -> traverseOf (objects . traverse . objID) (const nextRandom) x) >>= writeProject' "./projects/.temp"
+fixUUIDs path = (P.parse path) >>= genUUID >>= writeProject' "./projects/.temp"
+  where
+    genUUID = (\x -> traverseOf (objects . traverse . objID) (const nextRandom) x)
 
 main :: IO ()
 main = do

@@ -1,13 +1,13 @@
 [
-	"fileversion","18.5.424",
+	"fileversion","18.5.516",
 	"hasindex",false,
 	"pointcount",36,
 	"vertexcount",36,
 	"primitivecount",12,
 	"info",{
-		"date":"2021-01-03 15:32:25",
-		"timetocook":0.000993999999999999875,
-		"software":"Houdini 18.5.424",
+		"date":"2021-03-14 22:30:55",
+		"timetocook":0.00085799999999999993,
+		"software":"Houdini 18.5.516",
 		"artist":"madjestic",
 		"hostname":"nu",
 		"time":0,
@@ -123,7 +123,7 @@
 				[
 					"size",1,
 					"storage","int32",
-					"strings",["/mat/constant/constant"
+					"strings",["/mat/moon/moon"
 					],
 					"indices",[
 						"size",1,
@@ -211,7 +211,7 @@
 				[
 					"size",1,
 					"storage","int32",
-					"strings",["/mat/constant/constant"
+					"strings",["/mat/moon/moon"
 					],
 					"indices",[
 						"size",1,

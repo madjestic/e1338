@@ -6,6 +6,9 @@ module Project
   , pTransform
   , pApt
   , pFoc
+  , pMouseS
+  , pKeyboardRS
+  , pKeyboardTS
   , Model    (..)
   , name
   , resx
@@ -59,9 +62,12 @@ deriveJSON defaultOptions {fieldLabelModifier = drop 1} ''PreObject
 data ProjectCamera
   =  ProjectCamera
      {
-       _pApt       :: Double
-     , _pFoc       :: Double
-     , _pTransform :: [Float]
+       _pApt        :: Double
+     , _pFoc        :: Double
+     , _pTransform  :: [Float]
+     , _pMouseS     :: Double -- | mouse    "sensitivity"
+     , _pKeyboardRS :: Double -- | keyboard "sensitivity"
+     , _pKeyboardTS :: Double
      } deriving Show
 $(makeLenses ''ProjectCamera)
 deriveJSON defaultOptions {fieldLabelModifier = drop 1} ''ProjectCamera
@@ -73,8 +79,6 @@ data Project
      , _resx       :: Int
      , _resy       :: Int
      , _camMode    :: String
---   , _mouseS     :: Float -- | mouse    "sensitivity"
---   , _keyboardS  :: Float -- | keyboard "sensitivity"     
      , _models     :: [Model]
      , _objects    :: [PreObject]
      , _background :: [PreObject]
@@ -123,7 +127,11 @@ defaultProject =
     [1, 0, 0, 0,
      0, 1, 0, 0,
      0, 0, 1,-10,
-     0, 0, 0, 1])]
+     0, 0, 0, 1])
+    1.0
+    1.0
+    1.0
+  ]
 
 writeProject :: Project -> FilePath -> IO ()
 writeProject prj fileOut =
@@ -138,7 +146,7 @@ writeProject' fileOut prj =
     config = defConfig { confCompare = comp }
 
 comp :: Text -> Text -> Ordering
-comp = keyOrder . (fmap pack) $ ["name", "resx", "resy", "camMode", "models", "objects", "background", "pname", "objID", "modelIDXs", "solvers", "solverAttrs", "fonts", "cameras", "pApt", "pFoc", "pTransform"]
+comp = keyOrder . (fmap pack) $ ["name", "resx", "resy", "camMode", "models", "objects", "background", "pname", "objID", "modelIDXs", "solvers", "solverAttrs", "fonts", "cameras", "pApt", "pFoc", "pTransform", "pMouseS", "pKeyboardRS", "pKeyboardTS"]
 
 parse :: FilePath -> IO Project
 parse filePath =
