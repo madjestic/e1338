@@ -1,0 +1,111 @@
+{
+    "name": "Test Project2",
+    "resx": 400,
+    "resy": 300,
+    "camMode": "RelativeLocation",
+    "models": [
+        {
+            "path": "models/body_0.bgeo"
+        },
+        {
+            "path": "models/box.bgeo"
+        }
+    ],
+    "objects": [
+        {
+            "pname": "Box",
+            "modelIDXs": [
+                0
+            ],
+            "solvers": [
+                "rotate",
+                "translate"
+            ],
+            "solverAttrs": [
+                [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1000
+                ],
+                [
+                    1000,
+                    0,
+                    0
+                ]
+            ],
+            "uuid": "31c35c8a-1b61-4092-ab63-0a7aebe5b0c1"
+        },
+        {
+            "pname": "Tetrahedron",
+            "modelIDXs": [
+                1
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "23120856-e8c1-45a3-8dd1-f2d26d258409"
+        }
+    ],
+    "background": [],
+    "fonts": [
+        {
+            "path": "models/fnt_0.bgeo"
+        },
+        {
+            "path": "models/fnt_1.bgeo"
+        },
+        {
+            "path": "models/fnt_2.bgeo"
+        },
+        {
+            "path": "models/fnt_3.bgeo"
+        },
+        {
+            "path": "models/fnt_4.bgeo"
+        },
+        {
+            "path": "models/fnt_5.bgeo"
+        },
+        {
+            "path": "models/fnt_6.bgeo"
+        },
+        {
+            "path": "models/fnt_7.bgeo"
+        },
+        {
+            "path": "models/fnt_8.bgeo"
+        },
+        {
+            "path": "models/fnt_9.bgeo"
+        }
+    ],
+    "cameras": [
+        {
+            "pApt": 50,
+            "pFoc": 100,
+            "pTransform": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                -10,
+                0,
+                0,
+                0,
+                1
+            ],
+            "pMouseS": 1,
+            "pKeyboardRS": 1,
+            "pKeyboardTS": 0.0000001
+        }
+    ]
+}
