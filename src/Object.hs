@@ -117,12 +117,12 @@ defaultObj =
 modelPaths :: ObjectClass -> Project -> [String]
 modelPaths cls project = modelList
   where
-    modelSet  = toListOf (models . traverse . path) project :: [String]
+    modelSet  = toListOf (models . traverse . Model.path) project :: [String]
     modelList =
       case cls of
         Foreground -> (modelSet!!) <$> (concat $ toListOf ( objects . traverse . modelIDXs ) project)
         Background -> (modelSet!!) <$> (concat $ toListOf ( Project.background . traverse . modelIDXs ) project)
-        Font       -> (toListOf (Project.fonts . traverse . path) project)
+        Font       -> (toListOf (Project.fonts . traverse . Model.path) project)
 
 initObjectTree :: (([Int], Int, [Float], Material) -> IO Descriptor) -> Project -> IO ObjectTree
 initObjectTree initVAO project =
@@ -166,7 +166,7 @@ initObject project
            cls
            (vgeo, idx) =
   do
-    mats  <- mapM readMaterial $ mts vgeo :: IO [Material]
+    mats  <- mapM Material.read $ mts vgeo :: IO [Material]
 
     let (VGeo is_ st_ vs_ mts_ ms_ vels_ xf_) = vgeo
         vaoArgs       = (\idx' st' vao' mat' -> (idx', st', vao', mat'))
@@ -206,7 +206,7 @@ initObject project
 
     return obj
       where
-        solvers' =
+        solvers' = -- | Maybe we want very different treatment of F/B/F solvers/attrs...  or this code stinks.
           case cls of
             Foreground -> (toListOf (objects            . traverse . Project.solvers) project!!idx) :: [String]
             Background -> (toListOf (Project.background . traverse . Project.solvers) project!!idx) :: [String]
@@ -220,7 +220,7 @@ initObject project
 fromVGeo :: (([Int], Int, [Float], Material) -> IO Descriptor) -> VGeo -> IO Object
 fromVGeo initVAO (VGeo idxs st vaos matPaths mass vels xform) =
   do
-    mats <- mapM readMaterial matPaths -- (ms vgeo)
+    mats <- mapM Material.read matPaths -- (ms vgeo)
     let
       vaoargs         = (\idx' st' vao' mat' ->  (idx', st', vao', mat')) <$.> idxs <*.> st <*.> vaos <*.> mats
       offset = view _w (U.fromList (head xform) :: M44 Double) -- xform!!0 - at conversion stage, there can be only a single element in a list of transforms, therefore I don't want to overcomplicate it at the moment and keep it adhoc.

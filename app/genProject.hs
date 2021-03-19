@@ -16,7 +16,7 @@ import Debug.Trace as DT
 -- | e.g.: `$ cabal run genProject Foo 800 600 "models/model.bgeo" "textures/texture.jpg" 0 0 0`
 
 main :: IO ()
-main = getArgs >>= parseArgs >>= writeProject defaultProject
+main = getArgs >>= parseArgs >>= Project.write defaultProject
 
 parseArgs ["-h"] = help    >> exit
 parseArgs ["-v"] = version >> exit

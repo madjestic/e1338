@@ -1,6 +1,12 @@
 {
-    "name":"Moon",
-    "vertShader": "./mat/moon/Moon/shader.vert",
-    "fragShader": "./mat/moon/Moon/shader.frag",
-    "textures": ["textures/moon_512.jpg"]
+    "name": "moon",
+    "fragShader": "./mat/moon/src/shader.frag",
+    "vertShader": "./mat/moon/src/shader.vert",
+    "textures": [
+        {
+	    "name": "moon_512",
+            "path": "./textures/moon_512.jpg",
+            "uuid": "d8252024-e659-49f1-9124-20a3adf868ac"
+        }
+    ]
 }

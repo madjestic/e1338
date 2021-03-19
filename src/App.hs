@@ -34,7 +34,7 @@ import Controllable
 import Descriptor
 import Material
 import Object
-import Project     as Prj
+import Project     as P
 import Utils
 import Solvable
 
@@ -108,14 +108,14 @@ initApp ::
   -> IO App
 initApp initVAO project =
   do
-    print   "initializing app resources..."
-    print $ "project name :" ++ view Prj.name project
+    putStrLn   "initializing app resources..."
+    putStrLn $ "project name : " ++ view P.name project ++ "\n"
     objTree <- initObjectTree initVAO project
 
     let
-      cams = fromProjectCamera <$> view Prj.cameras project
+      cams = fromProjectCamera <$> view P.cameras project
       pCam = head cams
-      camerasP = Utils.fromList <$> toListOf (Prj.cameras . traverse . pTransform) project
+      camerasP = Utils.fromList <$> toListOf (P.cameras . traverse . pTransform) project
       playCamP = head camerasP --fromList $ camerasP!!0
     --pc <- fromVGeo $ fromPGeo pCloud  -- PCloud Point Cloud
     --let objTree = [pc]
@@ -135,6 +135,6 @@ initApp initVAO project =
     print "finished initializing app resources..."
     return app
       where
-        name' = view Prj.name project
-        resX' = (unsafeCoerce $ view Prj.resx project) :: CInt
-        resY' = (unsafeCoerce $ view Prj.resy project) :: CInt
+        name' = view P.name project
+        resX' = (unsafeCoerce $ view P.resx project) :: CInt
+        resY' = (unsafeCoerce $ view P.resy project) :: CInt

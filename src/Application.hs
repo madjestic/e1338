@@ -9,15 +9,20 @@ module Application
   , appRun
   , appIntro
   , fromApplication
+--  , hmap
+  , init
   ) where
 
 import Control.Lens
 import Data.Functor              (($>))
+import Data.UUID
+import Data.UUID.V4
+import FRP.Yampa
+import Graphics.Rendering.OpenGL as GL    (GLuint)
 import SDL.Input.Keyboard.Codes as SDL
 
 import App
 import AppInput
-import FRP.Yampa
 
 import Debug.Trace as DT
 
@@ -37,6 +42,7 @@ data Application
     _interface :: Interface
   , _intro     :: App
   , _main      :: App
+  , _hmap      :: [(UUID, GLuint)] -- a placeholder for the future hmap, for now it's a map from a long texture unit index to a short version.
   } deriving Show
 $(makeLenses ''Application)
 

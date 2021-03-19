@@ -1,17 +1,16 @@
 {
     "name": "Test Project",
-    "resx": 800,
-    "resy": 600,
+    "resx": 400,
+    "resy": 300,
     "camMode": "AbsoluteLocation",
     "models": [
         {
-            "path": "models/box.bgeo"
+            "path": "models/body_0.bgeo"
         }
     ],
     "objects": [
         {
             "pname": "Box",
-            "objID": "00000000-0000-0000-0000-000000000000",
             "modelIDXs": [
                 0
             ],
@@ -33,7 +32,8 @@
                     0,
                     0
                 ]
-            ]
+            ],
+            "uuid": "c0de36f7-1f04-46b2-aa65-dbe370e151bf"
         }
     ],
     "background": [],
@@ -92,7 +92,8 @@
                 1
             ],
             "pMouseS": 1,
-            "pKeyboardS": 1
+            "pKeyboardRS": 1,
+            "pKeyboardTS": 1
         }
     ]
 }

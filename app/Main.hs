@@ -77,34 +77,18 @@ animate window sf =
               R.OpenGL
               (BackendOptions { primitiveMode = Triangles})
               window
-              (fromApplication app)
+              app
             return shouldExit
 
 -- < Main Function > -----------------------------------------------------------
 main :: IO ()
 main = do
 
-  -- let argsDebug = return ["./projects/intro_XXII", "./projects/intro_XXII"]
-  -- let argsDebug = return ["./projects/test", "./projects/test"]
-  -- let argsDebug = return ["./projects/intro", "./projects/green_box"]
-  let argsDebug = return ["./projects/intro", "./projects/2objects"]
+  let argsDebug = return ["./projects/intro", "./projects/test"]
   args <- if debug then argsDebug else getArgs
 
-  -- TODO: introduce propper CLI args parsing, as in:
-  
-  -- parseArgs :: [String] -> IO String
-  -- parseArgs ["-h"] = help    >> exit
-  -- parseArgs ["-v"] = version >> exit
-  -- parseArgs []     = getContents
-  -- parseArgs fs     = putStrLn ("(re)Generating UUIDs for  project file: " ++ show (head fs)) >> return (concat fs)
-   
-  -- help    = putStrLn "Usage: genUUID [-- -vh] [file ..]"
-  -- version = putStrLn "genUUID 0.1"
-  -- exit    = exitWith ExitSuccess
-  -- die     = exitWith (ExitFailure 1)
-  
-  introProj <- P.parse (unsafeCoerce (args!!0) :: FilePath)
-  mainProj  <- P.parse (unsafeCoerce (args!!1) :: FilePath)
+  introProj <- P.read (unsafeCoerce (args!!0) :: FilePath)
+  mainProj  <- P.read (unsafeCoerce (args!!1) :: FilePath)
   
   let
     title   = pack $ view P.name mainProj
@@ -128,22 +112,17 @@ main = do
   intro <- initApp initVAO introProj
   main  <- initApp initVAO mainProj
 
-  let app =
-        Application
-        { _interface = Intro
-        , _intro = intro
-        , _main  = main }
-  
-  print "Binding Texture Uniforms"
   let
-    fgrObjs'= concat $ toListOf (App.objects . O.foreground)  intro :: [Object]
-    fntObjs = concat $ toListOf (App.objects . gui . O.fonts) main  :: [Object]
-    fgrObjs = concat $ toListOf (App.objects . O.foreground)  main  :: [Object]
-    bgrObjs = concat $ toListOf (App.objects . O.background)  main  :: [Object]
+    initApp =
+      Application
+      Intro
+      intro
+      main
+      []
 
-  _ <- bindTexureUniforms $ fgrObjs' ++ fgrObjs ++ fntObjs ++ bgrObjs
+  app <- initResources initApp
   
-  print "Starting App."
+  putStrLn "Starting App."
   animate
     window
     (parseWinInput >>> appRun app &&& handleExit)

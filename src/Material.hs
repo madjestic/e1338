@@ -9,19 +9,25 @@ module Material
   ( Material (..)
   , name
   , defaultMat
-  , readMaterial
-  , writeMaterial
+  , Material.read
+  , write
   , textures
   ) where  
 
-import Control.Monad         (mzero)
+import Control.Lens hiding ((.=))
+import Control.Monad             (mzero)
 import Data.Aeson
 import Data.Aeson.Encode.Pretty
 import Data.Aeson.TH
-import Data.Maybe            (fromMaybe)
+import Data.Maybe                (fromMaybe)
 import qualified Data.ByteString.Lazy as B
-import Control.Lens hiding ((.=))
+import Data.UUID
+import Data.UUID.V4
 import Data.Text    hiding (drop)
+import Graphics.Rendering.OpenGL (GLuint)
+
+import Texture as T hiding (name, _name)
+import Utils (encodeStringUUID)
 
 data Material
   =  Material
@@ -29,9 +35,8 @@ data Material
        _name       :: String
      , _vertShader :: FilePath   -- path to vertex shader program
      , _fragShader :: FilePath   -- path to fragment shader program
-     , _textures   :: [FilePath] -- paths to texture bindings
+     , _textures   :: [Texture] -- paths to texture bindings
      } deriving Show
-
 $(makeLenses ''Material)
 deriveJSON defaultOptions {fieldLabelModifier = drop 1} ''Material
 
@@ -40,10 +45,10 @@ defaultMat
     "default"
     "shader.vert"
     "shader.frag"
-    []
+    [defaultTexture]
 
-readMaterial :: FilePath -> IO Material
-readMaterial jsonFile =
+read :: FilePath -> IO Material
+read jsonFile =
   do
     -- print $ "jsonFile :" ++ jsonFile
     d <- (eitherDecode <$> B.readFile jsonFile) :: IO (Either String Material)
@@ -64,13 +69,12 @@ readMaterial jsonFile =
             Left err -> Nothing
             Right pt -> Just pt
 
-writeMaterial :: Material -> FilePath -> IO ()
-writeMaterial mat fileOut =
+write :: Material -> FilePath -> IO ()
+write mat fileOut =
   do
     B.writeFile fileOut $ encodePretty' config  mat
     where
       config = defConfig { confCompare = comp }
 
 comp :: Text -> Text -> Ordering
-comp = keyOrder . (fmap pack) $ ["name", "fragShader", "vertShader", "textures"]
-      
+comp = keyOrder . fmap pack $ ["name", "fragShader", "vertShader", "textures"]

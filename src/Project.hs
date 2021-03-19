@@ -20,14 +20,13 @@ module Project
   , PreObject (..)
   , pname
   , modelIDXs
-  , objID
+  , uuid 
   , solvers
   , solverAttrs
   , fonts
   , cameras
-  , parse
-  , writeProject
-  , writeProject'
+  , Project.read
+  , write
   , defaultProject
   ) where
 
@@ -41,7 +40,7 @@ import Data.Sort                        (sortOn)
 import Data.Text                 hiding (drop)
 import Data.UUID
 
-import Texture
+import Texture hiding (name, _name, uuid, _uuid)
 import Model
 
 import Debug.Trace as DT
@@ -50,7 +49,7 @@ data PreObject
   =  PreObject
      {
        _pname       :: String
-     , _objID       :: UUID
+     , _uuid        :: UUID
      , _modelIDXs   :: [Int]
      , _solvers     :: [String]
      , _solverAttrs :: [[Double]]
@@ -133,23 +132,17 @@ defaultProject =
     1.0
   ]
 
-writeProject :: Project -> FilePath -> IO ()
-writeProject prj fileOut =
-  B.writeFile fileOut $ encodePretty' config prj
-  where
-    config = defConfig { confCompare = comp }
-
-writeProject' :: FilePath -> Project -> IO ()
-writeProject' fileOut prj =
+write :: Project -> FilePath -> IO ()
+write prj fileOut =
   B.writeFile fileOut $ encodePretty' config prj
   where
     config = defConfig { confCompare = comp }
 
 comp :: Text -> Text -> Ordering
-comp = keyOrder . (fmap pack) $ ["name", "resx", "resy", "camMode", "models", "objects", "background", "pname", "objID", "modelIDXs", "solvers", "solverAttrs", "fonts", "cameras", "pApt", "pFoc", "pTransform", "pMouseS", "pKeyboardRS", "pKeyboardTS"]
+comp = keyOrder . (fmap pack) $ ["name", "resx", "resy", "camMode", "models", "objects", "background", "pname", "uuid ", "modelIDXs", "solvers", "solverAttrs", "fonts", "cameras", "pApt", "pFoc", "pTransform", "pMouseS", "pKeyboardRS", "pKeyboardTS"]
 
-parse :: FilePath -> IO Project
-parse filePath =
+read :: FilePath -> IO Project
+read filePath =
   do
     d <- (eitherDecode <$> B.readFile filePath) :: IO (Either String Project)
     let name'     = (_name     . fromEitherDecode) d
@@ -168,9 +161,9 @@ parse filePath =
       resy'
       camMode'
       models'
-      --(sortOn (view objID) preObjs')
-      (sortOn (view objID) preObjs')
-      (sortOn (view objID) bgrObjs')
+      --(sortOn (view uuid ) preObjs')
+      (sortOn (view uuid ) preObjs')
+      (sortOn (view uuid ) bgrObjs')
       fonts'
       cameras'
       
@@ -179,8 +172,4 @@ parse filePath =
         fromEither d =
           case d of
             Left err -> Nothing
-            Right pt -> Just pt
-
--- sortByIDX  :: [PreObject] -> [PreObject]
--- sortByIDX = sortOn (view objID)
-            
+            Right pt -> Just pt            

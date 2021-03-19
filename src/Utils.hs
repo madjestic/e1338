@@ -13,25 +13,33 @@ module Utils
   , toV3
   , rotateList
   , rotateList'
+  , fromUUID
+  , encodeStringUUID
   ) where
 
+import Control.Lens ( view
+                    , over
+                    , traverse)
 import Graphics.Rendering.OpenGL as GL (GLfloat)
+import Data.ByteString.Char8           (pack
+                                       ,unpack)
 import Data.Set                  as DS (fromList, toList)
 import Data.List                 as DL (transpose)
 import Data.List.Index                 (indexed)
 import Data.List                       (elemIndex)
+import Data.Locator
 import Data.UUID                 as U
 import Data.UUID.V4
 import Data.Vector               as DV (fromList, (!), map, toList)
+import Data.VectorSpace          as DV
+import Graphics.Rendering.OpenGL (GLuint)
 import Linear.V3
 import Linear.V4
 import Linear.Matrix
 import Linear.Metric             as LM
-import Data.VectorSpace          as DV
-import Control.Lens ( view
-                    , over
-                    , traverse)
 import System.IO.Unsafe
+import System.Random
+import Unsafe.Coerce
 
 import Debug.Trace as DT
 
@@ -118,7 +126,7 @@ fromList xs' = V4 x y z w
 (<*.>) = zipWith ($)
 
 toV3 :: [a] -> V3 a
-toV3 xs = V3 (xs!!0) (xs!!1) (xs!!2)
+toV3 xs = V3 (head xs) (xs!!1) (xs!!2)
 
 rotateList :: Int -> [a] -> [a]
 rotateList _ [] = []
@@ -127,3 +135,23 @@ rotateList n xs = zipWith const (drop n (cycle xs)) xs
 rotateList' :: (Int, [a]) -> [a]
 rotateList' (_, []) = []
 rotateList' (n, xs) = zipWith const (drop n (cycle xs)) xs
+
+fromUUID :: UUID -> GLuint
+fromUUID x = read $ concatMap show $ (\ (x,y,z,w)-> fmap toInteger [x,y,z,w]) $ toWords x
+
+-- | Generate a UUID, based on FilePath
+-- | e.g. fromUUID $ encodeStringUUID "./projects/.temp1"
+-- | > 2836415114
+encodeStringUUID :: String -> UUID
+encodeStringUUID x = genSeedUUID . fromInteger . fromBase62 . unpack . hashStringToBase62 6 $ pack x
+
+encodeStringInteger :: String -> Integer
+encodeStringInteger x = fromBase62 . unpack . hashStringToBase62 1 $ pack x
+
+genSeedUUID :: Int -> UUID
+genSeedUUID seed =
+  let
+      g0 = mkStdGen seed -- RNG from seed
+      (u1, g1) = random g0
+  in u1
+

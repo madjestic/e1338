@@ -13,7 +13,7 @@ import Debug.Trace as DT
 
 -- | This script generates a file structure for a material
 --   example:
---   $ cabal run genMaterial mat/foobar -- that's formatted i.a.w. the error message from e1337 in case a material is missing
+--   $ cabal run genMaterial -- mat/foobar -- that's formatted i.e. the error message from e1337 in case a material is missing
 --   > ./mat/foobar ...
 
 main :: IO ()
@@ -42,9 +42,14 @@ main =
       matSubDirName  = ("./mat/" ++ matName ++ "/src")
       vertShaderPath = ( matSubDirName ++ "/shader.vert")
       fragShaderPath = ( matSubDirName ++ "/shader.frag")
-      mat            = Material matName vertShaderPath fragShaderPath []
+      --mat            = Material matName vertShaderPath fragShaderPath [] -- TODO: add a default checkerboard texture with a default UUID -- TODO: add a genTexture and a texture file in the spirit of genMaterial and a Material object e.g.: "./textures/chckerboard" - {"name", "textures", "uuid"}...
+      mat =
+        defaultMat
+        { _name       = matName
+        , _vertShader = vertShaderPath
+        , _fragShader = fragShaderPath }
       in
-        do writeMaterial mat ("./mat/" ++ matName ++ "/" ++ matName)
+        do write mat ("./mat/" ++ matName ++ "/" ++ matName)
            copyFile "./mat/default/src/shader.vert" vertShaderPath
            copyFile "./mat/default/src/shader.frag" fragShaderPath
     

@@ -1,6 +1,6 @@
 {
     "name": "font",
-    "vertShader": "./mat/font/src/shader.vert",
     "fragShader": "./mat/font/src/shader.frag",
+    "vertShader": "./mat/font/src/shader.vert",
     "textures": []
 }

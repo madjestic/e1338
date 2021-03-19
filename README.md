@@ -50,13 +50,13 @@ $ ./resources/convertGeo.sh earth
 
 ## Creating a new Material:
 ```bash
-$ cabal run genMaterial mat/testMat01
+$ cabal run genMaterial matDir/matName
 ```
 (that generates a ./mat/testMat01 material directory with a default conent (constant shader material)
 
 ## Generate a new Project:
 ```bash
-$ cabal run genProject ./projects/test
+$ cabal run exe:genProject -- ./projects/test
 ```
 
 ## Regenerate UUIDs:
