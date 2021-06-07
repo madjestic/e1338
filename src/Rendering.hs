@@ -271,7 +271,7 @@ initResources app0 =
       objs = introObjs ++ fntObjs ++ fgrObjs ++ bgrObjs
       txs  = concat $ concatMap (toListOf (materials . traverse . M.textures)) objs :: [Texture]
       uuids = fmap (view uuid) txs
-      hmap = zip uuids [0..]
+      hmap = zip uuids [0..] -- TODO: reserve 0 for font rendering?
 
     putStrLn "Initializing Resources..."
     putStrLn "Loading Textures..."

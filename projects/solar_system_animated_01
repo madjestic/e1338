@@ -1,0 +1,128 @@
+{
+    "name": "Solar System Animated",
+    "resx": 640,
+    "resy": 360,
+    "camMode": "RelativeLocation",
+    "models": [
+        {
+            "path": "models/sun.bgeo"
+        },
+        {
+            "path": "models/earth.bgeo"
+        }
+    ],
+    "objects": [
+        {
+            "pname": "Sun",
+            "modelIDXs": [
+                0
+            ],
+            "solvers": [
+                "rotate",
+                "translate"
+            ],
+            "solverAttrs": [
+                [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1000
+                ],
+                [
+                    1000,
+                    0,
+                    0
+                ]
+            ],
+            "uuid": "c945e4dc-aa87-48d3-8caf-f70e7c0d2fa5"
+        },
+        {
+            "pname": "Earth",
+            "modelIDXs": [
+                1
+            ],
+            "solvers": [
+                "rotate",
+                "translate"
+            ],
+            "solverAttrs": [
+                [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1000
+                ],
+                [
+                    1000,
+                    0,
+                    0
+                ]
+            ],
+            "uuid": "c0d9d113-d175-494a-80da-6733bd1e01bf"
+        }
+    ],
+    "background": [],
+    "fonts": [
+        {
+            "path": "models/fnt_0.bgeo"
+        },
+        {
+            "path": "models/fnt_1.bgeo"
+        },
+        {
+            "path": "models/fnt_2.bgeo"
+        },
+        {
+            "path": "models/fnt_3.bgeo"
+        },
+        {
+            "path": "models/fnt_4.bgeo"
+        },
+        {
+            "path": "models/fnt_5.bgeo"
+        },
+        {
+            "path": "models/fnt_6.bgeo"
+        },
+        {
+            "path": "models/fnt_7.bgeo"
+        },
+        {
+            "path": "models/fnt_8.bgeo"
+        },
+        {
+            "path": "models/fnt_9.bgeo"
+        }
+    ],
+    "cameras": [
+        {
+            "pApt": 50,
+            "pFoc": 100,
+            "pTransform": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                -150063170000,
+                0,
+                0,
+                0,
+                1
+            ],
+            "pMouseS": 1,
+            "pKeyboardRS": 1,
+            "pKeyboardTS": 1.0e-7
+        }
+    ]
+}

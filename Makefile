@@ -18,16 +18,17 @@ current:
 	mvlink run.sh run.sh.current
 	cabal build
 fonts:
-	./resources/convertGeo.sh fnt_0
-	./resources/convertGeo.sh fnt_1
-	./resources/convertGeo.sh fnt_2	
-	./resources/convertGeo.sh fnt_3
-	./resources/convertGeo.sh fnt_4
-	./resources/convertGeo.sh fnt_5
-	./resources/convertGeo.sh fnt_6
-	./resources/convertGeo.sh fnt_7
-	./resources/convertGeo.sh fnt_8
-	./resources/convertGeo.sh fnt_9
+	# ./resources/convertGeo.sh fnt_0
+	# ./resources/convertGeo.sh fnt_1
+	# ./resources/convertGeo.sh fnt_2	
+	# ./resources/convertGeo.sh fnt_3
+	# ./resources/convertGeo.sh fnt_4
+	# ./resources/convertGeo.sh fnt_5
+	# ./resources/convertGeo.sh fnt_6
+	# ./resources/convertGeo.sh fnt_7
+	# ./resources/convertGeo.sh fnt_8
+	# ./resources/convertGeo.sh fnt_9
+	./resources/convertGeo.sh fnt_a
 
 intro:
 	./resources/convertGeo.sh intro_square

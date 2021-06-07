@@ -1,320 +1,329 @@
-name:          e1338
-version:       0.1.0.1
-synopsis:      A re-write of e1337 with BearRiver (and, maybe, MVars)
-description:   Please see the README on GitHub at <https://github.com/madjestic/e1338#readme>
-homepage:      https://github.com/madjestic/e1338
-license:       BSD3
-license-file:  LICENSE
-author:        madjestic
-maintainer:    madjestic13@gmail.com
-copyright:     Vladimir Lopatin
-category:      App
-build-type:    Simple
-cabal-version: >=2.0
+name:                  e1338
+version:               0.1.0.1
+synopsis:              A re-write of e1337 with BearRiver (and, maybe, MVars)
+description:           Please see the README on GitHub at <https://github.com/madjestic/e1338#readme>
+homepage:              https://github.com/madjestic/e1338
+license:               BSD3
+license-file:          LICENSE
+author:                madjestic
+maintainer:            madjestic13@gmail.com
+copyright:             Vladimir Lopatin
+category:              App
+build-type:            Simple
+cabal-version:         >= 2.0
 
 extra-source-files:
-                ChangeLog.md
-                README.md
+                       ChangeLog.md
+                       README.md
 
 source-repository head
-  type:         git
-  location:     https://github.com/madjestic/e1338
+  type:                git
+  location:            https://github.com/madjestic/e1338
 
 library
   hs-source-dirs:
-                src
+                       src
   build-depends:
-                base                ^>= 4.14
-              , aeson               ^>= 1.4.7.1
-              , aeson-pretty        ^>= 0.8.8
-              , bearriver           ^>= 0.13.1.2
-              , bytestring          ^>= 0.10.8.2
-              , containers          ^>= 0.6.2.1
-              , GLUtil              ^>= 0.10.3
-              , ilist               ^>= 0.2.0.0
-              , lens                ^>= 4.19.1
-              , linear              ^>= 1.20.8
-              , locators            ^>= 0.3.0.3              
-              , massiv              ^>= 0.6.0.0
-              , OpenGL              ^>= 3.0.2.2
-              , random              ^>= 1.2.0              
-              , sdl2                ^>= 2.5.1.0
-              , simple-affine-space ^>= 0.1.1
-              , sort                ^>= 1.0.0.0
-              , split               ^>= 0.2.3.4
-              , store               ^>= 0.7.4
-              , text                ^>= 1.2.2.2
-              --, Yampa               ^>= 0.13.1
-              , vector              ^>= 0.12.1.2
-              , uuid                ^>= 1.3.14
+                       base                ^>= 4.14
+                     , aeson               ^>= 1.4.7.1
+                     , aeson-pretty        ^>= 0.8.8
+                     , bearriver           ^>= 0.13.1.2
+                     , bytestring          ^>= 0.10.8.2
+                     , containers          ^>= 0.6.2.1
+                     , GLUtil              ^>= 0.10.3
+                     , ilist               ^>= 0.2.0.0
+                     , lens                ^>= 4.19.1
+                     , linear              ^>= 1.20.8
+                     , locators            ^>= 0.3.0.3              
+                     , massiv              ^>= 0.6.0.0
+                     , OpenGL              ^>= 3.0.2.2
+                     , random              ^>= 1.2.0              
+                     , sdl2                ^>= 2.5.1.0
+                     , simple-affine-space ^>= 0.1.1
+                     , sort                ^>= 1.0.0.0
+                     , split               ^>= 0.2.3.4
+                     , store               ^>= 0.7.4
+                     , text                ^>= 1.2.2.2
+                     --, Yampa               ^>= 0.13.1
+                     , vector              ^>= 0.12.1.2
+                     , uuid                ^>= 1.3.14
   
   exposed-modules:
-                AppInput
-              , Camera
-              , Controllable
-              , Descriptor
-              , Application
-              , App
-              , Keyboard
-              , Material
-              , Model
-              , Object
-              , PGeo
-              , Project
-              , Rendering
-              , Solvable
-              , Texture
-              , Utils
-              , VAO
+                       AppInput
+                     , Camera
+                     , Controllable
+                     , Descriptor
+                     , Application
+                     , App
+                     , Keyboard
+                     , Material
+                     , Model
+                     , Object
+                     , PGeo
+                     , Project
+                     , Rendering
+                     , Solvable
+                     , Texture
+                     , Utils
+                     , VAO
               
   other-modules:
-                Paths_e1338
-              , LoadShaders
-              , FromVector
-              , Mouse
+                       Paths_e1338
+                     , LoadShaders
+                     , FromVector
+                     , Mouse
   default-language:
-                Haskell2010
+                       Haskell2010
                                                                            
 executable e1338
-  main-is:      Main.hs
+  main-is:             Main.hs
   hs-source-dirs:
-                app
-              , src
-  ghc-options:         -threaded -O2
+                       app
+                     , src
+  ghc-options:        -threaded -O2
   --cpp-options:         -DDEBUG
   build-depends:
-                base                ^>= 4.14
-              , aeson               ^>= 1.4.7.1
-              , aeson-pretty        ^>= 0.8.8
-              , bearriver           ^>= 0.13.1.2
-              , bytestring          ^>= 0.10.8.2
-              , containers          ^>= 0.6.2.1
-              , GLUtil              ^>= 0.10.3
-              , hmatrix             ^>= 0.20.0.0
-              , ilist               ^>= 0.2.0.0
-              , lens                ^>= 4.19.1
-              , linear              ^>= 1.20.8
-              , locators            ^>= 0.3.0.3
-              , massiv              ^>= 0.6.0.0
-              , OpenGL              ^>= 3.0.2.2
-              , random              ^>= 1.2.0              
-              , sdl2                ^>= 2.5.1.0
-              , split               ^>= 0.2.3.4
-              , store               ^>= 0.7.4
-              , text                ^>= 1.2.2.2
-              --, Yampa             ^>= 0.13.1
-              , simple-affine-space ^>= 0.1.1
-              , sort                ^>= 1.0.0.0
-              , vector              ^>= 0.12.1.2
-              , uuid                ^>= 1.3.14
+                       base                ^>= 4.14
+                     , aeson               ^>= 1.4.7.1
+                     , aeson-pretty        ^>= 0.8.8
+                     , bearriver           ^>= 0.13.1.2
+                     , bytestring          ^>= 0.10.8.2
+                     , containers          ^>= 0.6.2.1
+                     , GLUtil              ^>= 0.10.3
+                     , hmatrix             ^>= 0.20.0.0
+                     , ilist               ^>= 0.2.0.0
+                     , lens                ^>= 4.19.1
+                     , linear              ^>= 1.20.8
+                     , locators            ^>= 0.3.0.3
+                     , massiv              ^>= 0.6.0.0
+                     , OpenGL              ^>= 3.0.2.2
+                     , random              ^>= 1.2.0              
+                     , sdl2                ^>= 2.5.1.0
+                     , split               ^>= 0.2.3.4
+                     , store               ^>= 0.7.4
+                     , text                ^>= 1.2.2.2
+                     --, Yampa             ^>= 0.13.1
+                     , simple-affine-space ^>= 0.1.1
+                     , sort                ^>= 1.0.0.0
+                     , vector              ^>= 0.12.1.2
+                     , uuid                ^>= 1.3.14
 
   other-modules:
-                Paths_e1338
-              , Rendering
-              , LoadShaders
-              , Project
-              , Model
-              , Texture
-              , Object
-              , Camera
-              , Controllable
-              , Descriptor
-              , FromVector
-              , Application
-              , App
-              , PGeo
-              , AppInput
-              , Keyboard
-              , Mouse
-              , Material
-              , Solvable
-              , Utils
-              , VAO
+                       Paths_e1338
+                     , Rendering
+                     , LoadShaders
+                     , Project
+                     , Model
+                     , Texture
+                     , Object
+                     , Camera
+                     , Controllable
+                     , Descriptor
+                     , FromVector
+                     , Application
+                     , App
+                     , PGeo
+                     , AppInput
+                     , Keyboard
+                     , Mouse
+                     , Material
+                     , Solvable
+                     , Utils
+                     , VAO
               
   default-language:
-                Haskell2010
+                       Haskell2010
 
 executable genMaterial
-  main-is:      genMaterial.hs
+  main-is:             genMaterial.hs
   hs-source-dirs:
-                app
-              , src
+                       app
+                     , src
 
-  ghc-options:   -threaded -O2
-  cpp-options:   -DDEBUG
+  ghc-options:        -threaded -O2
+  cpp-options:        -DDEBUG
   build-depends:
-                base                ^>=4.14
-              , aeson               ^>= 1.4.7.1
-              , aeson-pretty        ^>= 0.8.8
-              , bytestring          ^>= 0.10.8.2
-              , containers          ^>= 0.6.2.1              
-              , directory           ^>= 1.3.6.1
-              , ilist               ^>= 0.2.0.0                                          
-              , lens                ^>= 4.19.1
-              , linear              ^>= 1.20.8              
-              , locators            ^>= 0.3.0.3
-              , OpenGL              ^>= 3.0.2.2
-              , random              ^>= 1.2.0
-              , simple-affine-space ^>= 0.1.1              
-              , split               ^>= 0.2.3.4
-              , text                ^>= 1.2.2.2
-              , uuid                ^>= 1.3.14
-              , vector              ^>= 0.12.1.2            
+                       base                ^>= 4.14
+                     , aeson               ^>= 1.4.7.1
+                     , aeson-pretty        ^>= 0.8.8
+                     , bytestring          ^>= 0.10.8.2
+                     , containers          ^>= 0.6.2.1              
+                     , directory           ^>= 1.3.6.1
+                     , ilist               ^>= 0.2.0.0                                          
+                     , lens                ^>= 4.19.1
+                     , linear              ^>= 1.20.8              
+                     , locators            ^>= 0.3.0.3
+                     , OpenGL              ^>= 3.0.2.2
+                     , random              ^>= 1.2.0
+                     , simple-affine-space ^>= 0.1.1              
+                     , split               ^>= 0.2.3.4
+                     , text                ^>= 1.2.2.2
+                     , uuid                ^>= 1.3.14
+                     , vector              ^>= 0.12.1.2            
 
   other-modules:
-                Paths_e1338
-              , Material
-              , FromVector
-              , Utils
+                       Paths_e1338
+                     , Material
+                     , FromVector
+                     , Utils
 
   default-language:
-                Haskell2010
+                       Haskell2010
 
 executable genProject
-  main-is:      genProject.hs
+  main-is:             genProject.hs
   hs-source-dirs:
-                app
-              , src
-  ghc-options:         -threaded -O2
+                       app
+                     , src
+  ghc-options:        -threaded -O2
   --cpp-options:         -DDEBUG
   build-depends:
-                base                ^>=4.14
-              , aeson               ^>= 1.4.7.1
-              , aeson-pretty        ^>= 0.8.8
-              , bytestring          ^>= 0.10.8.2
-              , containers          ^>= 0.6.2.1
-              , ilist               ^>= 0.2.0.0                            
-              , lens                ^>= 4.19.1
-              , linear              ^>= 1.20.8
-              , locators            ^>= 0.3.0.3              
-              , OpenGL              ^>= 3.0.2.2
-              , random              ^>= 1.2.0              
-              , simple-affine-space ^>= 0.1.1              
-              , text                ^>= 1.2.2.2
-              , sort                ^>= 1.0.0.0
-              , uuid                ^>= 1.3.14
-              , vector              ^>= 0.12.1.2              
+                       base                ^>= 4.14
+                     , aeson               ^>= 1.4.7.1
+                     , aeson-pretty        ^>= 0.8.8
+                     , bytestring          ^>= 0.10.8.2
+                     , containers          ^>= 0.6.2.1
+                     , ilist               ^>= 0.2.0.0                            
+                     , lens                ^>= 4.19.1
+                     , linear              ^>= 1.20.8
+                     , locators            ^>= 0.3.0.3              
+                     , OpenGL              ^>= 3.0.2.2
+                     , random              ^>= 1.2.0              
+                     , simple-affine-space ^>= 0.1.1              
+                     , text                ^>= 1.2.2.2
+                     , sort                ^>= 1.0.0.0
+                     , uuid                ^>= 1.3.14
+                     , vector              ^>= 0.12.1.2              
 
   other-modules:
-                Paths_e1338
-              , Model
-              , Project
-              , Texture
-              , Utils
+                       Paths_e1338
+                     , Model
+                     , Project
+                     , Texture
+                     , Utils
 
   default-language:
-                Haskell2010
+                       Haskell2010
 
 executable genUUID
-  main-is:      genUUID.hs
+  main-is:             genUUID.hs
   hs-source-dirs:
-                app
-              , src
-  ghc-options:         -threaded -O2
-  --cpp-options:         -DDEBUG
-  build-depends:
-                base                ^>=4.14
-              , aeson               ^>= 1.4.7.1
-              , aeson-pretty        ^>= 0.8.8
-              , bytestring          ^>= 0.10.8.2
-              , containers          ^>= 0.6.2.1              
-              , directory           ^>= 1.3.6.1
-              , ilist               ^>= 0.2.0.0                                          
-              , lens                ^>= 4.19.1
-              , linear              ^>= 1.20.8              
-              , locators            ^>= 0.3.0.3
-              , OpenGL              ^>= 3.0.2.2
-              , simple-affine-space ^>= 0.1.1                            
-              , sort                ^>= 1.0.0.0
-              , text                ^>= 1.2.2.2
-              , uuid                ^>= 1.3.14
-              , random              ^>= 1.2.0
-              , vector              ^>= 0.12.1.2                            
+                       app
+                     , src
+  ghc-options:        -threaded -O2
+  --cpp-options:        -DDEBUG
+  build-depends:      
+                       base                ^>= 4.14
+                     , aeson               ^>= 1.4.7.1
+                     , aeson-pretty        ^>= 0.8.8
+                     , bytestring          ^>= 0.10.8.2
+                     , containers          ^>= 0.6.2.1              
+                     , directory           ^>= 1.3.6.1
+                     , ilist               ^>= 0.2.0.0                                          
+                     , lens                ^>= 4.19.1
+                     , linear              ^>= 1.20.8              
+                     , locators            ^>= 0.3.0.3
+                     , OpenGL              ^>= 3.0.2.2
+                     , simple-affine-space ^>= 0.1.1                            
+                     , sort                ^>= 1.0.0.0
+                     , text                ^>= 1.2.2.2
+                     , uuid                ^>= 1.3.14
+                     , random              ^>= 1.2.0
+                     , vector              ^>= 0.12.1.2                            
 
   other-modules:
-                Paths_e1338
-              , Model
-              , Project
-              , Texture
-              , Utils
+                       Paths_e1338
+                     , Model
+                     , Project
+                     , Texture
+                     , Utils
 
   default-language:
-                Haskell2010
+                       Haskell2010
                 
 executable geoIndexer
-  main-is:       geoIndexer.hs
+  main-is:             geoIndexer.hs
   hs-source-dirs:
-                app
-              , src
-  ghc-options:         -threaded -O2 -with-rtsopts=-N
+                       app
+                     , src
+  ghc-options:        -threaded -O2 -with-rtsopts=-N
   --cpp-options:         -DDEBUG
   build-depends:
-                base                 ^>= 4.14
-              , OpenGL               ^>= 3.0.2.2
-              , aeson                ^>= 1.4.7.1
-              , aeson-pretty         ^>= 0.8.8
-              , bytestring           ^>= 0.10.8.2
-              , containers           ^>= 0.6.2.1
-              , ilist                ^>= 0.2.0.0
-              , lens                 ^>= 4.19.1
-              , linear               ^>= 1.20.8
-              , locators             ^>= 0.3.0.3              
-              , massiv               ^>= 0.6.0.0
-              , optparse-applicative ^>= 0.15.1.0
-              , random               ^>= 1.2.0                            
-              , store                ^>= 0.7.4
-              , text                 ^>= 1.2.2.2
-              , simple-affine-space  ^>= 0.1.1
-              , time-compat          ^>= 1.9.4
-              , time                 ^>= 1.9.3
-              , uuid                 ^>= 1.3.14
-              , vector               ^>= 0.12.1.2
+                       base                 ^>= 4.14
+                     , OpenGL               ^>= 3.0.2.2
+                     , aeson                ^>= 1.4.7.1
+                     , aeson-pretty         ^>= 0.8.8
+                     , bytestring           ^>= 0.10.8.2
+                     , containers           ^>= 0.6.2.1
+                     , ilist                ^>= 0.2.0.0
+                     , lens                 ^>= 4.19.1
+                     , linear               ^>= 1.20.8
+                     , locators             ^>= 0.3.0.3              
+                     , massiv               ^>= 0.6.0.0
+                     , optparse-applicative ^>= 0.15.1.0
+                     , random               ^>= 1.2.0                            
+                     , store                ^>= 0.7.4
+                     , text                 ^>= 1.2.2.2
+                     , simple-affine-space  ^>= 0.1.1
+                     , time-compat          ^>= 1.9.4
+                     , time                 ^>= 1.9.3
+                     , uuid                 ^>= 1.3.14
+                     , vector               ^>= 0.12.1.2
               
   other-modules:
-                Paths_e1338
-              , FromVector
-              , Material
-              , PGeo
-              , Utils
-              , VAO
+                       Paths_e1338
+                     , FromVector
+                     , Material
+                     , PGeo
+                     , Utils
+                     , VAO
 
   default-language:
-                   Haskell2010
+                       Haskell2010
 
 executable rpcShuffler
-  main-is:       rpcShuffler.hs
+  main-is:             rpcShuffler.hs
   hs-source-dirs:
-                app
-              , src
-  ghc-options:         -threaded -O2
+                       app
+                     , src
+  ghc-options:        -threaded -O2
   --cpp-options:         -DDEBUG
   build-depends:
-                base                ^>= 4.14
-              , aeson               ^>= 1.4.7.1
-              , aeson-pretty        ^>= 0.8.8
-              , bytestring          ^>= 0.10.8.2
-              , containers          ^>= 0.6.2.1
-              , text                ^>= 1.2.2.2
-              , OpenGL              ^>= 3.0.2.2
-              , ilist               ^>= 0.2.0.0
-              , extra               ^>= 1.7.3
-              , lens                ^>= 4.19.1
-              , locators            ^>= 0.3.0.3              
-              , random              ^>= 1.2.0                            
-              , store               ^>= 0.7.4
-              , simple-affine-space ^>= 0.1.1
-              , linear              ^>= 1.20.8
-              , massiv              ^>= 0.6.0.0
-              , vector              ^>= 0.12.1.2
-              , uuid                ^>= 1.3.14
+                       base                ^>= 4.14
+                     , aeson               ^>= 1.4.7.1
+                     , aeson-pretty        ^>= 0.8.8
+                     , bytestring          ^>= 0.10.8.2
+                     , containers          ^>= 0.6.2.1
+                     , text                ^>= 1.2.2.2
+                     , OpenGL              ^>= 3.0.2.2
+                     , ilist               ^>= 0.2.0.0
+                     , extra               ^>= 1.7.3
+                     , lens                ^>= 4.19.1
+                     , locators            ^>= 0.3.0.3              
+                     , random              ^>= 1.2.0                            
+                     , store               ^>= 0.7.4
+                     , simple-affine-space ^>= 0.1.1
+                     , linear              ^>= 1.20.8
+                     , massiv              ^>= 0.6.0.0
+                     , vector              ^>= 0.12.1.2
+                     , uuid                ^>= 1.3.14
               
   other-modules:
-                Paths_e1338
-              , FromVector
-              , Material
-              , PGeo
-              , Utils
-              , VAO
+                       Paths_e1338
+                     , FromVector
+                     , Material
+                     , PGeo
+                     , Utils
+                     , VAO
               
   default-language:
-                Haskell2010                   
+                       Haskell2010                   
+
+test-suite e1338-test
+  default-language:    Haskell2010
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Test.hs
+  build-depends:       base                ^>= 4.14.1.0
+                     , hmatrix             ^>= 0.20.0.0
+                
