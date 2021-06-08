@@ -46,9 +46,12 @@ fixMaterialUUIDs path = M.read path >>= genUUID >>= flip M.write ".uuid"
       return result
 
 fixProjectUUIDs :: FilePath -> IO ()
-fixProjectUUIDs path = P.read path >>= genUUID >>= flip P.write ".uuid"
+fixProjectUUIDs path = do
+  P.read path >>= genUUID  >>= flip P.write ".uuid"
+  P.read path >>= genUUID' >>= flip P.write ".uuid"
   where
     genUUID = traverseOf (objects . traverse . P.uuid) (const nextRandom)
+    genUUID'= traverseOf (background . traverse . P.uuid) (const nextRandom)
 
 main :: IO ()
 main = do

@@ -5,6 +5,36 @@
     "camMode": "RelativeLocation",
     "models": [
         {
+            "path": "models/star_sector_00.bgeo"
+        },
+        {
+            "path": "models/star_sector_01.bgeo"
+        },
+        {
+            "path": "models/star_sector_02.bgeo"
+        },
+        {
+            "path": "models/star_sector_03.bgeo"
+        },
+        {
+            "path": "models/star_sector_04.bgeo"
+        },
+        {
+            "path": "models/star_sector_05.bgeo"
+        },
+        {
+            "path": "models/star_sector_06.bgeo"
+        },
+        {
+            "path": "models/star_sector_07.bgeo"
+        },
+        {
+            "path": "models/star_sector_08.bgeo"
+        },
+        {
+            "path": "models/star_sector_09.bgeo"
+        },
+        {
             "path": "models/sun.bgeo"
         },
         {
@@ -15,7 +45,7 @@
         {
             "pname": "Sun",
             "modelIDXs": [
-                0
+                10
             ],
             "solvers": [
                 "rotate",
@@ -36,12 +66,12 @@
                     0
                 ]
             ],
-            "uuid": "c945e4dc-aa87-48d3-8caf-f70e7c0d2fa5"
+            "uuid": "444b7e10-a15a-4b91-aeb7-4c7d3c01d77d"
         },
         {
             "pname": "Earth",
             "modelIDXs": [
-                1
+                11
             ],
             "solvers": [
                 "rotate",
@@ -62,10 +92,101 @@
                     0
                 ]
             ],
-            "uuid": "c0d9d113-d175-494a-80da-6733bd1e01bf"
+            "uuid": "a2af03e7-a87e-476e-91a1-db1ae9fd89d4"
         }
     ],
-    "background": [],
+    "background": [
+        {
+            "pname": "Star Sector 00",
+            "modelIDXs": [
+                0
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "a18ae6cc-d08e-4188-86b2-d9d2bd8bc35e"
+        },
+        {
+            "pname": "Star Sector 01",
+            "modelIDXs": [
+                1
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "b852604d-51d0-4ad8-a3cb-d4221f9e9cb5"
+        },
+        {
+            "pname": "Star Sector 02",
+            "modelIDXs": [
+                2
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "025633fc-2c71-47ec-a269-7882e0f356c7"
+        },
+        {
+            "pname": "Star Sector 03",
+            "modelIDXs": [
+                3
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "0a3930f2-9ba4-47c4-9fdf-dad9bc69986b"
+        },
+        {
+            "pname": "Star Sector 04",
+            "modelIDXs": [
+                4
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "d9494c8d-5abc-4d72-bbd1-c3a55a2c18ce"
+        },
+        {
+            "pname": "Star Sector 05",
+            "modelIDXs": [
+                5
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "8f957dbc-bbe8-4797-a270-4e58d4eae504"
+        },
+        {
+            "pname": "Star Sector 06",
+            "modelIDXs": [
+                6
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "a6625012-5eee-4b08-ad17-7aa724b9ca2a"
+        },
+        {
+            "pname": "Star Sector 07",
+            "modelIDXs": [
+                7
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "7c1d51c2-9755-4a88-a13b-768ad85fc1bc"
+        },
+        {
+            "pname": "Star Sector 08",
+            "modelIDXs": [
+                8
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "eb5f3d16-d0f4-4782-a1ce-617e8e0fd295"
+        },
+        {
+            "pname": "Star Sector 09",
+            "modelIDXs": [
+                9
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "a83f283b-51bb-4562-b334-46c8ccc39066"
+        }
+    ],
     "fonts": [
         {
             "path": "models/fnt_0.bgeo"

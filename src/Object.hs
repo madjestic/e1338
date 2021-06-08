@@ -76,6 +76,26 @@ data Object
      } deriving Show
 $(makeLenses ''Object)
 
+-- data Astronomical
+--   = Astronomical
+--     {
+--       _descriptors :: [Descriptor] -- | Material is bound in Descriptor, but we also use this data for draw-call separation per material.
+--                -- data Descriptor =
+--                     -- Descriptor VertexArrayObject NumArrayIndices
+--     , _materials   :: [Material]   -- | hence [Material] is present on the Object level too, we use that value, instead of looking it up from respective VGeo.
+--     , _programs    :: [Program]    -- | Shader Programs
+--     , _transforms  :: ![M44 Double]
+--     , _velocity    :: V3 Double
+--     , _avelocity   :: V3 Double    -- | Angular velocity
+--     , _mass        :: Double
+--     , _density     :: Double
+--     , _time        :: Double
+--     , _solvers     :: [Solver]
+--     } deriving Show
+-- $(makeLenses ''Astronomical)
+
+-- data Sprite
+
 data ObjectFeature
   = Transforms
   | Velocity
