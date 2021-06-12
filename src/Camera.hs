@@ -39,8 +39,8 @@ data Camera =
      , _foc        :: Double 
      , _controller :: Controllable
      , _mouseS     :: V3 Double -- | mouse    "sensitivity"
-     , _keyboardRS :: V3 Double -- | keyboard "sensitivity"
-     , _keyboardTS :: V3 Double
+     , _keyboardRS :: V3 Double -- | keyboard "rotation sensitivity"
+     , _keyboardTS :: V3 Double -- | keyboard "translation sensitivity"
 -- TODO: move sensitivity parms here     
      } deriving Show
 

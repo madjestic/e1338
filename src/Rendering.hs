@@ -185,7 +185,6 @@ render lastInteraction Rendering.OpenGL opts window application =
         objsDrs = fromGame app fgrObjs currentTime :: [Drawable]
         bgrsDrs = fromGame app bgrObjs currentTime :: [Drawable]
 
-        --texPaths = undefined -- concat $ toListOf ( traverse . materials . traverse . M.textures) (fgrObjs ++ fntObjs) :: [FilePath]
         txs     = concat $ toListOf ( traverse . materials . traverse . textures) (fgrObjs ++ fntObjs) :: [Texture]
         hmap    = _hmap application
 
@@ -200,6 +199,10 @@ render lastInteraction Rendering.OpenGL opts window application =
     SDL.glSwapWindow window
 
 render _ Vulkan _ _ _ = undefined
+
+drawString :: (Drawable -> IO ()) -> [Drawable] -> String -> IO ()
+drawString cmds fntsDrs str =
+    mapM_ cmds $ format $ drawableString fntsDrs str
 
 -- | given a string of drawables, return a formatted string (e.g. add offsets for drawable chars)
 format :: [Drawable] -> [Drawable]
@@ -216,7 +219,7 @@ offsetChar (drw, offset) = drw'
     s1    = 0.035 -- scale Offset
     s2    = 0.08  -- scale Size
     h     = -0.05 -- horizontal offset
-    v     = 0.9  -- vertical   offset
+    v     = 0.9   -- vertical   offset
     offsetM44 =
       mkTransformationMat
       (rot0 * s2)
@@ -230,24 +233,25 @@ drawableString drs str = drws
     drws = fmap (drawableChar drs) str
 
 -- | Alphabet of drawables -> Char -> a drawable char
+-- drawableChar :: [Drawable] -> Char -> Drawable
+-- drawableChar drs chr =
+--   case chr of
+--     '0' -> head drs
+--     '1' -> drs!!1
+--     '2' -> drs!!2
+--     '3' -> drs!!3
+--     '4' -> drs!!4
+--     '5' -> drs!!5
+--     '6' -> drs!!6
+--     '7' -> drs!!7
+--     '8' -> drs!!8
+--     '9' -> drs!!9
+--     _   -> head drs
+
 drawableChar :: [Drawable] -> Char -> Drawable
 drawableChar drs chr =
   case chr of
-    '0' -> head drs
-    '1' -> drs!!1
-    '2' -> drs!!2
-    '3' -> drs!!3
-    '4' -> drs!!4
-    '5' -> drs!!5
-    '6' -> drs!!6
-    '7' -> drs!!7
-    '8' -> drs!!8
-    '9' -> drs!!9
     _   -> head drs
-
-drawString :: (Drawable -> IO ()) -> [Drawable] -> String -> IO ()
-drawString cmds fntsDrs str =
-    mapM_ cmds $ format $ drawableString fntsDrs str
 
 draw :: [Texture] -> [(UUID, GLuint)] ->  BackendOptions -> SDL.Window -> Drawable -> IO ()
 draw txs hmap opts window (Drawable name unis (Descriptor vao' numIndices') prog) =

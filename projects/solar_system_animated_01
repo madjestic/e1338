@@ -189,7 +189,7 @@
     ],
     "fonts": [
         {
-            "path": "models/fnt_0.bgeo"
+            "path": "models/fnt_a.bgeo"
         },
         {
             "path": "models/fnt_1.bgeo"
