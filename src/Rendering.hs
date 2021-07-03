@@ -55,7 +55,11 @@ import Utils
 
 import Debug.Trace as DT
 
+#ifdef MDEBUG
+debug = True
+#else
 debug = False
+#endif
 
 
 data Backend

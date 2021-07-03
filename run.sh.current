@@ -5,11 +5,12 @@ cabal build exe:e1338
 # cabal run e1338 ./projects/intro ./projects/2objects
 # cabal run e1338 ./projects/intro ./projects/test2
 # cabal run e1338 ./projects/intro ./projects/view_model
+cabal run e1338 ./projects/intro ./projects/view_font_model
 # cabal run e1338 ./projects/intro ./projects/raymarch
 
 # Solar System Animated
 # cabal build exe:e1338
-cabal run e1338 ./projects/intro ./projects/solar_system_animated_01
+# cabal run e1338 ./projects/intro ./projects/solar_system_animated_01
 
 ### OLD STUFF ###
 
