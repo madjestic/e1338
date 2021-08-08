@@ -54,7 +54,6 @@ fonts:
 	./resources/convertGeo.sh fnt_x
 	./resources/convertGeo.sh fnt_y
 	./resources/convertGeo.sh fnt_z
-
 	./resources/convertGeo.sh fnt_plus
 	./resources/convertGeo.sh fnt_minus
 	./resources/convertGeo.sh fnt_equal
@@ -67,6 +66,7 @@ fonts:
 	./resources/convertGeo.sh fnt_slash
 	./resources/convertGeo.sh fnt_semicolon
 	./resources/convertGeo.sh fnt_quote
+	./resources/convertGeo.sh fnt_space
 
 intro:
 	./resources/convertGeo.sh intro_square

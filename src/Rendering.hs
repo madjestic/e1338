@@ -208,7 +208,7 @@ render _ Vulkan _ _ _ = undefined
 
 drawString :: (Drawable -> IO ()) -> [Drawable] -> String -> IO ()
 drawString cmds fntsDrs str =
-    mapM_ cmds $ format $ drawableString fntsDrs str
+    mapM_ cmds $ format $ drawableString fntsDrs "Hello, World!"--str
 
 -- | given a string of drawables, return a formatted string (e.g. add offsets for drawable chars)
 format :: [Drawable] -> [Drawable]
@@ -222,9 +222,9 @@ formatting (drw, offset) = drw'
     uns  = view uniforms drw
     rot0 = view _m33 (view (uniforms . u_xform) drw)
     tr0  = view translation (view (uniforms . u_xform) drw)
-    s1    = 0.035 -- scale Offset
+    s1    = 0.085   -- scale Offset
     s2    = 1.0   -- scale Size
-    h     = 0.05  -- horizontal offset
+    h     = -0.5 -- horizontal offset
     v     = 0.9   -- vertical   offset
     offsetM44 =
       mkTransformationMat
@@ -252,7 +252,44 @@ drawableChar drs chr =
     '7' -> drs!!7
     '8' -> drs!!8
     '9' -> drs!!9
-    _   -> drs!!1 -- head drs
+    'a' -> drs!!10
+    'b' -> drs!!11
+    'c' -> drs!!12
+    'd' -> drs!!13
+    'e' -> drs!!14
+    'f' -> drs!!15
+    'g' -> drs!!16
+    'h' -> drs!!17
+    'H' -> drs!!17
+    'i' -> drs!!18
+    'j' -> drs!!19
+    'k' -> drs!!20
+    'l' -> drs!!21
+    'm' -> drs!!22
+    'n' -> drs!!23
+    'o' -> drs!!24
+    'p' -> drs!!25
+    'q' -> drs!!26
+    'r' -> drs!!27
+    's' -> drs!!28
+    't' -> drs!!29
+    'u' -> drs!!30
+    'v' -> drs!!31
+    'w' -> drs!!32
+    'W' -> drs!!32
+    'x' -> drs!!33
+    'y' -> drs!!34
+    'z' -> drs!!35
+    '+' -> drs!!36
+    '-' -> drs!!37
+    '=' -> drs!!38
+    '>' -> drs!!39
+    ',' -> drs!!40
+    '.' -> drs!!41
+    '?' -> drs!!42
+    '!' -> drs!!43
+    ' ' -> drs!!44
+    _   -> head drs
 
 -- drawableChar :: [Drawable] -> Char -> Drawable
 -- drawableChar drs chr =

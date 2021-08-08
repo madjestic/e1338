@@ -77,7 +77,7 @@ animate window sf =
               R.OpenGL (
               BackendOptions
                { primitiveMode = Triangles
-               , bgrColor      = Color4 1.0 0.0 0.0 1.0
+               , bgrColor      = Color4 0.0 0.0 0.0 1.0
                , ptSize        = 3.0
                })
               window
@@ -88,7 +88,7 @@ animate window sf =
 main :: IO ()
 main = do
 
-  let argsDebug = return ["./projects/intro", "./projects/test"]
+  let argsDebug = return ["./projects/intro", "./projects/view_model"]
   args <- if debug then argsDebug else getArgs
 
   introProj <- P.read (unsafeCoerce (args!!0) :: FilePath)

@@ -82,7 +82,7 @@ executable e1338
                      , src
   ghc-options:        -threaded -O2
   -- cpp-options:         -DDEBUG
-  -- MDEBUG - material debug, apply material every frame
+                     -- MDEBUG - material debug, apply material every frame
   cpp-options:         -DMDEBUG
   build-depends:
                        base                ^>= 4.14
