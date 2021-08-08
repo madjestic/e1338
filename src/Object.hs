@@ -82,17 +82,25 @@ data Object
       _descriptors :: [Descriptor] -- | Material is bound in Descriptor, but we also use this data for draw-call separation per material.
                -- data Descriptor =
                     -- Descriptor VertexArrayObject NumArrayIndices
-    , _materials   :: [Material]   -- | hence [Material] is present on the Object level too, we use that value, instead of looking it up from respective VGeo.
-    , _programs    :: [Program]    -- | Shader Programs
-    , _transforms  :: ![M44 Double]
-    , _velocity    :: V3 Double
-    , _avelocity   :: V3 Double    -- | Angular velocity
-    , _mass        :: Double
-    , _density     :: Double
-    , _time        :: Double
-    , _solvers     :: [Solver]
-    } 
-  | Sprite
+     , _materials   :: [Material]   -- | hence [Material] is present on the Object level too, we use that value, instead of looking it up from respective VGeo.
+     , _programs    :: [Program]    -- | Shader Programs
+     , _transforms  :: ![M44 Double]
+     , _velocity    :: V3 Double
+     , _avelocity   :: V3 Double    -- | Angular velocity
+     , _mass        :: Double
+     , _density     :: Double
+     , _time        :: Double
+     , _solvers     :: [Solver]
+     } 
+  |  Sprite
+     { 
+       _descriptors :: [Descriptor] -- | Material is bound in Descriptor, but we also use this data for draw-call separation per material.
+     , _materials   :: [Material]   -- | hence [Material] is present on the Object level too, we use that value, instead of looking it up from respective VGeo.
+     , _programs    :: [Program]    -- | Shader Programs
+     , _transforms  :: ![M44 Double]
+     , _time        :: Double
+     }
+
   deriving Show
 $(makeLenses ''Object)
 
@@ -166,13 +174,13 @@ initObjectTree initVAO project =
       mapM (\modelPath -> (readBGeo modelPath :: IO VGeo)
            ) $ modelPaths Font project  :: IO [VGeo]
 
-    objs  <- if not (null fgrVGeos) then mapM (initObject project initVAO Foreground) $ zip fgrVGeos [0..] else pure []  :: IO [Object]
-    bgrs  <- if not (null bgrVGeos) then mapM (initObject project initVAO Background) $ zip bgrVGeos [0..] else pure []  :: IO [Object]
-    fonts <- if not (null fntVGeos) then mapM (initObject project initVAO Font)       $ zip fntVGeos [0..] else pure []  :: IO [Object]
+    objs <- if not (null fgrVGeos) then mapM (initObject project initVAO Foreground) $ zip fgrVGeos [0..] else pure []  :: IO [Object]
+    bgrs <- if not (null bgrVGeos) then mapM (initObject project initVAO Background) $ zip bgrVGeos [0..] else pure []  :: IO [Object]
+    fnts <- if not (null fntVGeos) then mapM (initObject project initVAO Font)       $ zip fntVGeos [0..] else pure []  :: IO [Object]
 
     let result =
           ObjectTree
-          ( GUI fonts [] )
+          ( GUI fnts [] )
           objs
           bgrs
 
@@ -217,18 +225,27 @@ initObject project
     progs <- mapM (\mat -> loadShaders
                            [ ShaderInfo VertexShader   (FileSource (_vertShader mat ))
                            , ShaderInfo FragmentShader (FileSource (_fragShader mat )) ]) mats
-    let obj =
-          defaultObj
-          { _descriptors = ds
-          , _materials   = mats
-          , _programs    = progs
-          , _transforms  = preTransforms
-          , _velocity    = vel
-          , _mass        = m
-          , Object._solvers = solvs
-          } :: Object
+    let result =
+          case cls of
+            Font ->
+              Object.Sprite
+              { _descriptors = ds
+              , _materials   = mats
+              , _programs    = progs
+              , _transforms  = preTransforms
+              } :: Object
+            _ -> 
+              defaultObj
+              { _descriptors = ds
+              , _materials   = mats
+              , _programs    = progs
+              , _transforms  = preTransforms
+              , _velocity    = vel
+              , _mass        = m
+              , Object._solvers = solvs
+              } :: Object
 
-    return obj
+    return result
       where
         solvers' = -- | Maybe we want very different treatment of F/B/F solvers/attrs...  or this code stinks.
           case cls of
@@ -239,7 +256,7 @@ initObject project
           case cls of
             Foreground -> (toListOf (objects . traverse . solverAttrs)            project!!idx) :: [[Double]]
             Background -> (toListOf (Project.background . traverse . solverAttrs) project!!idx) :: [[Double]]
-            Font       -> []
+            Font       -> []            
 
 fromVGeo :: (([Int], Int, [Float], Material) -> IO Descriptor) -> VGeo -> IO Object
 fromVGeo initVAO (VGeo idxs st vaos matPaths mass vels xform) =

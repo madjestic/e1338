@@ -28,7 +28,45 @@ fonts:
 	./resources/convertGeo.sh fnt_7
 	./resources/convertGeo.sh fnt_8
 	./resources/convertGeo.sh fnt_9
-	# ./resources/convertGeo.sh fnt_a
+	./resources/convertGeo.sh fnt_a
+	./resources/convertGeo.sh fnt_b
+	./resources/convertGeo.sh fnt_c
+	./resources/convertGeo.sh fnt_d
+	./resources/convertGeo.sh fnt_e
+	./resources/convertGeo.sh fnt_f
+	./resources/convertGeo.sh fnt_g
+	./resources/convertGeo.sh fnt_h
+	./resources/convertGeo.sh fnt_i
+	./resources/convertGeo.sh fnt_j
+	./resources/convertGeo.sh fnt_k
+	./resources/convertGeo.sh fnt_l
+	./resources/convertGeo.sh fnt_m
+	./resources/convertGeo.sh fnt_n
+	./resources/convertGeo.sh fnt_o
+	./resources/convertGeo.sh fnt_p
+	./resources/convertGeo.sh fnt_q
+	./resources/convertGeo.sh fnt_r
+	./resources/convertGeo.sh fnt_s
+	./resources/convertGeo.sh fnt_t
+	./resources/convertGeo.sh fnt_u
+	./resources/convertGeo.sh fnt_v
+	./resources/convertGeo.sh fnt_w
+	./resources/convertGeo.sh fnt_x
+	./resources/convertGeo.sh fnt_y
+	./resources/convertGeo.sh fnt_z
+
+	./resources/convertGeo.sh fnt_plus
+	./resources/convertGeo.sh fnt_minus
+	./resources/convertGeo.sh fnt_equal
+	./resources/convertGeo.sh fnt_GT
+	./resources/convertGeo.sh fnt_comma
+	./resources/convertGeo.sh fnt_dot
+	./resources/convertGeo.sh fnt_question
+	./resources/convertGeo.sh fnt_exclam
+	./resources/convertGeo.sh fnt_asterics
+	./resources/convertGeo.sh fnt_slash
+	./resources/convertGeo.sh fnt_semicolon
+	./resources/convertGeo.sh fnt_quote
 
 intro:
 	./resources/convertGeo.sh intro_square

@@ -2,3 +2,4 @@ profiling:            False
 executable-profiling: False
 library-profiling:    False
 library-profiling:    False
+optimization:         2

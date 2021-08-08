@@ -22,7 +22,7 @@ import SDL                hiding ( Point
                                  , (*^)
                                  , _xyz)
 
-import Graphics.Rendering.OpenGL ( PrimitiveMode(..))
+import Graphics.Rendering.OpenGL ( PrimitiveMode(..), Color4 (Color4), pointSize)
 
 import System.Environment       (getArgs)
 import Unsafe.Coerce
@@ -74,8 +74,12 @@ animate window sf =
             
             R.render
               lastInteraction
-              R.OpenGL
-              (BackendOptions { primitiveMode = Triangles})
+              R.OpenGL (
+              BackendOptions
+               { primitiveMode = Triangles
+               , bgrColor      = Color4 1.0 0.0 0.0 1.0
+               , ptSize        = 3.0
+               })
               window
               app
             return shouldExit

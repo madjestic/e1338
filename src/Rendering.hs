@@ -70,6 +70,8 @@ data BackendOptions
   =  BackendOptions
      {
        primitiveMode :: PrimitiveMode -- Triangles | Points
+     , bgrColor      :: Color4 GLfloat
+     , ptSize        :: Float
      } deriving Show
 
 data Drawable
@@ -175,7 +177,7 @@ render lastInteraction Rendering.OpenGL opts window application =
   do
     let app = (fromApplication application)
 
-    GL.clearColor $= Color4 0.0 0.0 0.0 1.0
+    GL.clearColor $= bgrColor opts --Color4 0.0 0.0 0.0 1.0
     GL.clear [ColorBuffer, DepthBuffer]
 
     ticks   <- SDL.ticks
@@ -193,12 +195,12 @@ render lastInteraction Rendering.OpenGL opts window application =
         hmap    = _hmap application
 
     mapM_ (draw txs hmap (opts { primitiveMode = Triangles }) window) objsDrs
-    mapM_ (draw txs hmap (opts { primitiveMode = Points })    window) bgrsDrs
+    mapM_ (draw txs hmap (opts { primitiveMode = Points }) window) bgrsDrs
 
 -- | render FPS
     currentTime <- SDL.time
     dt <- (currentTime -) <$> readMVar lastInteraction
-    _ <- drawString (draw txs hmap opts window) fntsDrs $ show $ round (1/dt)
+    drawString (draw txs hmap (opts { primitiveMode = Triangles }) window) fntsDrs $ show $ round (1/dt)
 
     SDL.glSwapWindow window
 
@@ -212,17 +214,17 @@ drawString cmds fntsDrs str =
 format :: [Drawable] -> [Drawable]
 format drs = drw
   where
-    drw = fmap offsetChar (zip drs [0..])
+    drw = fmap formatting (zip drs [0..])
 
-offsetChar :: (Drawable, Int) -> Drawable
-offsetChar (drw, offset) = drw'
+formatting :: (Drawable, Int) -> Drawable
+formatting (drw, offset) = drw'
   where
     uns  = view uniforms drw
     rot0 = view _m33 (view (uniforms . u_xform) drw)
     tr0  = view translation (view (uniforms . u_xform) drw)
     s1    = 0.035 -- scale Offset
-    s2    = 0.08  -- scale Size
-    h     = -0.05 -- horizontal offset
+    s2    = 1.0   -- scale Size
+    h     = 0.05  -- horizontal offset
     v     = 0.9   -- vertical   offset
     offsetM44 =
       mkTransformationMat
@@ -237,25 +239,25 @@ drawableString drs str = drws
     drws = fmap (drawableChar drs) str
 
 -- | Alphabet of drawables -> Char -> a drawable char
--- drawableChar :: [Drawable] -> Char -> Drawable
--- drawableChar drs chr =
---   case chr of
---     '0' -> head drs
---     '1' -> drs!!1
---     '2' -> drs!!2
---     '3' -> drs!!3
---     '4' -> drs!!4
---     '5' -> drs!!5
---     '6' -> drs!!6
---     '7' -> drs!!7
---     '8' -> drs!!8
---     '9' -> drs!!9
---     _   -> head drs
-
 drawableChar :: [Drawable] -> Char -> Drawable
 drawableChar drs chr =
   case chr of
-    _   -> head drs
+    '0' -> head drs
+    '1' -> drs!!1
+    '2' -> drs!!2
+    '3' -> drs!!3
+    '4' -> drs!!4
+    '5' -> drs!!5
+    '6' -> drs!!6
+    '7' -> drs!!7
+    '8' -> drs!!8
+    '9' -> drs!!9
+    _   -> drs!!1 -- head drs
+
+-- drawableChar :: [Drawable] -> Char -> Drawable
+-- drawableChar drs chr =
+--   case chr of
+--     _   -> head drs
 
 draw :: [Texture] -> [(UUID, GLuint)] ->  BackendOptions -> SDL.Window -> Drawable -> IO ()
 draw txs hmap opts window (Drawable name unis (Descriptor vao' numIndices') prog) =
@@ -266,7 +268,7 @@ draw txs hmap opts window (Drawable name unis (Descriptor vao' numIndices') prog
     bindVertexArrayObject $= Just vao'
     drawElements (primitiveMode opts) numIndices' GL.UnsignedInt nullPtr
 
-    GL.pointSize $= 0.001
+    GL.pointSize $= ptSize opts --0.001
     --GL.pointSmooth $= Enabled
 
     cullFace  $= Just Back
