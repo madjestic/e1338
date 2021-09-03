@@ -28,11 +28,10 @@ import Data.List.Split                        (splitOn)
 import Data.List                              (sort)
 import Foreign.C
 import Foreign.Marshal.Array                  (withArray)
-import Foreign.Ptr                            (plusPtr, nullPtr)
+import Foreign.Ptr                            (plusPtr, nullPtr, Ptr(..))
 import Foreign.Storable                       (sizeOf)
 import Graphics.Rendering.OpenGL as GL hiding (color, normal, Size)
 import SDL                             hiding (Point, Event, Timer, (^+^), (*^), (^-^), dot, project, Texture)
-import Graphics.GLUtil                        (readTexture, texture2DWrap)
 import Linear.Vector
 import Linear.Matrix
 import Data.Foldable     as DF (toList)
@@ -52,6 +51,12 @@ import Mouse
 import Project                 (Project)
 import Texture           as T
 import Utils
+
+import Data.Massiv.Array.Mutable as AM
+import Data.Massiv.Array as A                 (getComp, makeArray, withPtr, size, D, S, Ix2 ((:.)), Array, Sz2(..), Sz (Sz2, Sz))
+import Data.Word                              (Word8)
+import Graphics.GLUtil.Textures               (loadTexture, texInfo, TexInfo)
+import Graphics.GLUtil                        (readTexture, texture2DWrap, TexColor(..))
 
 import Debug.Trace as DT
 
@@ -206,6 +211,43 @@ render lastInteraction Rendering.OpenGL opts window application =
 
 render _ Vulkan _ _ _ = undefined
 
+drawGraph :: Int -> MArray RealWorld S Ix2 Word8 -> Array S Ix2 Word8 -> IO ()
+drawGraph s mArr arr = do
+  computeInto mArr $ pixelGrid s arr
+  A.withPtr mArr $ \ptr -> do
+    -- genTex (sizeFromSz2 (AM.sizeOfMArray mArr)) (PixelData Luminance UnsignedByte ptr)
+    -- genTex (sizeFromSz2 (AM.sizeOfMArray mArr)) ptr
+    tex <- genTex (AM.sizeOfMArray mArr) ptr
+    drawPixelGrid tex -- like draw in e1338
+  return ()
+
+genTex :: Sz2 -> Ptr Word8 -> IO TextureObject
+genTex s ptr = do
+  -- TODO: convert array (of pixel data) into a TexInfo object (feed it to OpenGL Texture Object)
+  -- https://hackage.haskell.org/package/GLUtil-0.10.4/docs/src/Graphics.GLUtil.JuicyTextures.html#readTexture
+  -- https://hackage.haskell.org/package/GLUtil-0.10.4/docs/Graphics-GLUtil-Textures.html#t:TexInfo
+  -- https://hackage.haskell.org/package/OpenGL-3.0.3.0/docs/Graphics-Rendering-OpenGL-GL-Texturing-Objects.html#t:TextureObject
+  let txInfo = texInfo w h TexMono ptr :: TexInfo (Ptr Word8) -- -> TextureObject
+  -- https://hackage.haskell.org/package/GLUtil-0.10.4/docs/Graphics-GLUtil-Textures.html#v:loadTexture
+  tex <- loadTexture txInfo :: IO TextureObject
+  return tex
+      where (A.Sz2 w h) = s
+
+drawPixelGrid :: TextureObject -> IO ()
+drawPixelGrid tx = do
+  return undefined
+
+pixelGrid :: Int -> Array S Ix2 Word8 -> Array D Ix2 Word8
+pixelGrid k8 arr = A.makeArray (getComp arr) sz' getNewElt
+  where
+    k = succ k8
+    Sz (n :. m) = size arr
+    sz' = Sz (1 + m * k :. 1 + n * k)
+    getNewElt (j :. i) =
+      if i `mod` k == 0 || j `mod` k == 0
+        then 128
+        else 1 -- (1 - AU.unsafeIndex arr ((i - 1) `div` k :. (j - 1) `div` k)) * 255
+
 drawString :: (Drawable -> IO ()) -> [Drawable] -> String -> IO ()
 drawString cmds fntsDrs str =
     mapM_ cmds $ format $ drawableString fntsDrs "Hello, World!"--str
@@ -301,13 +343,13 @@ draw txs hmap opts window (Drawable name unis (Descriptor vao' numIndices') prog
   do
     -- print $ "draw.name : " ++ name
     initUniforms txs unis hmap
-
     bindVertexArrayObject $= Just vao'
-    drawElements (primitiveMode opts) numIndices' GL.UnsignedInt nullPtr
 
     GL.pointSize $= ptSize opts --0.001
     --GL.pointSmooth $= Enabled
 
+    drawElements (primitiveMode opts) numIndices' GL.UnsignedInt nullPtr
+    
     cullFace  $= Just Back
     depthFunc $= Just Less
 

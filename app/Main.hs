@@ -3,6 +3,7 @@
 {-# LANGUAGE OverloadedStrings, Arrows #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE RankNTypes #-}
 
 module Main where 
 
@@ -85,6 +86,7 @@ animate window sf =
             return shouldExit
 
 -- < Main Function > -----------------------------------------------------------
+
 main :: IO ()
 main = do
 
