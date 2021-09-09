@@ -9,11 +9,15 @@ module Rendering
   ( openWindow
   , closeWindow
   , draw
+  , drawGraph
   , initVAO
   , initUniforms
-  , initResources  
-  , bindTexureUniforms
+--  , initResources  
+--  , bindTexureUniforms
+  , bindTexture
+  , bindTextureObject
   , render
+  , pixelGrid
   , Backend (..)
   , BackendOptions (..)
   ) where
@@ -46,6 +50,7 @@ import Object            as O
 import Camera            as C
 import Controllable
 import Descriptor
+import Graph
 import Material          as M
 import Mouse
 import Project                 (Project)
@@ -211,31 +216,26 @@ render lastInteraction Rendering.OpenGL opts window application =
 
 render _ Vulkan _ _ _ = undefined
 
-drawGraph :: Int -> MArray RealWorld S Ix2 Word8 -> Array S Ix2 Word8 -> IO ()
-drawGraph s mArr arr = do
+drawGraph :: Int -> Graph -> IO ()
+drawGraph s g = do
+  let mArr = view marray g
+      arr  = view array g
   computeInto mArr $ pixelGrid s arr
   A.withPtr mArr $ \ptr -> do
-    -- genTex (sizeFromSz2 (AM.sizeOfMArray mArr)) (PixelData Luminance UnsignedByte ptr)
-    -- genTex (sizeFromSz2 (AM.sizeOfMArray mArr)) ptr
     tex <- genTex (AM.sizeOfMArray mArr) ptr
-    drawPixelGrid tex -- like draw in e1338
+    drawPixelGrid tex
   return ()
 
-genTex :: Sz2 -> Ptr Word8 -> IO TextureObject
-genTex s ptr = do
-  -- TODO: convert array (of pixel data) into a TexInfo object (feed it to OpenGL Texture Object)
-  -- https://hackage.haskell.org/package/GLUtil-0.10.4/docs/src/Graphics.GLUtil.JuicyTextures.html#readTexture
-  -- https://hackage.haskell.org/package/GLUtil-0.10.4/docs/Graphics-GLUtil-Textures.html#t:TexInfo
-  -- https://hackage.haskell.org/package/OpenGL-3.0.3.0/docs/Graphics-Rendering-OpenGL-GL-Texturing-Objects.html#t:TextureObject
-  let txInfo = texInfo w h TexMono ptr :: TexInfo (Ptr Word8) -- -> TextureObject
-  -- https://hackage.haskell.org/package/GLUtil-0.10.4/docs/Graphics-GLUtil-Textures.html#v:loadTexture
-  tex <- loadTexture txInfo :: IO TextureObject
-  return tex
-      where (A.Sz2 w h) = s
-
+-- TODO: draws a square with a default material, using generated texture graph as a texture
 drawPixelGrid :: TextureObject -> IO ()
 drawPixelGrid tx = do
-  return undefined
+  draw txs hmap opts win drw
+    where
+      txs  = undefined
+      hmap = undefined
+      opts = undefined 
+      win  = undefined 
+      drw  = undefined 
 
 pixelGrid :: Int -> Array S Ix2 Word8 -> Array D Ix2 Word8
 pixelGrid k8 arr = A.makeArray (getComp arr) sz' getNewElt
@@ -374,17 +374,29 @@ initResources app0 =
         fgrObjs   = concat $ toListOf (App.objects . O.foreground)  (_main app0)  :: [Object]
         bgrObjs   = concat $ toListOf (App.objects . O.background)  (_main app0)  :: [Object]
     
-bindTexureUniforms :: [Object] -> IO [(UUID, GLuint)]
-bindTexureUniforms objs =
-  do
-    print "Loading Textures..."
-    mapM_ (bindTexture hmap) txs
-    print "Finished loading textures."
-    return hmap
-      where
-        txs   = concat $ concatMap (toListOf (materials . traverse . M.textures)) objs
-        uuids = fmap (view uuid) txs
-        hmap     = zip uuids [0..]
+-- bindTexureUniforms :: [Object] -> IO [(UUID, GLuint)]
+-- bindTexureUniforms objs =
+--   do
+--     print "Loading Textures..."
+--     -- tx0s <- mapM (loadTex . view path) txs
+--     mapM_ (bindTexture hmap) txs
+--     print "Finished loading textures."
+--     return hmap
+--       where
+--         txs   = concat $ concatMap (toListOf (materials . traverse . M.textures)) objs
+--         uuids = fmap (view uuid) txs
+--         hmap     = zip uuids [0..]
+-- -- bindTexture :: [(UUID, GLuint)] -> TextureObject -> IO ()
+
+bindTextureObject :: GLuint -> TextureObject -> IO ()
+bindTextureObject txid tx0 = do
+  putStrLn $ "Binding Texture Object : " ++ show tx0 ++ "at TextureUnit : " ++ show txid
+  texture Texture2D        $= Enabled
+  activeTexture            $= TextureUnit txid
+  -- tx0 <- loadTex $ view path tx --TODO : replace that with a hashmap lookup?
+  textureBinding Texture2D $= Just tx0
+    -- where
+    --   txid = fromMaybe 0 (lookup (view uuid tx) hmap)
 
 bindTexture :: [(UUID, GLuint)] -> Texture -> IO ()
 bindTexture hmap tx =
@@ -398,6 +410,11 @@ bindTexture hmap tx =
     textureBinding Texture2D $= Just tx0
       where
         txid = fromMaybe 0 (lookup (view uuid tx) hmap)
+
+-- initUniforms :: [TextureObject] -> Uniforms -> [(UUID, GLuint)] -> IO ()
+-- ...
+--       mapM_ (allocateTextures program hmap) txs
+-- allocateTextures :: Program -> [(UUID, GLuint)] -> Texture -> IO ()      
 
 initUniforms :: [Texture] -> Uniforms -> [(UUID, GLuint)] -> IO ()
 initUniforms txs unis hmap =
@@ -551,3 +568,15 @@ loadTex f =
     blendFunc $= (SrcAlpha, OneMinusSrcAlpha)
     generateMipmap' Texture2D
     return t
+
+genTex :: Sz2 -> Ptr Word8 -> IO TextureObject
+genTex s ptr = do
+  -- TODO: convert array (of pixel data) into a TexInfo object (feed it to OpenGL Texture Object)
+  -- https://hackage.haskell.org/package/GLUtil-0.10.4/docs/src/Graphics.GLUtil.JuicyTextures.html#readTexture
+  -- https://hackage.haskell.org/package/GLUtil-0.10.4/docs/Graphics-GLUtil-Textures.html#t:TexInfo
+  -- https://hackage.haskell.org/package/OpenGL-3.0.3.0/docs/Graphics-Rendering-OpenGL-GL-Texturing-Objects.html#t:TextureObject
+  let txInfo = texInfo w h TexMono ptr :: TexInfo (Ptr Word8) -- -> TextureObject
+  -- https://hackage.haskell.org/package/GLUtil-0.10.4/docs/Graphics-GLUtil-Textures.html#v:loadTexture
+  tex <- loadTexture txInfo :: IO TextureObject
+  return tex
+      where (A.Sz2 w h) = s

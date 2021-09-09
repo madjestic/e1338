@@ -25,10 +25,12 @@ import Rendering
 import Application
 import Data.UUID    (nil)
 import Data.UUID.V1 (nextUUID)
+
 import qualified App
 import Object as O
-import Data.Maybe (fromMaybe)
 import Control.Lens.Fold (toListOf)
+import Data.Maybe (fromMaybe)
+import Graph
 
 graphRules :: Word8 -> Word8 -> Word8
 graphRules 0 3 = 1
@@ -139,20 +141,17 @@ initResources app0 gph = do
     putStrLn "Initializing Resources..."
     putStrLn "Generating Textures..."
     -- mapM_ (bindTextureObject hmap) txs
-    -- bindTextureObject (0::GLuint) 
+    -- generate and bind texture:
+    bindTextureObject (0::GLuint) tx
     putStrLn "Finished loading textures."
 
     return app0 { _hmap = hmap }
       where
+        tx = undefined
         introObjs = concat $ toListOf (App.objects . O.foreground)  (_intro app0) :: [Object]
         fntObjs   = concat $ toListOf (App.objects . gui . O.fonts) (_main app0)  :: [Object]
         fgrObjs   = concat $ toListOf (App.objects . O.foreground)  (_main app0)  :: [Object]
         bgrObjs   = concat $ toListOf (App.objects . O.background)  (_main app0)  :: [Object]
-
-data Graph
-  =  Graph
-  { array  :: Array S Ix2 Word8
-  , marray :: MArray RealWorld S Ix2 Word8 }
 
 main :: IO ()
 main = do
@@ -194,9 +193,10 @@ main = do
   -- init a Mutable Array for storing graph data
   mArr   <- newMArray' wSz :: IO (MArray RealWorld S Ix2 Word8)
   window <- openWindow (pack title) (mc, nc)
-  drawGraph s mArr inf2
-    where
+  let g = Graph inf2 mArr
       s = 1 :: Int
+  drawGraph s g
+      
   -- return ()
   -- mainLoop opts window s sz mArr iGraph
   -- where
