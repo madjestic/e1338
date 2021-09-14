@@ -1,5 +1,8 @@
 #!/bin/sh
 
+cabal build exe:Grapher
+cabal run +RTS -xnc -sstderr -RTS exe:Grapher ./projects/intro ./projects/view_model
+
 # N-body, gravity solver test
 # cabal build exe:e1338
 # cabal run +RTS -sstderr -RTS e1338 ./projects/3body ./projects/3body
@@ -12,15 +15,15 @@
 # cabal build exe:e1338
 # cabal run +RTS -sstderr -RTS e1338 ./projects/intro_XXII ./projects/solar_system
 
-# Solar System Animated
-cabal build exe:e1338
-# cabal run e1338 ./projects/intro_XXII ./projects/solar_system_animated_nointro
-# cabal run e1338 ./projects/intro_XXII ./projects/solar_system_animated
-## Concurrent GC:
-# cabal run +RTS -xn -xc -sstderr -RTS e1338 ./projects/intro_XXII ./projects/solar_system_animated
-# cabal run +RTS -xnc -sstderr -RTS e1338 ./projects/intro_XXII ./projects/solar_system_animated
-# cabal run +RTS -xnc -sstderr -RTS e1338 ./projects/intro_XXII ./projects/intro_XXII
-# cabal run +RTS -xnc -sstderr -RTS e1338 ./projects/test ./projects/test
-# cabal run +RTS -xnc -sstderr -RTS e1338 ./projects/intro ./projects/green_box
-cabal run +RTS -xnc -sstderr -RTS e1338 ./projects/intro ./projects/2objects 
+# # Solar System Animated
+# cabal build exe:e1338
+# # cabal run e1338 ./projects/intro_XXII ./projects/solar_system_animated_nointro
+# # cabal run e1338 ./projects/intro_XXII ./projects/solar_system_animated
+# ## Concurrent GC:
+# # cabal run +RTS -xn -xc -sstderr -RTS e1338 ./projects/intro_XXII ./projects/solar_system_animated
+# # cabal run +RTS -xnc -sstderr -RTS e1338 ./projects/intro_XXII ./projects/solar_system_animated
+# # cabal run +RTS -xnc -sstderr -RTS e1338 ./projects/intro_XXII ./projects/intro_XXII
+# # cabal run +RTS -xnc -sstderr -RTS e1338 ./projects/test ./projects/test
+# # cabal run +RTS -xnc -sstderr -RTS e1338 ./projects/intro ./projects/green_box
+# cabal run +RTS -xnc -sstderr -RTS e1338 ./projects/intro ./projects/2objects 
 

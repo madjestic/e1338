@@ -24,31 +24,29 @@ library
   hs-source-dirs:
                 src
   build-depends:
-                base                 ^>= 4.14
-              , aeson                ^>= 1.4.7.1
-              , aeson-pretty         ^>= 0.8.8
-              , bearriver            ^>= 0.13.1.2
-              , bytestring           ^>= 0.10.8.2
-              , containers           ^>= 0.6.2.1
-              , GLUtil               ^>= 0.10.3
-              , ilist                ^>= 0.2.0.0
-              , lens                 ^>= 4.19.1
-              , linear               ^>= 1.20.8
-              , locators             ^>= 0.3.0.3              
-              , massiv               ^>= 0.6.0.0
-              , OpenGL               ^>= 3.0.2.2
-              , random               ^>= 1.2.0              
-              , sdl2                 ^>= 2.5.1.0
-              , simple-affine-space  ^>= 0.1.1
-              , sort                 ^>= 1.0.0.0
-              , split                ^>= 0.2.3.4
-              , store                ^>= 0.7.4
-              , text                 ^>= 1.2.2.2
-            --, Yampa                ^>= 0.13.1
-              , vector               ^>= 0.12.1.2
-              , uuid                 ^>= 1.3.14
-              , unordered-containers ^>= 0.2.13.0
-              , hashable             ^>= 1.3.1.0
+                base                ^>= 4.14
+              , aeson               ^>= 1.4.7.1
+              , aeson-pretty        ^>= 0.8.8
+              , bearriver           ^>= 0.13.1.2
+              , bytestring          ^>= 0.10.8.2
+              , containers          ^>= 0.6.2.1
+              , GLUtil              ^>= 0.10.3
+              , ilist               ^>= 0.2.0.0
+              , lens                ^>= 4.19.1
+              , linear              ^>= 1.20.8
+              , locators            ^>= 0.3.0.3              
+              , massiv              ^>= 1.0.0.0
+              , OpenGL              ^>= 3.0.2.2
+              , random              ^>= 1.2.0              
+              , sdl2                ^>= 2.5.1.0
+              , simple-affine-space ^>= 0.1.1
+              , sort                ^>= 1.0.0.0
+              , split               ^>= 0.2.3.4
+              , store               ^>= 0.7.4
+              , text                ^>= 1.2.2.2
+              --, Yampa               ^>= 0.13.1
+              , vector              ^>= 0.12.1.2
+              , uuid                ^>= 1.3.14
   
   exposed-modules:
                 AppInput
@@ -76,6 +74,44 @@ library
               , Mouse
   default-language:
                 Haskell2010
+
+executable Grapher
+  main-is:             Grapher.hs
+  hs-source-dirs:
+                       app
+                     , src
+  ghc-options:   -O2 -threaded -fprof-auto -fprof-cafs "-with-rtsopts=-N -p -s -h -i0.1 -xc"
+  cpp-options:   -DDEBUG  
+  build-depends:
+                       base                ^>= 4.14
+                     , aeson               ^>= 1.4.7.1
+                     , aeson-pretty        ^>= 0.8.8                     
+                     , bearriver           ^>= 0.13.1.2
+                     , bytestring          ^>= 0.10.8.2
+                     , containers          ^>= 0.6.2.1                     
+                     , ilist               ^>= 0.2.0.0                     
+                     , lens                ^>= 4.19.1
+                     , linear              ^>= 1.20.8
+                     , locators            ^>= 0.3.0.3                     
+                     , massiv              ^>= 1.0.0.0
+                     , random              ^>= 1.2.0
+                     , vector
+                     , GLUT
+                     , GLUtil
+                     , OpenGL
+                     , sdl2
+                     , simple-affine-space ^>= 0.1.1                     
+                     , splitmix
+                     , split               ^>= 0.2.3.4                     
+                     , sort                ^>= 1.0.0.0                     
+                     , store               ^>= 0.7.4                     
+                     , text                ^>= 1.2.5.0
+                     , uuid                ^>= 1.3.14
+  other-modules:
+                Paths_e1338
+              , Rendering
+  default-language:    Haskell2010
+                
                                                                            
 executable e1338
   main-is:      Main.hs
@@ -85,32 +121,30 @@ executable e1338
   ghc-options:   -O2 -threaded -fprof-auto -fprof-cafs "-with-rtsopts=-N -p -s -h -i0.1 -xc"
   cpp-options:   -DDEBUG
   build-depends:
-                base                 ^>= 4.14
-              , aeson                ^>= 1.4.7.1
-              , aeson-pretty         ^>= 0.8.8
-              , bearriver            ^>= 0.13.1.2
-              , bytestring           ^>= 0.10.8.2
-              , containers           ^>= 0.6.2.1
-              , GLUtil               ^>= 0.10.3
-              , hmatrix              ^>= 0.20.0.0
-              , ilist                ^>= 0.2.0.0
-              , lens                 ^>= 4.19.1
-              , linear               ^>= 1.20.8
-              , locators             ^>= 0.3.0.3
-              , massiv               ^>= 0.6.0.0
-              , OpenGL               ^>= 3.0.2.2
-              , random               ^>= 1.2.0              
-              , sdl2                 ^>= 2.5.1.0
-              , split                ^>= 0.2.3.4
-              , store                ^>= 0.7.4
-              , text                 ^>= 1.2.2.2
-            --, Yampa                ^>= 0.13.1
-              , simple-affine-space  ^>= 0.1.1
-              , sort                 ^>= 1.0.0.0
-              , vector               ^>= 0.12.1.2
-              , uuid                 ^>= 1.3.14
-              , unordered-containers ^>= 0.2.13.0
-              , hashable             ^>= 1.3.1.0
+                       base                ^>= 4.14
+                     , aeson               ^>= 1.4.7.1
+                     , aeson-pretty        ^>= 0.8.8
+                     , bearriver           ^>= 0.13.1.2
+                     , bytestring          ^>= 0.10.8.2
+                     , containers          ^>= 0.6.2.1
+                     , GLUtil              ^>= 0.10.3
+                     , hmatrix             ^>= 0.20.0.0
+                     , ilist               ^>= 0.2.0.0
+                     , lens                ^>= 4.19.1
+                     , linear              ^>= 1.20.8
+                     , locators            ^>= 0.3.0.3
+                     , massiv              ^>= 1.0.0.0
+                     , OpenGL              ^>= 3.0.2.2
+                     , random              ^>= 1.2.0              
+                     , sdl2                ^>= 2.5.1.0
+                     , split               ^>= 0.2.3.4
+                     , store               ^>= 0.7.4
+                     , text                ^>= 1.2.2.2
+                     --, Yampa             ^>= 0.13.1
+                     , simple-affine-space ^>= 0.1.1
+                     , sort                ^>= 1.0.0.0
+                     , vector              ^>= 0.12.1.2
+                     , uuid                ^>= 1.3.14
 
   other-modules:
                 Paths_e1338
@@ -263,7 +297,7 @@ executable geoIndexer
               , lens                 ^>= 4.19.1
               , linear               ^>= 1.20.8
               , locators             ^>= 0.3.0.3              
-              , massiv               ^>= 0.6.0.0
+              , massiv               ^>= 1.0.0.0
               , optparse-applicative ^>= 0.15.1.0
               , random               ^>= 1.2.0                            
               , store                ^>= 0.7.4
@@ -308,7 +342,7 @@ executable rpcShuffler
               , store               ^>= 0.7.4
               , simple-affine-space ^>= 0.1.1
               , linear              ^>= 1.20.8
-              , massiv              ^>= 0.6.0.0
+              , massiv              ^>= 1.0.0.0
               , vector              ^>= 0.12.1.2
               , uuid                ^>= 1.3.14
               

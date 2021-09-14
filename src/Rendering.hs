@@ -14,10 +14,12 @@ module Rendering
   , initUniforms
 --  , initResources  
 --  , bindTexureUniforms
+  , genTexObject
   , bindTexture
   , bindTextureObject
   , render
   , pixelGrid
+  , loadTex
   , Backend (..)
   , BackendOptions (..)
   ) where
@@ -65,11 +67,11 @@ import Graphics.GLUtil                        (readTexture, texture2DWrap, TexCo
 
 import Debug.Trace as DT
 
-#ifdef MDEBUG
+
 debug = True
-#else
-debug = False
-#endif
+
+
+
 
 
 data Backend
@@ -226,6 +228,15 @@ drawGraph s g = do
     drawPixelGrid tex
   return ()
 
+genTexObject :: Int -> Graph -> IO TextureObject
+genTexObject s g = do
+  let mArr = view marray g
+      arr  = view array g
+  -- computeInto mArr arr-- $ pixelGrid s arr
+  A.withPtr mArr $ \ptr -> do
+    genTex (AM.sizeOfMArray mArr) ptr
+    --genTex (view sz g) ptr
+
 -- TODO: draws a square with a default material, using generated texture graph as a texture
 drawPixelGrid :: TextureObject -> IO ()
 drawPixelGrid tx = do
@@ -233,9 +244,9 @@ drawPixelGrid tx = do
     where
       txs  = undefined
       hmap = undefined
-      opts = undefined 
-      win  = undefined 
-      drw  = undefined 
+      opts = undefined
+      win  = undefined
+      drw  = undefined
 
 pixelGrid :: Int -> Array S Ix2 Word8 -> Array D Ix2 Word8
 pixelGrid k8 arr = A.makeArray (getComp arr) sz' getNewElt
@@ -247,6 +258,17 @@ pixelGrid k8 arr = A.makeArray (getComp arr) sz' getNewElt
       if i `mod` k == 0 || j `mod` k == 0
         then 128
         else 1 -- (1 - AU.unsafeIndex arr ((i - 1) `div` k :. (j - 1) `div` k)) * 255
+
+-- pixelGrid :: Int -> Array S Ix2 Word8 -> Array D Ix2 Word8
+-- pixelGrid k8 arr = A.makeArray (getComp arr) sz' getNewElt
+--   where
+--     k = succ k8
+--     Sz (n :. m) = size arr
+--     sz' = Sz (1 + m * k :. 1 + n * k)
+--     getNewElt (j :. i) =
+--       if i `mod` k == 0 || j `mod` k == 0
+--         then 128
+--         else 1 -- (1 - AU.unsafeIndex arr ((i - 1) `div` k :. (j - 1) `div` k)) * 255
 
 drawString :: (Drawable -> IO ()) -> [Drawable] -> String -> IO ()
 drawString cmds fntsDrs str =
@@ -349,31 +371,31 @@ draw txs hmap opts window (Drawable name unis (Descriptor vao' numIndices') prog
     --GL.pointSmooth $= Enabled
 
     drawElements (primitiveMode opts) numIndices' GL.UnsignedInt nullPtr
-    
+
     cullFace  $= Just Back
     depthFunc $= Just Less
 
-initResources :: Application -> IO Application
-initResources app0 =
-  do
-    let
-      objs = introObjs ++ fntObjs ++ fgrObjs ++ bgrObjs
-      txs  = concat $ concatMap (toListOf (materials . traverse . M.textures)) objs :: [Texture]
-      uuids = fmap (view uuid) txs
-      hmap = zip uuids [0..] -- TODO: reserve 0 for font rendering?
+-- initResources :: Application -> IO Application
+-- initResources app0 =
+--   do
+--     let
+--       objs = introObjs ++ fntObjs ++ fgrObjs ++ bgrObjs
+--       txs  = concat $ concatMap (toListOf (materials . traverse . M.textures)) objs :: [Texture]
+--       uuids = fmap (view uuid) txs
+--       hmap = zip uuids [0..] -- TODO: reserve 0 for font rendering?
 
-    putStrLn "Initializing Resources..."
-    putStrLn "Loading Textures..."
-    mapM_ (bindTexture hmap) txs
-    putStrLn "Finished loading textures."
-    
-    return app0 { _hmap = hmap }
-      where
-        introObjs = concat $ toListOf (App.objects . O.foreground)  (_intro app0) :: [Object]
-        fntObjs   = concat $ toListOf (App.objects . gui . O.fonts) (_main app0)  :: [Object]
-        fgrObjs   = concat $ toListOf (App.objects . O.foreground)  (_main app0)  :: [Object]
-        bgrObjs   = concat $ toListOf (App.objects . O.background)  (_main app0)  :: [Object]
-    
+--     putStrLn "Initializing Resources..."
+--     putStrLn "Loading Textures..."
+--     mapM_ (bindTexture hmap) txs
+--     putStrLn "Finished loading textures."
+
+--     return app0 { _hmap = hmap }
+--       where
+--         introObjs = concat $ toListOf (App.objects . O.foreground)  (_intro app0) :: [Object]
+--         fntObjs   = concat $ toListOf (App.objects . gui . O.fonts) (_main app0)  :: [Object]
+--         fgrObjs   = concat $ toListOf (App.objects . O.foreground)  (_main app0)  :: [Object]
+--         bgrObjs   = concat $ toListOf (App.objects . O.background)  (_main app0)  :: [Object]
+
 -- bindTexureUniforms :: [Object] -> IO [(UUID, GLuint)]
 -- bindTexureUniforms objs =
 --   do
@@ -390,7 +412,7 @@ initResources app0 =
 
 bindTextureObject :: GLuint -> TextureObject -> IO ()
 bindTextureObject txid tx0 = do
-  putStrLn $ "Binding Texture Object : " ++ show tx0 ++ "at TextureUnit : " ++ show txid
+  putStrLn $ "Binding Texture Object : " ++ show tx0 ++ " at TextureUnit : " ++ show txid
   texture Texture2D        $= Enabled
   activeTexture            $= TextureUnit txid
   -- tx0 <- loadTex $ view path tx --TODO : replace that with a hashmap lookup?
@@ -403,7 +425,7 @@ bindTexture hmap tx =
   do
     -- print $ "bindTexture.tx   : " ++ show tx
     -- print $ "bindTexture.txid : " ++ show txid
-    putStrLn $ "Binding Texture : " ++ show tx ++ "at TextureUnit : " ++ show txid
+    putStrLn $ "Binding Texture : " ++ show tx ++ " at TextureUnit : " ++ show txid
     texture Texture2D        $= Enabled
     activeTexture            $= TextureUnit txid
     tx0 <- loadTex $ view path tx --TODO : replace that with a hashmap lookup?
@@ -575,8 +597,16 @@ genTex s ptr = do
   -- https://hackage.haskell.org/package/GLUtil-0.10.4/docs/src/Graphics.GLUtil.JuicyTextures.html#readTexture
   -- https://hackage.haskell.org/package/GLUtil-0.10.4/docs/Graphics-GLUtil-Textures.html#t:TexInfo
   -- https://hackage.haskell.org/package/OpenGL-3.0.3.0/docs/Graphics-Rendering-OpenGL-GL-Texturing-Objects.html#t:TextureObject
-  let txInfo = texInfo w h TexMono ptr :: TexInfo (Ptr Word8) -- -> TextureObject
+  -- let txInfo = texInfo w h TexMono ptr :: TexInfo (Ptr Word8) -- -> TextureObject
+  let txInfo = texInfo w h TexRGBA ptr :: TexInfo (Ptr Word8)
+      (A.Sz2 w h) = s
+  --let txInfo = texInfo 100 100 TexMono ptr :: TexInfo (Ptr Word8) -- -> TextureObject
   -- https://hackage.haskell.org/package/GLUtil-0.10.4/docs/Graphics-GLUtil-Textures.html#v:loadTexture
-  tex <- loadTexture txInfo :: IO TextureObject
-  return tex
-      where (A.Sz2 w h) = s
+  t <- loadTexture txInfo -- :: IO TextureObject
+  texture2DWrap $= (Repeated, ClampToEdge)
+  textureFilter  Texture2D $= ((Linear', Just Nearest), Linear')
+  blend $= Enabled
+  blendFunc $= (SrcAlpha, OneMinusSrcAlpha)
+  generateMipmap' Texture2D
+  return t
+      --where (A.Sz2 w h) = s
