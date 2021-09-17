@@ -9,7 +9,7 @@ module Rendering
   ( openWindow
   , closeWindow
   , draw
-  , drawGraph
+--  , drawGraph
   , initVAO
   , initUniforms
 --  , initResources  
@@ -18,7 +18,7 @@ module Rendering
   , bindTexture
   , bindTextureObject
   , render
-  , pixelGrid
+--  , pixelGrid
   , loadTex
   , Backend (..)
   , BackendOptions (..)
@@ -218,46 +218,47 @@ render lastInteraction Rendering.OpenGL opts window application =
 
 render _ Vulkan _ _ _ = undefined
 
-drawGraph :: Int -> Graph -> IO ()
-drawGraph s g = do
-  let mArr = view marray g
-      arr  = view array g
-  computeInto mArr $ pixelGrid s arr
-  A.withPtr mArr $ \ptr -> do
-    tex <- genTex (AM.sizeOfMArray mArr) ptr
-    drawPixelGrid tex
-  return ()
+-- drawGraph :: Int -> Graph -> IO ()
+-- drawGraph s g = do
+--   let mArr = view marray g
+--       arr  = view array g
+--   computeInto mArr $ pixelGrid s arr
+--   A.withPtr mArr $ \ptr -> do
+--     tex <- genTex (AM.sizeOfMArray mArr) ptr
+--     drawPixelGrid tex
+--   return ()
 
 genTexObject :: Int -> Graph -> IO TextureObject
 genTexObject s g = do
   let mArr = view marray g
       arr  = view array g
-  -- computeInto mArr arr-- $ pixelGrid s arr
+  --computeInto mArr arr-- $ pixelGrid s arr
+  --computeInto mArr $ pixelGrid s arr
   A.withPtr mArr $ \ptr -> do
-    genTex (AM.sizeOfMArray mArr) ptr
-    --genTex (view sz g) ptr
+    --genTex (AM.sizeOfMArray mArr) ptr
+    genTex (view sz g) (PixelData Luminance UnsignedByte ptr) --ptr
 
 -- TODO: draws a square with a default material, using generated texture graph as a texture
-drawPixelGrid :: TextureObject -> IO ()
-drawPixelGrid tx = do
-  draw txs hmap opts win drw
-    where
-      txs  = undefined
-      hmap = undefined
-      opts = undefined
-      win  = undefined
-      drw  = undefined
+-- drawPixelGrid :: TextureObject -> IO ()
+-- drawPixelGrid tx = do
+--   draw txs hmap opts win drw
+--     where
+--       txs  = undefined
+--       hmap = undefined
+--       opts = undefined
+--       win  = undefined
+--       drw  = undefined
 
-pixelGrid :: Int -> Array S Ix2 Word8 -> Array D Ix2 Word8
-pixelGrid k8 arr = A.makeArray (getComp arr) sz' getNewElt
-  where
-    k = succ k8
-    Sz (n :. m) = size arr
-    sz' = Sz (1 + m * k :. 1 + n * k)
-    getNewElt (j :. i) =
-      if i `mod` k == 0 || j `mod` k == 0
-        then 128
-        else 1 -- (1 - AU.unsafeIndex arr ((i - 1) `div` k :. (j - 1) `div` k)) * 255
+-- pixelGrid :: Int -> Array S Ix2 Word8 -> Array D Ix2 Word8
+-- pixelGrid k8 arr = A.makeArray (getComp arr) sz' getNewElt
+--   where
+--     k = succ k8
+--     Sz (n :. m) = size arr
+--     sz' = Sz (1 + m * k :. 1 + n * k)
+--     getNewElt (j :. i) =
+--       if i `mod` k == 0 || j `mod` k == 0
+--         then 128
+--         else 1 -- (1 - AU.unsafeIndex arr ((i - 1) `div` k :. (j - 1) `div` k)) * 255
 
 -- pixelGrid :: Int -> Array S Ix2 Word8 -> Array D Ix2 Word8
 -- pixelGrid k8 arr = A.makeArray (getComp arr) sz' getNewElt
@@ -598,7 +599,9 @@ genTex s ptr = do
   -- https://hackage.haskell.org/package/GLUtil-0.10.4/docs/Graphics-GLUtil-Textures.html#t:TexInfo
   -- https://hackage.haskell.org/package/OpenGL-3.0.3.0/docs/Graphics-Rendering-OpenGL-GL-Texturing-Objects.html#t:TextureObject
   -- let txInfo = texInfo w h TexMono ptr :: TexInfo (Ptr Word8) -- -> TextureObject
-  let txInfo = texInfo w h TexRGBA ptr :: TexInfo (Ptr Word8)
+  -- let txInfo = texInfo w h TexRGBA ptr :: TexInfo (Ptr Word8)
+  -- let txInfo = texInfo w h TexRGB ptr :: TexInfo (Ptr Word8)
+  let txInfo = texInfo 128 128 TexRGBA ptr :: TexInfo (Ptr Word8)
       (A.Sz2 w h) = s
   --let txInfo = texInfo 100 100 TexMono ptr :: TexInfo (Ptr Word8) -- -> TextureObject
   -- https://hackage.haskell.org/package/GLUtil-0.10.4/docs/Graphics-GLUtil-Textures.html#v:loadTexture

@@ -5,7 +5,7 @@
     "camMode": "AbsoluteLocation",
     "models": [
         {
-            "path": "models/box.bgeo"
+            "path": "models/intro_square.bgeo"
         }
     ],
     "objects": [
@@ -33,7 +33,7 @@
                     0,
                     0,
                     0,
-                    10000,
+                    0,
                     0
                 ],
                 [

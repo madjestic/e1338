@@ -56,7 +56,7 @@ import qualified Material as M (textures)
 
 import Debug.Trace as DT
 
-debug = False
+debug = True
 
 graphRules :: Word8 -> Word8 -> Word8
 graphRules 0 3 = 1
@@ -104,8 +104,23 @@ inf =
 
 genArray :: Int -> Int -> IO (Array S Ix2 Word8)
 genArray m n = do
-    let lol = unsafeCoerce $ DLS.chunksOf m [ x | x <- [0..(m*n-1)]] :: [[Word8]]
+    let lol = unsafeCoerce $ DLS.chunksOf m [ x | x <- [0..(m*n-1)]] :: [[Word8]] -- lol = list of lists
     fromListsM Seq lol :: IO (Array S Ix2 Word8)
+
+genArray' :: Int -> Int -> IO (Array S Ix2 Int)
+genArray' m n = do
+    let lol = unsafeCoerce $ DLS.chunksOf m [ x | x <- [0..(m*n-1)]] :: [[Int]] -- lol = list of lists
+    fromListsM Seq lol :: IO (Array S Ix2 Int)
+
+genArray'' :: Int -> Int -> IO (Array S Ix2 Word8)
+genArray'' m n = do
+    let lol = unsafeCoerce $ DLS.chunksOf m [ x | x <- [0..(m*n-1)]] :: [[Int]] -- lol = list of lists
+    x <- fromListsM Seq lol :: IO (Array S Ix2 Int)
+    let
+      --x'  = A.map (toEnum . flip mod 2 . abs) x :: Array D Ix2 Word8
+      x'  = A.map (toEnum . const 1) x :: Array D Ix2 Word8
+      x'' = convert x' :: Array S Ix2 Word8
+    return x''
 
 inf2 :: Array S Ix2 Word8
 inf2 =
@@ -298,14 +313,17 @@ main = do
     s      = 0 :: Int
     -- sz     = Sz2 m n
     sz     = Sz2 resx resy
-    graph  = rand resx resy
+    --graph  = rand resx resy
+  graph  <- genArray'' resx resy
+  let
     graphArray = initGraph sz graph --inf2 -- func
     -- wSz    = size (pixelGrid s graphArray)
     wSz = sz
   print $ "wSz :" ++ (show wSz)
 
   -- init a Mutable Array for storing graph data
-  mArr   <- newMArray' wSz :: IO (MArray RealWorld S Ix2 Word8)
+  -- mArr   <- newMArray' wSz :: IO (MArray RealWorld S Ix2 Word8)
+  mArr   <- newMArray wSz 1 :: IO (MArray RealWorld S Ix2 Word8)
   window <- openWindow
             title
             (resX, resY)
