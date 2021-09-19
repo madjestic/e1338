@@ -61,6 +61,7 @@ import Utils
 
 import Data.Massiv.Array.Mutable as AM
 import Data.Massiv.Array as A                 (getComp, makeArray, withPtr, size, D, S, Ix2 ((:.)), Array, Sz2(..), Sz (Sz2, Sz))
+import Data.Massiv.Array.Manifest as AM'      (toByteString)
 import Data.Word                              (Word8)
 import Graphics.GLUtil.Textures               (loadTexture, texInfo, TexInfo)
 import Graphics.GLUtil                        (readTexture, texture2DWrap, TexColor(..))
@@ -228,15 +229,29 @@ render _ Vulkan _ _ _ = undefined
 --     drawPixelGrid tex
 --   return ()
 
+-- genTexObject :: Int -> Graph -> IO TextureObject
+-- genTexObject s g = do
+--   let mArr = view marray g
+--       arr  = view array g
+--   --computeInto mArr arr-- $ pixelGrid s arr
+--   --computeInto mArr $ pixelGrid s arr
+--   A.withPtr mArr $ \ptr -> do
+--     --genTex (AM.sizeOfMArray mArr) ptr
+--     genTex (view sz g) (PixelData Luminance UnsignedByte ptr) --ptr
+
 genTexObject :: Int -> Graph -> IO TextureObject
 genTexObject s g = do
   let mArr = view marray g
       arr  = view array g
-  --computeInto mArr arr-- $ pixelGrid s arr
-  --computeInto mArr $ pixelGrid s arr
-  A.withPtr mArr $ \ptr -> do
-    --genTex (AM.sizeOfMArray mArr) ptr
-    genTex (view sz g) (PixelData Luminance UnsignedByte ptr) --ptr
+      arr' = AM'.toByteString arr
+      txInfo = texInfo 512 512 TexRGBA arr'
+  t <- loadTexture txInfo -- :: IO TextureObject
+  texture2DWrap $= (Repeated, ClampToEdge)
+  textureFilter  Texture2D $= ((Linear', Just Nearest), Linear')
+  blend $= Enabled
+  blendFunc $= (SrcAlpha, OneMinusSrcAlpha)
+  generateMipmap' Texture2D
+  return t
 
 -- TODO: draws a square with a default material, using generated texture graph as a texture
 -- drawPixelGrid :: TextureObject -> IO ()

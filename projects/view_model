@@ -1,7 +1,7 @@
 {
     "name": "BGeo Model Viewer",
-    "resx": 256,
-    "resy": 256,
+    "resx": 512,
+    "resy": 512,
     "camMode": "AbsoluteLocation",
     "models": [
         {

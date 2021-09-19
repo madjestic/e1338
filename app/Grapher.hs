@@ -104,7 +104,8 @@ inf =
 
 genArray :: Int -> Int -> IO (Array S Ix2 Word8)
 genArray m n = do
-    let lol = unsafeCoerce $ DLS.chunksOf m [ x | x <- [0..(m*n-1)]] :: [[Word8]] -- lol = list of lists
+    let lol = unsafeCoerce $ DLS.chunksOf n [ (x*2) | x <- [0..(m*n-1)]] :: [[Word8]] -- lol = list of lists
+    --let lol = unsafeCoerce $ [ x | x <- [0..(m*n-1)]] :: [[Word8]] -- lol = list of lists
     fromListsM Seq lol :: IO (Array S Ix2 Word8)
 
 genArray' :: Int -> Int -> IO (Array S Ix2 Int)
@@ -314,7 +315,9 @@ main = do
     -- sz     = Sz2 m n
     sz     = Sz2 resx resy
     --graph  = rand resx resy
-  graph  <- genArray'' resx resy
+    --graph  = rand 64 64
+  --graph  <- genArray resx resy
+  graph  <- genArray 1024 1024
   let
     graphArray = initGraph sz graph --inf2 -- func
     -- wSz    = size (pixelGrid s graphArray)
