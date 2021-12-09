@@ -244,7 +244,9 @@ genTexObject s g = do
   let mArr = view marray g
       arr  = view array g
       arr' = AM'.toByteString arr
-      txInfo = texInfo 512 512 TexRGBA arr'
+      Sz2 resx resy = view sz g
+      --txInfo = texInfo 512 512 TexRGBA arr'
+      txInfo = texInfo resx resy TexRGBA arr'
   t <- loadTexture txInfo -- :: IO TextureObject
   texture2DWrap $= (Repeated, ClampToEdge)
   textureFilter  Texture2D $= ((Linear', Just Nearest), Linear')

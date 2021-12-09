@@ -104,7 +104,7 @@ inf =
 
 genArray :: Int -> Int -> IO (Array S Ix2 Word8)
 genArray m n = do
-    let lol = unsafeCoerce $ DLS.chunksOf n [ (x*2) | x <- [0..(m*n-1)]] :: [[Word8]] -- lol = list of lists
+    let lol = unsafeCoerce $ DLS.chunksOf n [ x | x <- fmap (`div`4) [0..(4*m*n-1)]] :: [[Word8]] -- lol = list of lists
     --let lol = unsafeCoerce $ [ x | x <- [0..(m*n-1)]] :: [[Word8]] -- lol = list of lists
     fromListsM Seq lol :: IO (Array S Ix2 Word8)
 
@@ -316,17 +316,18 @@ main = do
     sz     = Sz2 resx resy
     --graph  = rand resx resy
     --graph  = rand 64 64
-  --graph  <- genArray resx resy
-  graph  <- genArray 1024 1024
+  graph  <- genArray resx resy
+  --graph  <- genArray 1024 256 -- <- Somewhere here...
+  --graph  <- genArray 900 900
   let
-    graphArray = initGraph sz graph --inf2 -- func
+    -- graphArray = initGraph sz graph --inf2 -- func
     -- wSz    = size (pixelGrid s graphArray)
-    wSz = sz
-  print $ "wSz :" ++ (show wSz)
+    -- wSz = sz
+  print $ "sz :" ++ show sz
 
   -- init a Mutable Array for storing graph data
   -- mArr   <- newMArray' wSz :: IO (MArray RealWorld S Ix2 Word8)
-  mArr   <- newMArray wSz 1 :: IO (MArray RealWorld S Ix2 Word8)
+  mArr   <- newMArray sz 1 :: IO (MArray RealWorld S Ix2 Word8)
   window <- openWindow
             title
             (resX, resY)
