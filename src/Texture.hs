@@ -22,7 +22,7 @@ data Texture
   =  Texture
      {
        _name
-     , _path :: FilePath
+     , _path :: FilePath -- TODO: replace with Maybe FilePath or Either (FilePath or Generated, maybe a formula?)
      , _uuid :: UUID
      } deriving Show
 $(makeLenses ''Texture)

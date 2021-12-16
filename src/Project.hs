@@ -78,7 +78,7 @@ data Project
      , _resx       :: Int
      , _resy       :: Int
      , _camMode    :: String
-     , _models     :: [Model]
+     , _models     :: [Model] -- is that used?
      , _objects    :: [PreObject]
      , _background :: [PreObject]
      , _fonts      :: [Model]

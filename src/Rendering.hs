@@ -67,6 +67,7 @@ import Graphics.GLUtil.Textures               (loadTexture, texInfo, TexInfo)
 import Graphics.GLUtil                        (readTexture, texture2DWrap, TexColor(..))
 
 import Debug.Trace as DT
+import Data.UUID.V1 (nextUUID)
 
 
 debug = True
@@ -149,8 +150,8 @@ closeWindow window =
     SDL.destroyWindow window
     SDL.quit
 
-fromGame :: App -> [Object] -> Float -> [Drawable]
-fromGame app objs time = drs -- (drs, drs')
+toDrawable :: App -> [Object] -> Float -> [Drawable]
+toDrawable app objs time = drs -- (drs, drs')
   where
     mpos = unsafeCoerce $ view (playCam . controller . device' . mouse . pos) app -- :: (Double, Double)
     resX = fromEnum $ view (options . resx) app :: Int
@@ -200,9 +201,9 @@ render lastInteraction Rendering.OpenGL opts window application =
         fgrObjs = concat $ toListOf (objects . foreground)  app :: [Object]
         bgrObjs = concat $ toListOf (objects . background)  app :: [Object]
 
-        fntsDrs = fromGame app fntObjs currentTime :: [Drawable]
-        objsDrs = fromGame app fgrObjs currentTime :: [Drawable]
-        bgrsDrs = fromGame app bgrObjs currentTime :: [Drawable]
+        fntsDrs = toDrawable app fntObjs currentTime :: [Drawable]
+        objsDrs = toDrawable app fgrObjs currentTime :: [Drawable]
+        bgrsDrs = toDrawable app bgrObjs currentTime :: [Drawable]
 
         txs     = concat $ toListOf ( traverse . materials . traverse . textures) (fgrObjs ++ fntObjs) :: [Texture]
         hmap    = _hmap application
@@ -239,21 +240,23 @@ render _ Vulkan _ _ _ = undefined
 --     --genTex (AM.sizeOfMArray mArr) ptr
 --     genTex (view sz g) (PixelData Luminance UnsignedByte ptr) --ptr
 
-genTexObject :: Int -> Graph -> IO TextureObject
-genTexObject s g = do
+genTexObject :: Graph -> IO (UUID, TextureObject)
+genTexObject g = do
   let mArr = view marray g
       arr  = view array g
       arr' = AM'.toByteString arr
       Sz2 resx resy = view sz g
       --txInfo = texInfo 512 512 TexRGBA arr'
       txInfo = texInfo resx resy TexRGBA arr'
-  t <- loadTexture txInfo -- :: IO TextureObject
-  texture2DWrap $= (Repeated, ClampToEdge)
+  t    <- loadTexture txInfo -- :: IO TextureObject
+  uuid <- nextUUID
+  texture2DWrap            $= (Repeated, ClampToEdge)
   textureFilter  Texture2D $= ((Linear', Just Nearest), Linear')
-  blend $= Enabled
-  blendFunc $= (SrcAlpha, OneMinusSrcAlpha)
+  blend                    $= Enabled
+  blendFunc                $= (SrcAlpha, OneMinusSrcAlpha)
   generateMipmap' Texture2D
-  return t
+
+  return (fromMaybe nil (uuid), t)
 
 -- TODO: draws a square with a default material, using generated texture graph as a texture
 -- drawPixelGrid :: TextureObject -> IO ()
@@ -428,15 +431,17 @@ draw txs hmap opts window (Drawable name unis (Descriptor vao' numIndices') prog
 --         hmap     = zip uuids [0..]
 -- -- bindTexture :: [(UUID, GLuint)] -> TextureObject -> IO ()
 
-bindTextureObject :: GLuint -> TextureObject -> IO ()
-bindTextureObject txid tx0 = do
+bindTextureObject :: UUID -> TextureObject -> IO ()
+bindTextureObject uid tx0 = do
+  let --txid = fromUUID uid
+    txid = 0::GLuint
   putStrLn $ "Binding Texture Object : " ++ show tx0 ++ " at TextureUnit : " ++ show txid
   texture Texture2D        $= Enabled
   activeTexture            $= TextureUnit txid
   -- tx0 <- loadTex $ view path tx --TODO : replace that with a hashmap lookup?
   textureBinding Texture2D $= Just tx0
     -- where
-    --   txid = fromMaybe 0 (lookup (view uuid tx) hmap)
+    --   txid = fromMaybe 0 (lookup (view uid tx) hmap)
 
 bindTexture :: [(UUID, GLuint)] -> Texture -> IO ()
 bindTexture hmap tx =

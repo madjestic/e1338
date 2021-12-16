@@ -43,6 +43,7 @@ data Application
   , _intro     :: App
   , _main      :: App
   , _hmap      :: [(UUID, GLuint)] -- a placeholder for the future hmap, for now it's a map from a long texture unit index to a short version.
+                                   -- UUID -> GLuint
   } deriving Show
 $(makeLenses ''Application)
 

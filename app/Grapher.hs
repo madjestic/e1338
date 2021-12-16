@@ -30,17 +30,22 @@ import Data.UUID                (nil)
 import Data.UUID.V1             (nextUUID)
 import Data.Maybe               (fromMaybe)
 
-import FRP.Yampa as FRP hiding (identity)
-import SDL              hiding ( Point
-                               , M44
-                               , M33
-                               , Event
-                               , Mouse
-                               , RenderDrivers
-                               , (^+^)
-                               , (*^)
-                               , _xyz)
-import Control.Lens (view)
+import FRP.Yampa as FRP hiding  (identity)
+import SDL              hiding  ( Point
+                                , M44
+                                , M33
+                                , Event
+                                , Mouse
+                                , RenderDrivers
+                                , (^+^)
+                                , (*^)
+                                , _xyz)
+
+import Control.Lens             ( traverse
+                                , traverseOf
+                                , toListOf
+                                , view
+                                , set)
 
 import Rendering as R
 import Application
@@ -55,6 +60,8 @@ import qualified Texture  as T (uuid)
 import qualified Material as M (textures)
 
 import Debug.Trace as DT
+import qualified Material
+import qualified Texture
 
 debug = True
 
@@ -226,13 +233,16 @@ initGraph sz arr =
   -- compute $ makeArrayR D Par sz (const 1)
   arr
 
-initResources :: Application -> Graph -> IO Application
-initResources app0 grph = do
+
+-- Graph is an Object?
+initApplication :: Application -> Graph -> IO Application
+initApplication app0 grph = do
     uuid <- nextUUID
     let
       objs = introObjs ++ fntObjs ++ fgrObjs ++ bgrObjs
       -- txs  = concat $ concatMap (toListOf (materials . traverse . M.textures)) objs -- :: [Texture]
       hmap = [(fromMaybe nil uuid, 0::GLuint)]
+      hmapObjs = fmap id objs
 
     putStrLn "Initializing Resources..."
     putStrLn "Generating Textures..."
@@ -240,10 +250,13 @@ initResources app0 grph = do
     -- generate and bind texture:
     -- tex <- genTex (view sz grph)
     putStrLn $ "texture size : " ++ show (view sz grph)
-    texObj <- genTexObject 0 grph
+    (uid, texObj) <- genTexObject grph -- TODO: something is wrong with multiple texture assignment
     --texObj <- loadTex "textures/checkerboard.png"
-    _ <- DT.trace ("texObj : " ++ show texObj) $ return ()
-    bindTextureObject (0::GLuint) texObj
+    --texObj <- loadTex "textures/lower_ext.png" -- works, draws "hello, world!"
+    -- _ <- DT.trace ("texObj : " ++ show texObj) $ return ()
+    --bindTextureObject (0::GLuint) texObj
+    let uid = nil
+    bindTextureObject uid texObj
     putStrLn "Finished loading textures."
 
     return app0 { _hmap = hmap }
@@ -253,88 +266,53 @@ initResources app0 grph = do
         fgrObjs   = concat $ toListOf (App.objects . O.foreground)  (_main app0)  :: [Object]
         bgrObjs   = concat $ toListOf (App.objects . O.background)  (_main app0)  :: [Object]
 
--- initResources :: Application -> IO Application
--- initResources app0 =
---   do
---     let
---       objs = introObjs ++ fntObjs ++ fgrObjs ++ bgrObjs
---       txs  = concat $ concatMap (toListOf (materials . traverse . M.textures)) objs -- :: [Texture]
---       uuids = fmap (view T.uuid) txs
---       hmap = zip uuids [0..]
+initApplication' :: Application -> IO Application
+initApplication' app0 =
+  do
+    let
+      objs = introObjs ++ fntObjs ++ fgrObjs ++ bgrObjs
+      txs  = concat $ concatMap (toListOf (materials . traverse . M.textures)) objs -- :: [Texture]
+      uuids = fmap (view T.uuid) txs
+      hmap = zip uuids [0..]
 
---     putStrLn "Initializing Resources..."
---     putStrLn "Loading Textures..."
---     mapM_ (bindTexture hmap) txs
---     putStrLn "Finished loading textures."
+    putStrLn "Initializing Resources..."
+    putStrLn "Loading Textures..."
+    mapM_ (bindTexture hmap) txs
+    putStrLn "Finished loading textures."
 
---     return app0 { _hmap = hmap }
---       where
---         introObjs = concat $ toListOf (App.objects . O.foreground)  (_intro app0) :: [Object]
---         fntObjs   = concat $ toListOf (App.objects . gui . O.fonts) (_main app0)  :: [Object]
---         fgrObjs   = concat $ toListOf (App.objects . O.foreground)  (_main app0)  :: [Object]
---         bgrObjs   = concat $ toListOf (App.objects . O.background)  (_main app0)  :: [Object]
+    return app0 { _hmap = hmap }
+      where
+        introObjs = concat $ toListOf (App.objects . O.foreground)  (_intro app0) :: [Object]
+        fntObjs   = concat $ toListOf (App.objects . gui . O.fonts) (_main app0)  :: [Object]
+        fgrObjs   = concat $ toListOf (App.objects . O.foreground)  (_main app0)  :: [Object]
+        bgrObjs   = concat $ toListOf (App.objects . O.background)  (_main app0)  :: [Object]
 
 main :: IO ()
 main = do
-  -- let helpTxt =
-  --       "Usage:\n  --               \   life [WIDTH HEIGHT] [SCALE]\n  --               \ * WIDTH - number of cells horizontally (default 100)\n  --               \ * HEIGHT - number of cells vertically (default 70)\n  --               \ * SCALE - scaling factor, or how many pixels one cell should take on a screen\n  --               \ example: \n  --               \ cabal run exe:GameOfLife -- 35 35\n"
-  -- (_progName, args) <- getArgsAndInitialize
-  -- when (args == ["--help"]) $ putStrLn helpTxt >> exitSuccess
-  -- (m, n, s) <- case fmap readMaybe args of
-  --   [Just m, Just n, Just s]
-  --     | m > 0 && n > 0 && s > 0 -> return (m, n, s)
-  --   [Just m, Just n]
-  --     | m > 0 && n > 0 -> return (m, n, 10)
-  --   [] -> return (41, 50, 100)
-  --   --[] -> return (128, 128, 10)
-  --   _ -> do
-  --     putStrLn "Invalid arguments."
-  --     putStrLn helpTxt
-  --     exitWith $ ExitFailure 1
-
-  let argsDebug = return ["./projects/intro", "./projects/view_model"]
+  let argsDebug = return ["./projects/graph", "./projects/view_model"]
   args <- if debug then argsDebug else getArgs
 
   introProj <- P.read (unsafeCoerce (args!!0) :: FilePath)
   mainProj  <- P.read (unsafeCoerce (args!!1) :: FilePath)
 
   let
-    -- title = "Game of Life" :: String
     title = pack $ view P.name mainProj -- "Game of Life" :: String
 
     resx  = view P.resx mainProj
     resy  = view P.resy mainProj
     resX  = unsafeCoerce resx :: CInt -- unsafeCoerce m :: CInt
-    resY  = unsafeCoerce resy :: CInt --unsafeCoerce n :: CInt
+    resY  = unsafeCoerce resy :: CInt -- unsafeCoerce n :: CInt
     opts  = BackendOptions
             { primitiveMode = Triangles
             , bgrColor      = Color4 0.0 0.0 0.0 1.0
             , ptSize        = 3.0
             }
-    s      = 0 :: Int
-    -- sz     = Sz2 m n
     sz     = Sz2 resx resy
-    --graph  = rand resx resy
-    --graph  = rand 64 64
-  graph  <- genArray resx resy
-  --graph  <- genArray 1024 256 -- <- Somewhere here...
-  --graph  <- genArray 900 900
-  let
-    -- graphArray = initGraph sz graph --inf2 -- func
-    -- wSz    = size (pixelGrid s graphArray)
-    -- wSz = sz
-  print $ "sz :" ++ show sz
 
-  -- init a Mutable Array for storing graph data
-  -- mArr   <- newMArray' wSz :: IO (MArray RealWorld S Ix2 Word8)
-  mArr   <- newMArray sz 1 :: IO (MArray RealWorld S Ix2 Word8)
   window <- openWindow
             title
             (resX, resY)
 
-  let g = Graph sz graph mArr
-      s = 1 :: Int
-  -- drawGraph s g
   -- | SDL Mouse Options
   let camMode =
         case view P.camMode mainProj of
@@ -346,32 +324,47 @@ main = do
 
   putStrLn "\n Initializing App"
   intro <- initApp initVAO introProj
+  -- print $ intro
   main  <- initApp initVAO mainProj
+
+  graph  <- genArray resx resy
+  mArr   <- newMArray sz 1 :: IO (MArray RealWorld S Ix2 Word8)
+
+  let
+    gr  = Graph sz graph mArr
+    grs = gr:repeat gr :: [Graph]
+
+    -- for every graph gen/bind a textre
+
+    override = traverseOf (App.objects . foreground . traverse . materials . traverse . Material.textures) (const txs)
+    txs      = undefined :: IO [Texture.Texture]
+  --txs' <- mapM_ genTexObject grs -- TODO: Continue :: substitute UUID of the default texture with the UUID of the newely generated texture, the GLuint then should match and we can call the binding at Rendertime.
+  -- fromUUID :: UUID -> GLuint 
+    --txs      = mapM_  :: IO [Texture.Texture]
+
+  --intro' <- override intro
+
+  --mapM_ (\(gr, idx) -> genTexObject idx gr) $ zip grs [0..]
+  -- texObj <- genTexObject 0 gr
 
   let
     initApp =
       Application
-      Intro
+      Intro -- interface current state
       intro
+      --(DT.trace ("intro: " ++ show intro) intro)
       main
-      []
+      [] -- fill up the hmap with graph object (plane) + texture (array) binding
+         -- just material override the Material.textures
 
-  app <- initResources initApp g
-  --app <- initResources initApp
+  app <- initApplication initApp gr
+  --app <- initApplication initApp
 
   putStrLn "Starting App."
   animate
     window
     (parseWinInput >>> appRun app &&& handleExit)
   return ()
-
-  -- return ()
-  -- mainLoop opts window s sz mArr graphArray
-  -- where
-  --   mainLoop opts window s sz mArr arr = do
-  --     -- arr'  <- updateArray mArr arr
-  --     render opts window s sz mArr arr
-  --     mainLoop opts window s sz mArr arr
 
 --updateArray :: Int -> MArray RealWorld S Ix2 Word8 -> Array S Ix2 Word8 -> IO (Array S Ix2 Word8)
 --updateArray s mArr arr = do

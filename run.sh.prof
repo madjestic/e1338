@@ -1,7 +1,7 @@
 #!/bin/sh
 
 cabal build exe:Grapher
-cabal run +RTS -xnc -sstderr -RTS exe:Grapher ./projects/intro ./projects/view_model
+cabal run +RTS -xnc -sstderr -RTS exe:Grapher ./projects/graph ./projects/view_model
 
 # N-body, gravity solver test
 # cabal build exe:e1338

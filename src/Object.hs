@@ -43,6 +43,10 @@ import Linear.V4
 import Linear.Matrix as LM -- (M44, M33, identity, translation, fromQuaternion, (!*!), mkTransformationMat)
 import Linear (V3(..))
 
+import Data.Massiv.Array (Array, MArray, S, Ix2, RealWorld, Sz2)
+import Data.Word (Word8)
+import Control.Lens
+
 import LoadShaders
 import Material
 import Descriptor
@@ -76,6 +80,7 @@ import Debug.Trace    as DT
 --      } deriving Show
 -- $(makeLenses ''Object)
 
+-- UUID should be inherited?
 data Object
   =  Planet
      {
@@ -100,7 +105,12 @@ data Object
      , _transforms  :: ![M44 Double]
      , _time        :: Double
      }
-
+  -- |  Graph
+  --    {
+  --      _sz     :: Sz2
+  --    , _array  :: Array S Ix2 Word8
+  --    , _marray :: MArray RealWorld S Ix2 Word8
+  --    }
   deriving Show
 $(makeLenses ''Object)
 
@@ -233,6 +243,7 @@ initObject project
               , _materials   = mats
               , _programs    = progs
               , _transforms  = preTransforms
+              , _time        = 0.1
               } :: Object
             _ -> 
               defaultObj
@@ -286,7 +297,7 @@ updateObjects objs0 =
 solve :: Object -> SF () Object
 solve obj0 =
   proc () -> do
-    mtxs    <- (parB . fmap (transform obj0)) slvs0 -< ()
+    mtxs    <- (parB . fmap (Object.transform obj0)) slvs0 -< ()
     returnA -< obj0 { _transforms = vectorizedCompose mtxs }
       where
         slvs0 = view Object.solvers obj0
