@@ -220,26 +220,6 @@ render lastInteraction Rendering.OpenGL opts window application =
 
 render _ Vulkan _ _ _ = undefined
 
--- drawGraph :: Int -> Graph -> IO ()
--- drawGraph s g = do
---   let mArr = view marray g
---       arr  = view array g
---   computeInto mArr $ pixelGrid s arr
---   A.withPtr mArr $ \ptr -> do
---     tex <- genTex (AM.sizeOfMArray mArr) ptr
---     drawPixelGrid tex
---   return ()
-
--- genTexObject :: Int -> Graph -> IO TextureObject
--- genTexObject s g = do
---   let mArr = view marray g
---       arr  = view array g
---   --computeInto mArr arr-- $ pixelGrid s arr
---   --computeInto mArr $ pixelGrid s arr
---   A.withPtr mArr $ \ptr -> do
---     --genTex (AM.sizeOfMArray mArr) ptr
---     genTex (view sz g) (PixelData Luminance UnsignedByte ptr) --ptr
-
 genTexObject :: Graph -> IO (UUID, TextureObject)
 genTexObject g = do
   let mArr = view marray g
@@ -257,39 +237,6 @@ genTexObject g = do
   generateMipmap' Texture2D
 
   return (fromMaybe nil (uuid), t)
-
--- TODO: draws a square with a default material, using generated texture graph as a texture
--- drawPixelGrid :: TextureObject -> IO ()
--- drawPixelGrid tx = do
---   draw txs hmap opts win drw
---     where
---       txs  = undefined
---       hmap = undefined
---       opts = undefined
---       win  = undefined
---       drw  = undefined
-
--- pixelGrid :: Int -> Array S Ix2 Word8 -> Array D Ix2 Word8
--- pixelGrid k8 arr = A.makeArray (getComp arr) sz' getNewElt
---   where
---     k = succ k8
---     Sz (n :. m) = size arr
---     sz' = Sz (1 + m * k :. 1 + n * k)
---     getNewElt (j :. i) =
---       if i `mod` k == 0 || j `mod` k == 0
---         then 128
---         else 1 -- (1 - AU.unsafeIndex arr ((i - 1) `div` k :. (j - 1) `div` k)) * 255
-
--- pixelGrid :: Int -> Array S Ix2 Word8 -> Array D Ix2 Word8
--- pixelGrid k8 arr = A.makeArray (getComp arr) sz' getNewElt
---   where
---     k = succ k8
---     Sz (n :. m) = size arr
---     sz' = Sz (1 + m * k :. 1 + n * k)
---     getNewElt (j :. i) =
---       if i `mod` k == 0 || j `mod` k == 0
---         then 128
---         else 1 -- (1 - AU.unsafeIndex arr ((i - 1) `div` k :. (j - 1) `div` k)) * 255
 
 drawString :: (Drawable -> IO ()) -> [Drawable] -> String -> IO ()
 drawString cmds fntsDrs str =
@@ -376,11 +323,6 @@ drawableChar drs chr =
     ' ' -> drs!!44
     _   -> head drs
 
--- drawableChar :: [Drawable] -> Char -> Drawable
--- drawableChar drs chr =
---   case chr of
---     _   -> head drs
-
 draw :: [Texture] -> [(UUID, GLuint)] ->  BackendOptions -> SDL.Window -> Drawable -> IO ()
 draw txs hmap opts window (Drawable name unis (Descriptor vao' numIndices') prog) =
   do
@@ -433,15 +375,11 @@ draw txs hmap opts window (Drawable name unis (Descriptor vao' numIndices') prog
 
 bindTextureObject :: UUID -> TextureObject -> IO ()
 bindTextureObject uid tx0 = do
-  let --txid = fromUUID uid
-    txid = 0::GLuint
+  let txid = fromUUID uid
   putStrLn $ "Binding Texture Object : " ++ show tx0 ++ " at TextureUnit : " ++ show txid
   texture Texture2D        $= Enabled
   activeTexture            $= TextureUnit txid
-  -- tx0 <- loadTex $ view path tx --TODO : replace that with a hashmap lookup?
   textureBinding Texture2D $= Just tx0
-    -- where
-    --   txid = fromMaybe 0 (lookup (view uid tx) hmap)
 
 bindTexture :: [(UUID, GLuint)] -> Texture -> IO ()
 bindTexture hmap tx =
@@ -613,25 +551,3 @@ loadTex f =
     blendFunc $= (SrcAlpha, OneMinusSrcAlpha)
     generateMipmap' Texture2D
     return t
-
-genTex :: Sz2 -> Ptr Word8 -> IO TextureObject
-genTex s ptr = do
-  -- TODO: convert array (of pixel data) into a TexInfo object (feed it to OpenGL Texture Object)
-  -- https://hackage.haskell.org/package/GLUtil-0.10.4/docs/src/Graphics.GLUtil.JuicyTextures.html#readTexture
-  -- https://hackage.haskell.org/package/GLUtil-0.10.4/docs/Graphics-GLUtil-Textures.html#t:TexInfo
-  -- https://hackage.haskell.org/package/OpenGL-3.0.3.0/docs/Graphics-Rendering-OpenGL-GL-Texturing-Objects.html#t:TextureObject
-  -- let txInfo = texInfo w h TexMono ptr :: TexInfo (Ptr Word8) -- -> TextureObject
-  -- let txInfo = texInfo w h TexRGBA ptr :: TexInfo (Ptr Word8)
-  -- let txInfo = texInfo w h TexRGB ptr :: TexInfo (Ptr Word8)
-  let txInfo = texInfo 128 128 TexRGBA ptr :: TexInfo (Ptr Word8)
-      (A.Sz2 w h) = s
-  --let txInfo = texInfo 100 100 TexMono ptr :: TexInfo (Ptr Word8) -- -> TextureObject
-  -- https://hackage.haskell.org/package/GLUtil-0.10.4/docs/Graphics-GLUtil-Textures.html#v:loadTexture
-  t <- loadTexture txInfo -- :: IO TextureObject
-  texture2DWrap $= (Repeated, ClampToEdge)
-  textureFilter  Texture2D $= ((Linear', Just Nearest), Linear')
-  blend $= Enabled
-  blendFunc $= (SrcAlpha, OneMinusSrcAlpha)
-  generateMipmap' Texture2D
-  return t
-      --where (A.Sz2 w h) = s

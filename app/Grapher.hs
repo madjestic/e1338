@@ -241,7 +241,7 @@ initApplication app0 grph = do
     let
       objs = introObjs ++ fntObjs ++ fgrObjs ++ bgrObjs
       -- txs  = concat $ concatMap (toListOf (materials . traverse . M.textures)) objs -- :: [Texture]
-      hmap = [(fromMaybe nil uuid, 0::GLuint)]
+      hmap = [(fromMaybe nil uuid, 0::GLuint)] -- TODO: 
       hmapObjs = fmap id objs
 
     putStrLn "Initializing Resources..."
@@ -253,9 +253,6 @@ initApplication app0 grph = do
     (uid, texObj) <- genTexObject grph -- TODO: something is wrong with multiple texture assignment
     --texObj <- loadTex "textures/checkerboard.png"
     --texObj <- loadTex "textures/lower_ext.png" -- works, draws "hello, world!"
-    -- _ <- DT.trace ("texObj : " ++ show texObj) $ return ()
-    --bindTextureObject (0::GLuint) texObj
-    let uid = nil
     bindTextureObject uid texObj
     putStrLn "Finished loading textures."
 
@@ -357,8 +354,9 @@ main = do
       [] -- fill up the hmap with graph object (plane) + texture (array) binding
          -- just material override the Material.textures
 
-  app <- initApplication initApp gr
-  --app <- initApplication initApp
+  -- TODO : need to add the generated graph texture to the (intro) App (use override intro?)
+  --app <- initApplication initApp gr
+  app <- initApplication' initApp
 
   putStrLn "Starting App."
   animate
