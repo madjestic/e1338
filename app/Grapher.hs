@@ -239,49 +239,30 @@ initGraph sz arr =
 -- Graph is an Object?
 initApplication :: Application -> Graph -> IO Application
 initApplication app0 grph = do
+    putStrLn "Initializing Resources..."
     uuid <- nextUUID
     let
       objs = introObjs ++ fntObjs ++ fgrObjs ++ bgrObjs
       txs  = concat $ concatMap (toListOf (materials . traverse . M.textures)) objs -- :: [Texture]
-      --txs' = [] :: [Texture.Texture] -- toList . fromList $ concat $ concatMap (toListOf (materials . traverse . M.textures)) objs -- :: [Texture]
-      --txs' = toList . fromList $ concat $ concatMap (toListOf (materials . traverse . M.textures)) objs :: [Texture.Texture]
-      --txs'  = toList . fromList $ txs
-      --uuids'= toList . fromList $ fmap (view T.uuid) txs
-      --uuids'= fmap (view T.uuid) (toList . fromList $ txs)
-      uuids'= fmap (view T.uuid) txs
-      --uuids' = toList . fromList $ uuids
+      --txs' = filter (\tx -> view name tx == ) txs
+      uuids= fmap (view T.uuid) txs
       ids  = fmap (fromUUID . view T.uuid) txs
       
-      hmap'= zip uuids' [0..]
+      hmap'= zip uuids [0..]
       hmap = toList . fromList $ hmap'
       
-      --hmap = zip uuids ids --[0..]
-      --hmap = zip uuids (repeat 0)--[0..]
-      --uuid'= fromMaybe nil uuid
-      --hmap = [(uuid', 0::GLuint)] :: [(UUID, GLuint)]
-      --hmap = [(uuid', fromUUID uuid')] :: [(UUID, GLuint)]
-    --print $ "initApplication.txs' : " ++ show txs'
-    --print $ "initApplication.uuid : " ++ show uuids
-    -- print $ "initApplication.uuid' : " ++ show uuids'
-    -- print $ "initApplication.hmap : " ++ show hmap
-      --hmapObjs = fmap id objs
-
-    putStrLn "Initializing Resources..."
     putStrLn "Generating Textures..."
-    --mapM_ (bindTexture hmap) txs
     mapM_ (bindTexture hmap) txs
     -- generate and bind texture:
     -- tex <- genTex (view sz grph)
     putStrLn $ "texture size : " ++ show (view sz grph)
-    --(uid, texObj) <- genTexObject grph -- TODO: something is wrong with multiple texture assignment
+    (uid, texObj) <- genTexObject grph
     --texObj <- loadTex "textures/checkerboard.png"
     --texObj <- loadTex "textures/lower_ext.png" -- works, draws "hello, world!"
-    --bindTextureObject uid texObj
-    --bindTextureObject (DT.trace ("initApplication.uid : " ++ show uid) uid) texObj
-    putStrLn "Finished loading textures."
+    bindTextureObject uid texObj
 
+    putStrLn "Finished loading textures."
     return app0 { _hmap = hmap }
-    --return app0 { _hmap = toList . fromList $ hmap }
       where
         introObjs = concat $ toListOf (App.objects . O.foreground)  (_intro app0) :: [Object]
         fntObjs   = concat $ toListOf (App.objects . gui . O.fonts) (_main app0)  :: [Object]

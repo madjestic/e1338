@@ -240,7 +240,7 @@ genTexObject g = do
   blendFunc                $= (SrcAlpha, OneMinusSrcAlpha)
   generateMipmap' Texture2D
 
-  return (fromMaybe nil (uuid), t)
+  return (fromMaybe nil uuid, t)
 
 drawString :: (Drawable -> IO ()) -> [Drawable] -> String -> IO ()
 drawString cmds fntsDrs str =
@@ -343,48 +343,13 @@ draw txs hmap opts window (Drawable name unis (Descriptor vao' numIndices') prog
     cullFace  $= Just Back
     depthFunc $= Just Less
 
--- initResources :: Application -> IO Application
--- initResources app0 =
---   do
---     let
---       objs = introObjs ++ fntObjs ++ fgrObjs ++ bgrObjs
---       txs  = concat $ concatMap (toListOf (materials . traverse . M.textures)) objs :: [Texture]
---       uuids = fmap (view uuid) txs
---       hmap = zip uuids [0..] -- TODO: reserve 0 for font rendering?
-
---     putStrLn "Initializing Resources..."
---     putStrLn "Loading Textures..."
---     mapM_ (bindTexture hmap) txs
---     putStrLn "Finished loading textures."
-
---     return app0 { _hmap = hmap }
---       where
---         introObjs = concat $ toListOf (App.objects . O.foreground)  (_intro app0) :: [Object]
---         fntObjs   = concat $ toListOf (App.objects . gui . O.fonts) (_main app0)  :: [Object]
---         fgrObjs   = concat $ toListOf (App.objects . O.foreground)  (_main app0)  :: [Object]
---         bgrObjs   = concat $ toListOf (App.objects . O.background)  (_main app0)  :: [Object]
-
--- bindTexureUniforms :: [Object] -> IO [(UUID, GLuint)]
--- bindTexureUniforms objs =
---   do
---     print "Loading Textures..."
---     -- tx0s <- mapM (loadTex . view path) txs
---     mapM_ (bindTexture hmap) txs
---     print "Finished loading textures."
---     return hmap
---       where
---         txs   = concat $ concatMap (toListOf (materials . traverse . M.textures)) objs
---         uuids = fmap (view uuid) txs
---         hmap     = zip uuids [0..]
--- -- bindTexture :: [(UUID, GLuint)] -> TextureObject -> IO ()
-
 bindTextureObject :: UUID -> TextureObject -> IO ()
 bindTextureObject uid tx0 = do
   let txid = fromUUID uid
   putStrLn $ "Binding Texture Object : " ++ show tx0 ++ " at TextureUnit : " ++ show txid
   texture Texture2D        $= Enabled
-  --activeTexture            $= TextureUnit txid
-  activeTexture            $= TextureUnit (DT.trace ("bindTextureObject.txid : " ++ show txid) txid)
+  activeTexture            $= TextureUnit 0--txid -- TODO: override with graph texture id here
+  --activeTexture            $= TextureUnit (DT.trace ("bindTextureObject.txid : " ++ show txid) txid)
   textureBinding Texture2D $= Just tx0
 
 bindTexture :: [(UUID, GLuint)] -> Texture -> IO ()
@@ -392,17 +357,12 @@ bindTexture hmap tx =
   do
     putStrLn $ "Binding Texture : " ++ show tx ++ " at TextureUnit : " ++ show txid
     texture Texture2D        $= Enabled
-    --activeTexture            $= TextureUnit txid
-    activeTexture            $= TextureUnit (DT.trace ("bindTexture.txid : " ++ show txid) txid)
+    activeTexture            $= TextureUnit txid
+    --activeTexture            $= TextureUnit (DT.trace ("bindTexture.txid : " ++ show txid) txid)
     tx0 <- loadTex $ view path tx --TODO : replace that with a hashmap lookup?
     textureBinding Texture2D $= Just tx0
       where
         txid = fromMaybe 0 (lookup (view uuid tx) hmap)
-
--- initUniforms :: [TextureObject] -> Uniforms -> [(UUID, GLuint)] -> IO ()
--- ...
---       mapM_ (allocateTextures program hmap) txs
--- allocateTextures :: Program -> [(UUID, GLuint)] -> Texture -> IO ()      
 
 initUniforms :: [Texture] -> Uniforms -> [(UUID, GLuint)] -> IO ()
 initUniforms txs unis hmap =
