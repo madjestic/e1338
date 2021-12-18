@@ -28,6 +28,12 @@ data Texture
 $(makeLenses ''Texture)
 deriveJSON defaultOptions {fieldLabelModifier = drop 1} ''Texture
 
+instance Eq Texture where
+  t0 == t1 = view uuid t0 == view uuid t1
+
+instance Ord Texture where
+  compare t0 t1  = compare (view uuid t0) (view uuid t1)
+
 defaultTexture
   = Texture
     "checkerboard"

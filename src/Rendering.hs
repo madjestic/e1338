@@ -208,13 +208,17 @@ render lastInteraction Rendering.OpenGL opts window application =
         txs     = concat $ toListOf ( traverse . materials . traverse . textures) (fgrObjs ++ fntObjs) :: [Texture]
         hmap    = _hmap application
 
+    --print $ "render.hmap :" ++ show hmap
+
     mapM_ (draw txs hmap (opts { primitiveMode = Triangles }) window) objsDrs
+    --mapM_ (draw txs (DT.trace ("hmap : " ++ show hmap) hmap) (opts { primitiveMode = Triangles }) window) objsDrs
     mapM_ (draw txs hmap (opts { primitiveMode = Points }) window) bgrsDrs
 
 -- | render FPS
     currentTime <- SDL.time
     dt <- (currentTime -) <$> readMVar lastInteraction
     drawString (draw txs hmap (opts { primitiveMode = Triangles }) window) fntsDrs $ show $ round (1/dt)
+    --drawString (draw txs (DT.trace ("render.hmap : " ++ show hmap) hmap) (opts { primitiveMode = Triangles }) window) fntsDrs $ show $ round (1/dt)
 
     SDL.glSwapWindow window
 
@@ -327,6 +331,7 @@ draw :: [Texture] -> [(UUID, GLuint)] ->  BackendOptions -> SDL.Window -> Drawab
 draw txs hmap opts window (Drawable name unis (Descriptor vao' numIndices') prog) =
   do
     -- print $ "draw.name : " ++ name
+    -- print $ "draw.unis :" ++ show unis ++ "\n draw.txs :" ++ show txs ++ "\n draw.hmap : " ++ show hmap
     initUniforms txs unis hmap
     bindVertexArrayObject $= Just vao'
 
@@ -378,17 +383,17 @@ bindTextureObject uid tx0 = do
   let txid = fromUUID uid
   putStrLn $ "Binding Texture Object : " ++ show tx0 ++ " at TextureUnit : " ++ show txid
   texture Texture2D        $= Enabled
-  activeTexture            $= TextureUnit txid
+  --activeTexture            $= TextureUnit txid
+  activeTexture            $= TextureUnit (DT.trace ("bindTextureObject.txid : " ++ show txid) txid)
   textureBinding Texture2D $= Just tx0
 
 bindTexture :: [(UUID, GLuint)] -> Texture -> IO ()
 bindTexture hmap tx =
   do
-    -- print $ "bindTexture.tx   : " ++ show tx
-    -- print $ "bindTexture.txid : " ++ show txid
     putStrLn $ "Binding Texture : " ++ show tx ++ " at TextureUnit : " ++ show txid
     texture Texture2D        $= Enabled
-    activeTexture            $= TextureUnit txid
+    --activeTexture            $= TextureUnit txid
+    activeTexture            $= TextureUnit (DT.trace ("bindTexture.txid : " ++ show txid) txid)
     tx0 <- loadTex $ view path tx --TODO : replace that with a hashmap lookup?
     textureBinding Texture2D $= Just tx0
       where
@@ -403,7 +408,7 @@ initUniforms :: [Texture] -> Uniforms -> [(UUID, GLuint)] -> IO ()
 initUniforms txs unis hmap =
   do
     let programDebug = loadShaders
-                       [ ShaderInfo VertexShader   (FileSource (_vertShader u_mat' ))
+                       [ ShaderInfo VertexShader   (FileSource (_vertShader u_mat' ))   -- u_mat is only used for debug
                        , ShaderInfo FragmentShader (FileSource (_fragShader u_mat' )) ]
     program <- if debug then programDebug else pure u_prog'
     currentProgram $= Just program
@@ -456,6 +461,7 @@ initUniforms txs unis hmap =
     -- putStrLn $ "initUniforms.txNames : "  ++ show txNames
     -- putStrLn $ "initUniforms.txuids   : " ++ show txuids
     mapM_ (allocateTextures program hmap) txs
+    --mapM_ (allocateTextures program (DT.trace ("initUniforms.hmap : " ++ show hmap) hmap)) txs
 
     -- | Unload buffers
     --bindVertexArrayObject         $= Nothing
@@ -473,6 +479,10 @@ allocateTextures :: Program -> [(UUID, GLuint)] -> Texture -> IO ()
 allocateTextures program hmap tx =
   do
     location <- get (uniformLocation program (view T.name tx))
+    -- print $ "allocateTextures.hmap : " ++ show hmap
+    -- print $ "allocateTextures.tx   : " ++ show tx
+    -- print $ "allocateTextures.txid : " ++ show txid
+    --uniform location $= TextureUnit txid
     uniform location $= TextureUnit txid
       where
         txid = fromMaybe 0 (lookup (view uuid tx) hmap)
