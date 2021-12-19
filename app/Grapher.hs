@@ -9,7 +9,7 @@ module Main where
 import Control.Monad
 import Control.Concurrent
 import Data.Set (fromList, toList)
-import Data.Massiv.Array as A hiding (windowSize, mapM_, zip, fromList, toList)
+import Data.Massiv.Array as A hiding (tail, windowSize, mapM_, zip, fromList, toList)
 import Data.Massiv.Array.Unsafe  as AU
 import Data.Massiv.Array.Mutable as AM
 import Data.Word                (Word8)
@@ -237,29 +237,31 @@ initGraph sz arr =
 
 
 -- Graph is an Object?
-initApplication :: Application -> Graph -> IO Application
-initApplication app0 grph = do
+initApplicationGraph :: Application -> Graph -> IO Application
+initApplicationGraph app0 grph = do
     putStrLn "Initializing Resources..."
     uuid <- nextUUID
     let
       objs = introObjs ++ fntObjs ++ fgrObjs ++ bgrObjs
       txs  = concat $ concatMap (toListOf (materials . traverse . M.textures)) objs -- :: [Texture]
-      --txs' = filter (\tx -> view name tx == ) txs
       uuids= fmap (view T.uuid) txs
-      ids  = fmap (fromUUID . view T.uuid) txs
       
       hmap'= zip uuids [0..]
       hmap = toList . fromList $ hmap'
-      
-    putStrLn "Generating Textures..."
+
+    putStrLn "Binding Textures..."
     mapM_ (bindTexture hmap) txs
-    -- generate and bind texture:
-    -- tex <- genTex (view sz grph)
-    putStrLn $ "texture size : " ++ show (view sz grph)
-    (uid, texObj) <- genTexObject grph
-    --texObj <- loadTex "textures/checkerboard.png"
-    --texObj <- loadTex "textures/lower_ext.png" -- works, draws "hello, world!"
-    bindTextureObject uid texObj
+    
+    putStrLn $ "Generating and binding texture size : " ++ show (view sz grph)
+    (uid, graphTexObj) <- genTexObject grph -- TODO: replace with many graphs?
+    -- graphTexObj <- loadTex "textures/64x64.jpg" -- manual test texture override
+    let
+      txs' = filter (\tx -> (head . words $ view Texture.name tx) == "Graph") txs :: [Texture.Texture]
+      ids' = Prelude.read <$> concatMap (tail . words . view Texture.name) txs'   :: [GLuint] -- TODO: tail is unsafe, replace with Maybe
+      foo = zip ids' (repeat graphTexObj) :: [(GLuint, TextureObject)]
+      
+    mapM_ (uncurry bindTextureObject) (zip ids' (repeat graphTexObj))
+
 
     putStrLn "Finished loading textures."
     return app0 { _hmap = hmap }
@@ -269,8 +271,8 @@ initApplication app0 grph = do
         fgrObjs   = concat $ toListOf (App.objects . O.foreground)  (_main app0)  :: [Object]
         bgrObjs   = concat $ toListOf (App.objects . O.background)  (_main app0)  :: [Object]
 
-initApplication' :: Application -> IO Application
-initApplication' app0 =
+initApplication :: Application -> IO Application
+initApplication app0 =
   do
     let
       objs = introObjs ++ fntObjs ++ fgrObjs ++ bgrObjs
@@ -361,8 +363,8 @@ main = do
          -- just material override the Material.textures
 
   -- TODO : need to add the generated graph texture to the (intro) App (use override intro?)
-  app <- initApplication initApp gr
-  --app <- initApplication' initApp
+  app <- initApplicationGraph initApp gr
+  --app <- initApplication initApp
 
   putStrLn "Starting App."
   animate

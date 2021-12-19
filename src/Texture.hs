@@ -21,7 +21,7 @@ import Utils (encodeStringUUID)
 data Texture
   =  Texture
      {
-       _name
+       _name :: String
      , _path :: FilePath -- TODO: replace with Maybe FilePath or Either (FilePath or Generated, maybe a formula?)
      , _uuid :: UUID
      } deriving Show

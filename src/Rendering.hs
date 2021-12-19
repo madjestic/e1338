@@ -343,13 +343,11 @@ draw txs hmap opts window (Drawable name unis (Descriptor vao' numIndices') prog
     cullFace  $= Just Back
     depthFunc $= Just Less
 
-bindTextureObject :: UUID -> TextureObject -> IO ()
+bindTextureObject :: GLuint -> TextureObject -> IO ()
 bindTextureObject uid tx0 = do
-  let txid = fromUUID uid
-  putStrLn $ "Binding Texture Object : " ++ show tx0 ++ " at TextureUnit : " ++ show txid
+  putStrLn $ "Binding Texture Object : " ++ show tx0 ++ " at TextureUnit : " ++ show uid
   texture Texture2D        $= Enabled
-  activeTexture            $= TextureUnit 0--txid -- TODO: override with graph texture id here
-  --activeTexture            $= TextureUnit (DT.trace ("bindTextureObject.txid : " ++ show txid) txid)
+  activeTexture            $= TextureUnit uid
   textureBinding Texture2D $= Just tx0
 
 bindTexture :: [(UUID, GLuint)] -> Texture -> IO ()
