@@ -9,7 +9,7 @@ module Main where
 import Control.Monad
 import Control.Concurrent
 import Data.Set (fromList, toList)
-import Data.Massiv.Array as A hiding (tail, windowSize, mapM_, zip, fromList, toList)
+import Data.Massiv.Array as A hiding (tail, windowSize, mapM_, mapM, zip, fromList, toList)
 import Data.Massiv.Array.Unsafe  as AU
 import Data.Massiv.Array.Mutable as AM
 import Data.Word                (Word8)
@@ -237,8 +237,8 @@ initGraph sz arr =
 
 
 -- Graph is an Object?
-initApplicationGraph :: Application -> Graph -> IO Application
-initApplicationGraph app0 grph = do
+initApplicationGraphTextures :: Application -> [Graph] -> IO Application
+initApplicationGraphTextures app0 gs = do
     putStrLn "Initializing Resources..."
     uuid <- nextUUID
     let
@@ -252,16 +252,13 @@ initApplicationGraph app0 grph = do
     putStrLn "Binding Textures..."
     mapM_ (bindTexture hmap) txs
     
-    putStrLn $ "Generating and binding texture size : " ++ show (view sz grph)
-    (uid, graphTexObj) <- genTexObject grph -- TODO: replace with many graphs?
-    -- graphTexObj <- loadTex "textures/64x64.jpg" -- manual test texture override
+    mapM_ (\grph -> putStrLn $ "Generating and binding texture size : " ++ show (view sz grph)) gs
+    gtxs <- mapM genTexObject gs
+    --gtxs' <- loadTex "textures/64x64.jpg" -- manual test texture override
     let
       txs' = filter (\tx -> (head . words $ view Texture.name tx) == "Graph") txs :: [Texture.Texture]
-      ids' = Prelude.read <$> concatMap (tail . words . view Texture.name) txs'   :: [GLuint] -- TODO: tail is unsafe, replace with Maybe
-      foo = zip ids' (repeat graphTexObj) :: [(GLuint, TextureObject)]
-      
-    mapM_ (uncurry bindTextureObject) (zip ids' (repeat graphTexObj))
-
+      ids  = Prelude.read <$> concatMap (tail . words . view Texture.name) txs'   :: [GLuint] -- TODO: tail is unsafe, replace with Maybe
+    mapM_ (uncurry bindTextureObject) (zip ids gtxs)
 
     putStrLn "Finished loading textures."
     return app0 { _hmap = hmap }
@@ -271,14 +268,16 @@ initApplicationGraph app0 grph = do
         fgrObjs   = concat $ toListOf (App.objects . O.foreground)  (_main app0)  :: [Object]
         bgrObjs   = concat $ toListOf (App.objects . O.background)  (_main app0)  :: [Object]
 
-initApplication :: Application -> IO Application
-initApplication app0 =
+initApplicationTextures :: Application -> IO Application
+initApplicationTextures app0 =
   do
     let
       objs = introObjs ++ fntObjs ++ fgrObjs ++ bgrObjs
       txs  = concat $ concatMap (toListOf (materials . traverse . M.textures)) objs -- :: [Texture]
       uuids = fmap (view T.uuid) txs
-      hmap = zip uuids [0..]
+
+      hmap'= zip uuids [0..]
+      hmap = toList . fromList $ hmap'
 
     putStrLn "Initializing Resources..."
     putStrLn "Loading Textures..."
@@ -363,8 +362,8 @@ main = do
          -- just material override the Material.textures
 
   -- TODO : need to add the generated graph texture to the (intro) App (use override intro?)
-  app <- initApplicationGraph initApp gr
-  --app <- initApplication initApp
+  app <- initApplicationGraphTextures initApp [gr]
+  --app <- initApplicationTextures initApp
 
   putStrLn "Starting App."
   animate

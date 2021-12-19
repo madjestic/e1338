@@ -69,11 +69,7 @@ import Graphics.GLUtil                        (readTexture, texture2DWrap, TexCo
 import Debug.Trace as DT
 import Data.UUID.V1 (nextUUID)
 
-
 debug = True
-
-
-
 
 
 data Backend
@@ -214,7 +210,7 @@ render lastInteraction Rendering.OpenGL opts window application =
     --mapM_ (draw txs (DT.trace ("hmap : " ++ show hmap) hmap) (opts { primitiveMode = Triangles }) window) objsDrs
     mapM_ (draw txs hmap (opts { primitiveMode = Points }) window) bgrsDrs
 
--- | render FPS
+-- | render FPS current
     currentTime <- SDL.time
     dt <- (currentTime -) <$> readMVar lastInteraction
     drawString (draw txs hmap (opts { primitiveMode = Triangles }) window) fntsDrs $ show $ round (1/dt)
@@ -224,7 +220,7 @@ render lastInteraction Rendering.OpenGL opts window application =
 
 render _ Vulkan _ _ _ = undefined
 
-genTexObject :: Graph -> IO (UUID, TextureObject)
+genTexObject :: Graph -> IO TextureObject
 genTexObject g = do
   let mArr = view marray g
       arr  = view array g
@@ -233,14 +229,14 @@ genTexObject g = do
       --txInfo = texInfo 512 512 TexRGBA arr'
       txInfo = texInfo resx resy TexRGBA arr'
   t    <- loadTexture txInfo -- :: IO TextureObject
-  uuid <- nextUUID
+  --uuid <- nextUUID
   texture2DWrap            $= (Repeated, ClampToEdge)
   textureFilter  Texture2D $= ((Linear', Just Nearest), Linear')
   blend                    $= Enabled
   blendFunc                $= (SrcAlpha, OneMinusSrcAlpha)
   generateMipmap' Texture2D
-
-  return (fromMaybe nil uuid, t)
+  --return (fromMaybe nil uuid, t)
+  return t
 
 drawString :: (Drawable -> IO ()) -> [Drawable] -> String -> IO ()
 drawString cmds fntsDrs str =
