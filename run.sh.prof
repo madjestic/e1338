@@ -4,14 +4,14 @@
 # cabal run +RTS -xnc -sstderr -RTS exe:Grapher ./projects/graph ./projects/view_model
 
 # Checkerboard
-cabal build exe:e1338
-cabal run exe:e1338 ./projects/test ./projects/test
-
-# TODO: test the projects below, update if necessary
+# cabal build exe:e1338
+# cabal run exe:e1338 ./projects/test ./projects/test
 
 # N-body, gravity solver test
-# cabal build exe:e1338
-# cabal run +RTS -sstderr -RTS e1338 ./projects/3body ./projects/3body
+cabal build exe:e1338
+cabal run +RTS -sstderr -RTS e1338 ./projects/3body ./projects/3body
+
+# TODO: test the projects below, update if necessary
 
 # Solar System
 # cabal build exe:e1338

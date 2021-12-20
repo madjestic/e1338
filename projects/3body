@@ -4,19 +4,74 @@
     "resy": 600,
     "camMode": "AbsoluteLocation",
     "models": [
-	{ "path": "models/body_0.bgeo" }
+        {
+            "path": "models/body_0.bgeo"
+        },
+        {
+            "path": "models/body_1.bgeo"
+        },
+        {
+            "path": "models/body_2.bgeo"
+        }
     ],
     "objects": [
         {
-            "pname": "Box",
+            "pname": "Body 1",
+            "modelIDXs": [
+                1
+            ],
+            "solvers": [
+                "translate",
+                "rotate"
+            ],
+            "solverAttrs": [
+                [
+                    1000,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    -10000
+                ]
+            ],
+            "uuid": "654e84ca-1ab2-4b55-b0bd-5a760c77ca2d"
+        },
+        {
+            "pname": "Body 2",
+            "modelIDXs": [
+                2
+            ],
+            "solvers": [
+                "gravity"
+            ],
+            "solverAttrs": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "uuid": "34498f5e-15ea-4bd4-9db2-e2c03eb67f7b"
+        },
+        {
+            "pname": "Body 0",
             "modelIDXs": [
                 0
             ],
             "solvers": [
-                "rotate",
-                "translate"
+                "translate",
+                "rotate"
             ],
             "solverAttrs": [
+                [
+                    1000,
+                    0,
+                    0
+                ],
                 [
                     0,
                     0,
@@ -24,14 +79,9 @@
                     0,
                     0,
                     1000
-                ],
-                [
-                    1000,
-                    0,
-                    0
                 ]
             ],
-            "uuid": "00000000-0000-0000-0000-000000000000"
+            "uuid": "f78c1390-0d12-4876-b878-1b071f9d2d1f"
         }
     ],
     "background": [],
@@ -170,6 +220,18 @@
         },
         {
             "path": "models/fnt_space.bgeo"
+        },
+        {
+            "path": "models/fnt_asterics.bgeo"
+        },
+        {
+            "path": "models/fnt_slash.bgeo"
+        },
+        {
+            "path": "models/fnt_semicolon.bgeo"
+        },
+        {
+            "path": "models/fnt_quote.bgeo"
         }
     ],
     "cameras": [
@@ -188,7 +250,7 @@
                 0,
                 0,
                 1,
-                -10,
+                -30,
                 0,
                 0,
                 0,

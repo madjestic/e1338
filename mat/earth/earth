@@ -5,17 +5,17 @@
     "textures": [
         {
 	    "name": "earth_daymap_4096",
-            "path": "./textures/earth_daymap_4096.jpg",
+            "path": "./textures/earth_daymap_512.jpg",
             "uuid": "da20debc-d5e2-4b43-97eb-5168b462af2d"
         },
         {
 	    "name": "earth_nightmap_4096",
-            "path": "./textures/earth_nightmap_4096.jpg",
+            "path": "./textures/earth_nightmap_512.jpg",
             "uuid": "22b3bd53-e5f0-4fe3-bf2b-09ecdcdde868"
         },
         {
 	    "name": "earth_clouds_4096",
-            "path": "./textures/earth_clouds_4096.jpg",
+            "path": "./textures/earth_clouds_512.jpg",
             "uuid": "8cb1915b-df0c-45d6-b348-5d4878667d6f"
         }
     ]
