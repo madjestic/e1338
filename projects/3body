@@ -1,80 +1,202 @@
 {
-    "name": "3 Body Problem",
+    "name": "Test Project",
     "resx": 800,
     "resy": 600,
+    "camMode": "AbsoluteLocation",
     "models": [
-        { "path": "models/body_0.bgeo" },
-	{ "path": "models/body_1.bgeo" },
-	{ "path": "models/body_2.bgeo" }
+	{ "path": "models/body_0.bgeo" }
     ],
     "objects": [
         {
-            "pname": "Body 0",
-            "objIDX": 0,
+            "pname": "Box",
             "modelIDXs": [
                 0
             ],
             "solvers": [
-		"translate",
-                "rotate"
+                "rotate",
+                "translate"
             ],
             "solverAttrs": [
-		[1000,0,0],
-                [0,0,0,0,0,1000]
-            ]
-        },
-        {
-            "pname": "Body 1",
-            "objIDX": 1,
-            "modelIDXs": [
-                1
+                [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1000
+                ],
+                [
+                    1000,
+                    0,
+                    0
+                ]
             ],
-            "solvers": [
-		"translate",
-                "rotate"
-            ],
-            "solverAttrs": [
-		[1000,0,0],		
-                [0,0,0,0,0,-10000]
-            ]
-        },
-	{
-            "pname": "Body 2",
-            "objIDX": 2,
-            "modelIDXs": [
-                2
-            ],
-            "solvers": [
-                "gravity"
-            ],
-            "solverAttrs": [
-                [0,1]
-            ]
-        }	
+            "uuid": "00000000-0000-0000-0000-000000000000"
+        }
     ],
     "background": [],
     "fonts": [
-        { "path": "models/fnt_0.bgeo" },
-        { "path": "models/fnt_1.bgeo" },
-        { "path": "models/fnt_2.bgeo" },
-        { "path": "models/fnt_3.bgeo" },
-        { "path": "models/fnt_4.bgeo" },
-        { "path": "models/fnt_5.bgeo" },
-        { "path": "models/fnt_6.bgeo" },
-        { "path": "models/fnt_7.bgeo" },
-        { "path": "models/fnt_8.bgeo" },
-        { "path": "models/fnt_9.bgeo" }
+        {
+            "path": "models/fnt_0.bgeo"
+        },
+        {
+            "path": "models/fnt_1.bgeo"
+        },
+        {
+            "path": "models/fnt_2.bgeo"
+        },
+        {
+            "path": "models/fnt_3.bgeo"
+        },
+        {
+            "path": "models/fnt_4.bgeo"
+        },
+        {
+            "path": "models/fnt_5.bgeo"
+        },
+        {
+            "path": "models/fnt_6.bgeo"
+        },
+        {
+            "path": "models/fnt_7.bgeo"
+        },
+        {
+            "path": "models/fnt_8.bgeo"
+        },
+        {
+            "path": "models/fnt_9.bgeo"
+        },
+        {
+            "path": "models/fnt_a.bgeo"
+        },
+        {
+            "path": "models/fnt_b.bgeo"
+        },
+        {
+            "path": "models/fnt_c.bgeo"
+        },
+        {
+            "path": "models/fnt_d.bgeo"
+        },
+        {
+            "path": "models/fnt_e.bgeo"
+        },
+        {
+            "path": "models/fnt_f.bgeo"
+        },
+        {
+            "path": "models/fnt_g.bgeo"
+        },
+        {
+            "path": "models/fnt_h.bgeo"
+        },
+        {
+            "path": "models/fnt_i.bgeo"
+        },
+        {
+            "path": "models/fnt_j.bgeo"
+        },
+        {
+            "path": "models/fnt_k.bgeo"
+        },
+        {
+            "path": "models/fnt_l.bgeo"
+        },
+        {
+            "path": "models/fnt_m.bgeo"
+        },
+        {
+            "path": "models/fnt_n.bgeo"
+        },
+        {
+            "path": "models/fnt_o.bgeo"
+        },
+        {
+            "path": "models/fnt_p.bgeo"
+        },
+        {
+            "path": "models/fnt_q.bgeo"
+        },
+        {
+            "path": "models/fnt_r.bgeo"
+        },
+        {
+            "path": "models/fnt_s.bgeo"
+        },
+        {
+            "path": "models/fnt_t.bgeo"
+        },
+        {
+            "path": "models/fnt_u.bgeo"
+        },
+        {
+            "path": "models/fnt_v.bgeo"
+        },
+        {
+            "path": "models/fnt_w.bgeo"
+        },
+        {
+            "path": "models/fnt_x.bgeo"
+        },
+        {
+            "path": "models/fnt_y.bgeo"
+        },
+        {
+            "path": "models/fnt_z.bgeo"
+        },
+        {
+            "path": "models/fnt_plus.bgeo"
+        },
+        {
+            "path": "models/fnt_minus.bgeo"
+        },
+        {
+            "path": "models/fnt_equal.bgeo"
+        },
+        {
+            "path": "models/fnt_GT.bgeo"
+        },
+        {
+            "path": "models/fnt_comma.bgeo"
+        },
+        {
+            "path": "models/fnt_dot.bgeo"
+        },
+        {
+            "path": "models/fnt_question.bgeo"
+        },
+        {
+            "path": "models/fnt_exclam.bgeo"
+        },
+        {
+            "path": "models/fnt_space.bgeo"
+        }
     ],
     "cameras": [
         {
             "pApt": 50,
             "pFoc": 100,
             "pTransform": [
-                1,0,0,0,
-                0,1,0,0,
-                0,0,1,-30,
-                0,0,0,1
-            ]
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                -10,
+                0,
+                0,
+                0,
+                1
+            ],
+            "pMouseS": 1,
+            "pKeyboardRS": 1,
+            "pKeyboardTS": 1
         }
     ]
 }

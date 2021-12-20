@@ -154,6 +154,10 @@ defaultProject =
   ,(Model   "models/fnt_question.bgeo")
   ,(Model   "models/fnt_exclam.bgeo")
   ,(Model   "models/fnt_space.bgeo")
+  ,(Model   "models/fnt_asterics.bgeo")
+  ,(Model   "models/fnt_slash.bgeo")
+  ,(Model   "models/fnt_semicolon.bgeo")
+  ,(Model   "models/fnt_quote.bgeo")  
   ]
   [(ProjectCamera
     50.0

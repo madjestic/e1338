@@ -172,6 +172,18 @@
         },
         {
             "path": "models/fnt_space.bgeo"
+        },
+        {
+            "path": "models/fnt_asterics.bgeo"
+        },
+        {
+            "path": "models/fnt_slash.bgeo"
+        },
+        {
+            "path": "models/fnt_semicolon.bgeo"
+        },
+        {
+            "path": "models/fnt_quote.bgeo"
         }
     ],
     "cameras": [

@@ -5,8 +5,9 @@
 
 # Checkerboard
 cabal build exe:e1338
-cabal run exe:e1338 ./projects/intro ./projects/test
+cabal run exe:e1338 ./projects/test ./projects/test
 
+# TODO: test the projects below, update if necessary
 
 # N-body, gravity solver test
 # cabal build exe:e1338

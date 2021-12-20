@@ -213,8 +213,7 @@ render lastInteraction Rendering.OpenGL opts window application =
 -- | render FPS current
     currentTime <- SDL.time
     dt <- (currentTime -) <$> readMVar lastInteraction
-    drawString (draw txs hmap (opts { primitiveMode = Triangles }) window) fntsDrs $ show $ round (1/dt)
-    --drawString (draw txs (DT.trace ("render.hmap : " ++ show hmap) hmap) (opts { primitiveMode = Triangles }) window) fntsDrs $ show $ round (1/dt)
+    drawString (draw txs hmap (opts { primitiveMode = Triangles }) window) fntsDrs $ "fps : " ++ show (round (1/dt))
 
     SDL.glSwapWindow window
 
@@ -240,7 +239,8 @@ genTexObject g = do
 
 drawString :: (Drawable -> IO ()) -> [Drawable] -> String -> IO ()
 drawString cmds fntsDrs str =
-    mapM_ cmds $ format $ drawableString fntsDrs "Hello, World!"--str
+    --mapM_ cmds $ format $ drawableString fntsDrs "Hello, World!"--str
+  mapM_ cmds $ format $ drawableString fntsDrs str
 
 -- | given a string of drawables, return a formatted string (e.g. add offsets for drawable chars)
 format :: [Drawable] -> [Drawable]
@@ -321,6 +321,10 @@ drawableChar drs chr =
     '?' -> drs!!42
     '!' -> drs!!43
     ' ' -> drs!!44
+    '*' -> drs!!45
+    '/' -> drs!!46
+    ':' -> drs!!47
+    '\'' -> drs!!48
     _   -> head drs
 
 draw :: [Texture] -> [(UUID, GLuint)] ->  BackendOptions -> SDL.Window -> Drawable -> IO ()
