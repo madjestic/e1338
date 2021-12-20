@@ -9,6 +9,7 @@ module Main where
 
 import Control.Concurrent
 import Control.Lens
+import Data.Set (fromList, toList)
 import Data.Text                 (pack)
 import Foreign.C
 import FRP.Yampa          hiding (identity)
@@ -31,10 +32,10 @@ import Unsafe.Coerce
 import Application
 import App
 import Object         as O
-import Project        as P hiding (PreObject)
+import Project as P ( camMode, resy, resx, name, read )
 import AppInput                 (parseWinInput) 
 import Rendering      as R
-import Utils
+import Utils hiding (fromList)
 
 import Debug.Trace    as DT
 import qualified Material as M
@@ -89,20 +90,43 @@ animate window sf =
             return shouldExit
 
 -- < Main Function > -----------------------------------------------------------
-initResources :: Application -> IO Application
-initResources app0 =
+-- initResources :: Application -> IO Application
+-- initResources app0 =
+--   do
+--     let
+--       objs = introObjs ++ fntObjs ++ fgrObjs ++ bgrObjs
+--       txs  = concat $ concatMap (toListOf (materials . traverse . M.textures)) objs -- :: [Texture]
+--       uuids = fmap (view T.uuid) txs
+--       hmap = zip uuids [0..] -- TODO: reserve 0 for font rendering?
+
+--     putStrLn "Initializing Resources..."
+--     putStrLn "Loading Textures..."
+--     mapM_ (bindTexture hmap) txs
+--     putStrLn "Finished loading textures."
+    
+--     return app0 { _hmap = hmap }
+--       where
+--         introObjs = concat $ toListOf (App.objects . O.foreground)  (_intro app0) :: [Object]
+--         fntObjs   = concat $ toListOf (App.objects . gui . O.fonts) (_main app0)  :: [Object]
+--         fgrObjs   = concat $ toListOf (App.objects . O.foreground)  (_main app0)  :: [Object]
+--         bgrObjs   = concat $ toListOf (App.objects . O.background)  (_main app0)  :: [Object]
+
+initApplicationTextures :: Application -> IO Application
+initApplicationTextures app0 =
   do
     let
       objs = introObjs ++ fntObjs ++ fgrObjs ++ bgrObjs
       txs  = concat $ concatMap (toListOf (materials . traverse . M.textures)) objs -- :: [Texture]
       uuids = fmap (view T.uuid) txs
-      hmap = zip uuids [0..] -- TODO: reserve 0 for font rendering?
+
+      hmap'= zip uuids [0..]
+      hmap = toList . fromList $ hmap'
 
     putStrLn "Initializing Resources..."
     putStrLn "Loading Textures..."
     mapM_ (bindTexture hmap) txs
     putStrLn "Finished loading textures."
-    
+
     return app0 { _hmap = hmap }
       where
         introObjs = concat $ toListOf (App.objects . O.foreground)  (_intro app0) :: [Object]
@@ -113,7 +137,8 @@ initResources app0 =
 main :: IO ()
 main = do
 
-  let argsDebug = return ["./projects/intro", "./projects/view_model"]
+  --let argsDebug = return ["./projects/intro", "./projects/view_model"]
+  let argsDebug = return ["./projects/test", "./projects/test"]
   args <- if debug then argsDebug else getArgs
 
   introProj <- P.read (unsafeCoerce (args!!0) :: FilePath)
@@ -149,7 +174,7 @@ main = do
       main
       []
 
-  app <- initResources initApp
+  app <- initApplicationTextures initApp
   
   putStrLn "Starting App."
   animate

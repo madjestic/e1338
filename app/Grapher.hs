@@ -65,7 +65,11 @@ import qualified Material
 import qualified Texture
 import Utils                   (fromUUID)
 
+#ifdef DEBUG
 debug = True
+#else
+debug = False
+#endif
 
 graphRules :: Word8 -> Word8 -> Word8
 graphRules 0 3 = 1
@@ -291,9 +295,11 @@ initApplicationTextures app0 =
         fgrObjs   = concat $ toListOf (App.objects . O.foreground)  (_main app0)  :: [Object]
         bgrObjs   = concat $ toListOf (App.objects . O.background)  (_main app0)  :: [Object]
 
+
 main :: IO ()
 main = do
   let argsDebug = return ["./projects/graph", "./projects/view_model"]
+  --let argsDebug = return ["./projects/test", "./projects/test"]
   args <- if debug then argsDebug else getArgs
 
   introProj <- P.read (unsafeCoerce (args!!0) :: FilePath)
