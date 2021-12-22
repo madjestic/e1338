@@ -8,18 +8,16 @@
 # cabal run exe:e1338 ./projects/test ./projects/test
 
 # N-body, gravity solver test
-cabal build exe:e1338
-cabal run +RTS -sstderr -RTS e1338 ./projects/3body ./projects/3body
+# cabal build exe:e1338
+# cabal run +RTS -sstderr -RTS e1338 ./projects/3body ./projects/3body
 
 # TODO: test the projects below, update if necessary
 
 # Solar System
-# cabal build exe:e1338
-# cabal run +RTS -sstderr -RTS e1338 ./projects/intro_XXII ./projects/solar_system
-
-# Solar System
-# cabal build exe:e1338
-# cabal run +RTS -sstderr -RTS e1338 ./projects/intro_XXII ./projects/solar_system
+cabal build exe:e1338
+#cabal run +RTS -sstderr -RTS e1338 ./projects/intro_XXII ./projects/solar_system
+cabal run +RTS -sstderr -RTS e1338 ./projects/intro_XXII ./projects/intro_XXII
+#cabal run +RTS -sstderr -RTS e1338 ./projects/intro_XXII ./projects/solar_system
 
 # Test
 # cabal build exe:e1338

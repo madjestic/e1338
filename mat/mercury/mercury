@@ -2,5 +2,11 @@
     "name": "mercury",
     "fragShader": "./mat/mercury/src/shader.frag",
     "vertShader": "./mat/mercury/src/shader.vert",
-    "textures": ["textures/mercury_1024_512.jpg"]
+    "textures": [
+        {
+            "name": "mercury_1024_512",
+            "uuid": "fa73a130-7225-414e-86d9-ab6687843d32",
+            "path": "textures/mercury_1024_512.jpg"
+        }
+    ]
 }

@@ -2,232 +2,311 @@
     "name": "The Solar System",
     "resx": 1280,
     "resy": 720,
+    "camMode": "AbsoluteLocation",
     "models": [
-	{ "path": "models/intro_square.bgeo" },
-	{ "path": "models/star_sector_00.bgeo"},	
-	{ "path": "models/star_sector_01.bgeo"},
-	{ "path": "models/star_sector_02.bgeo"},
-	{ "path": "models/star_sector_03.bgeo"},
-	{ "path": "models/star_sector_04.bgeo"},
-	{ "path": "models/star_sector_05.bgeo"},
-	{ "path": "models/star_sector_06.bgeo"},
-	{ "path": "models/star_sector_07.bgeo"},	
-	{ "path": "models/star_sector_08.bgeo"},
-	{ "path": "models/star_sector_09.bgeo"},
-	{ "path": "models/sun.bgeo" },
-	{ "path": "models/earth.bgeo" },
-	{ "path": "models/moon.bgeo"  },
-	{ "path": "models/mercury.bgeo" },
-	{ "path": "models/venus.bgeo" },
-	{ "path": "models/mars.bgeo" },
-	{ "path": "models/jupiter.bgeo" }
+        {
+            "path": "models/star_sector_00.bgeo"
+        },
+        {
+            "path": "models/star_sector_01.bgeo"
+        },
+        {
+            "path": "models/star_sector_02.bgeo"
+        },
+        {
+            "path": "models/star_sector_03.bgeo"
+        },
+        {
+            "path": "models/star_sector_04.bgeo"
+        },
+        {
+            "path": "models/star_sector_05.bgeo"
+        },
+        {
+            "path": "models/star_sector_06.bgeo"
+        },
+        {
+            "path": "models/star_sector_07.bgeo"
+        },
+        {
+            "path": "models/star_sector_08.bgeo"
+        },
+        {
+            "path": "models/star_sector_09.bgeo"
+        },
+        {
+            "path": "models/sun.bgeo"
+        },
+        {
+            "path": "models/mercury.bgeo"
+        },
+        {
+            "path": "models/venus.bgeo"
+        },
+        {
+            "path": "models/earth.bgeo"
+        },
+        {
+            "path": "models/moon.bgeo"
+        },
+        {
+            "path": "models/mars.bgeo"
+        },
+        {
+            "path": "models/jupiter.bgeo"
+        }
     ],
     "objects": [
         {
-            "pname": "DummyIntroScreen",
-	    "objIDX": 0,
-            "modelIDXs": [ 0 ],
-            "solvers": [],
-            "solverAttrs": []
-        },
-        {
-            "pname": "Sun",
-	    "objIDX": 1,
-            "modelIDXs": [ 11 ],
-            "solvers": [],
-            "solverAttrs": []
-        },
-        {
-            "pname": "Earth",
-	    "objIDX": 2,
-            "modelIDXs": [ 12 ],
-            "solvers": [],
-            "solverAttrs": []
-        },
-        {
-            "pname": "Moon",
-	    "objIDX": 3,
-            "modelIDXs": [ 13 ],
-            "solvers": [],
-            "solverAttrs": []
-        },
-        {
-            "pname": "Mercury",
-	    "objIDX": 4,
-            "modelIDXs": [ 14 ],
-            "solvers": [],
-            "solverAttrs": []
-        },
-        {
             "pname": "Venus",
-	    "objIDX": 5,
-            "modelIDXs": [ 15 ],
+            "modelIDXs": [
+                12
+            ],
             "solvers": [],
-            "solverAttrs": []
-        },
-        {
-            "pname": "Mars",
-	    "objIDX": 6,
-            "modelIDXs": [ 16 ],
-            "solvers": [],
-            "solverAttrs": []
+            "solverAttrs": [],
+            "uuid": "ce41899a-af2b-4c22-b8a1-2872911f7ea3"
         },
         {
             "pname": "Jupiter",
-	    "objIDX": 7,
-            "modelIDXs": [ 17 ],
+            "modelIDXs": [
+                16
+            ],
             "solvers": [],
-            "solverAttrs": []
+            "solverAttrs": [],
+            "uuid": "bbd862cf-10c8-4402-b7eb-1537aa77a93d"
+        },
+        {
+            "pname": "Sun",
+            "modelIDXs": [
+                10
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "c9dc5e0b-4055-4a6c-b7c1-b865de41802c"
+        },
+        {
+            "pname": "Mars",
+            "modelIDXs": [
+                15
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "e59deaef-3bef-4b5f-94fa-0247071da1fc"
+        },
+        {
+            "pname": "Mercury",
+            "modelIDXs": [
+                11
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "b5244bde-0ffb-4e50-8ef0-8756a0b5fd8a"
+        },
+        {
+            "pname": "Moon",
+            "modelIDXs": [
+                14
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "8f4bc0fc-f381-4d8d-9307-96e7dee626df"
+        },
+        {
+            "pname": "Earth",
+            "modelIDXs": [
+                13
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "e102fba5-9869-49c0-921a-fa70e627b141"
         }
     ],
-    "background": [
-	{
-            "pname": "Star Sector 00",
-	    "objIDX": -1,
-            "modelIDXs": [ 1 ],
-            "solvers": [],
-            "solverAttrs": []
-        },
-	{
-            "pname": "Star Sector 01",
-	    "objIDX": -2,
-            "modelIDXs": [ 2 ],
-            "solvers": [],
-            "solverAttrs": []
-        },
-	{
-            "pname": "Star Sector 02",
-	    "objIDX": -3,
-            "modelIDXs": [ 3 ],
-            "solvers": [],
-            "solverAttrs": []
-        },
-	{
-            "pname": "Star Sector 03",
-	    "objIDX": -4,
-            "modelIDXs": [ 4 ],
-            "solvers": [],
-            "solverAttrs": []
-        },
-	{
-            "pname": "Star Sector 04",
-	    "objIDX": -5,
-            "modelIDXs": [ 5 ],
-            "solvers": [],
-            "solverAttrs": []
-        },
-	{
-            "pname": "Star Sector 05",
-	    "objIDX": -6,
-            "modelIDXs": [ 6 ],
-            "solvers": [],
-            "solverAttrs": []
-        },
-	{
-            "pname": "Star Sector 06",
-	    "objIDX": -7,
-            "modelIDXs": [ 7 ],
-            "solvers": [],
-            "solverAttrs": []
-        },
-	{
-            "pname": "Star Sector 07",
-	    "objIDX": -8,
-            "modelIDXs": [ 8 ],
-            "solvers": [],
-            "solverAttrs": []
-        },
-	{
-            "pname": "Star Sector 08",
-	    "objIDX": -9,
-            "modelIDXs": [ 9 ],
-            "solvers": [],
-            "solverAttrs": []
-        },
-	{
-            "pname": "Star Sector 09",
-	    "objIDX": -10,
-            "modelIDXs": [ 10 ],
-            "solvers": [],
-            "solverAttrs": []
-        }
-    ],
+    "background": [],
     "fonts": [
-        { "path": "models/fnt_0.bgeo" },
-        { "path": "models/fnt_1.bgeo" },
-        { "path": "models/fnt_2.bgeo" },
-        { "path": "models/fnt_3.bgeo" },
-        { "path": "models/fnt_4.bgeo" },
-        { "path": "models/fnt_5.bgeo" },
-        { "path": "models/fnt_6.bgeo" },
-        { "path": "models/fnt_7.bgeo" },
-        { "path": "models/fnt_8.bgeo" },
-        { "path": "models/fnt_9.bgeo" }
+        {
+            "path": "models/fnt_0.bgeo"
+        },
+        {
+            "path": "models/fnt_1.bgeo"
+        },
+        {
+            "path": "models/fnt_2.bgeo"
+        },
+        {
+            "path": "models/fnt_3.bgeo"
+        },
+        {
+            "path": "models/fnt_4.bgeo"
+        },
+        {
+            "path": "models/fnt_5.bgeo"
+        },
+        {
+            "path": "models/fnt_6.bgeo"
+        },
+        {
+            "path": "models/fnt_7.bgeo"
+        },
+        {
+            "path": "models/fnt_8.bgeo"
+        },
+        {
+            "path": "models/fnt_9.bgeo"
+        },
+        {
+            "path": "models/fnt_a.bgeo"
+        },
+        {
+            "path": "models/fnt_b.bgeo"
+        },
+        {
+            "path": "models/fnt_c.bgeo"
+        },
+        {
+            "path": "models/fnt_d.bgeo"
+        },
+        {
+            "path": "models/fnt_e.bgeo"
+        },
+        {
+            "path": "models/fnt_f.bgeo"
+        },
+        {
+            "path": "models/fnt_g.bgeo"
+        },
+        {
+            "path": "models/fnt_h.bgeo"
+        },
+        {
+            "path": "models/fnt_i.bgeo"
+        },
+        {
+            "path": "models/fnt_j.bgeo"
+        },
+        {
+            "path": "models/fnt_k.bgeo"
+        },
+        {
+            "path": "models/fnt_l.bgeo"
+        },
+        {
+            "path": "models/fnt_m.bgeo"
+        },
+        {
+            "path": "models/fnt_n.bgeo"
+        },
+        {
+            "path": "models/fnt_o.bgeo"
+        },
+        {
+            "path": "models/fnt_p.bgeo"
+        },
+        {
+            "path": "models/fnt_q.bgeo"
+        },
+        {
+            "path": "models/fnt_r.bgeo"
+        },
+        {
+            "path": "models/fnt_s.bgeo"
+        },
+        {
+            "path": "models/fnt_t.bgeo"
+        },
+        {
+            "path": "models/fnt_u.bgeo"
+        },
+        {
+            "path": "models/fnt_v.bgeo"
+        },
+        {
+            "path": "models/fnt_w.bgeo"
+        },
+        {
+            "path": "models/fnt_x.bgeo"
+        },
+        {
+            "path": "models/fnt_y.bgeo"
+        },
+        {
+            "path": "models/fnt_z.bgeo"
+        },
+        {
+            "path": "models/fnt_plus.bgeo"
+        },
+        {
+            "path": "models/fnt_minus.bgeo"
+        },
+        {
+            "path": "models/fnt_equal.bgeo"
+        },
+        {
+            "path": "models/fnt_GT.bgeo"
+        },
+        {
+            "path": "models/fnt_comma.bgeo"
+        },
+        {
+            "path": "models/fnt_dot.bgeo"
+        },
+        {
+            "path": "models/fnt_question.bgeo"
+        },
+        {
+            "path": "models/fnt_exclam.bgeo"
+        },
+        {
+            "path": "models/fnt_space.bgeo"
+        },
+        {
+            "path": "models/fnt_asterics.bgeo"
+        },
+        {
+            "path": "models/fnt_slash.bgeo"
+        },
+        {
+            "path": "models/fnt_semicolon.bgeo"
+        },
+        {
+            "path": "models/fnt_quote.bgeo"
+        }
     ],
     "cameras": [
-	{
-	    "pTransform":
+        {
+            "pApt": 50,
+            "pFoc": 200,
+            "pTransform":
 	    [1,0,0,0,
              0,1,0,0,
              0,0,1,-150063163046,
              0,0,0,1],
-	    "pFoc": 200,
-	    "pApt": 50
-	},
+            "pMouseS": 1,
+            "pKeyboardRS": 1,
+            "pKeyboardTS": 1
+        },
         {
-	    "pTransform":
+            "pApt": 50,
+            "pFoc": 200,
+            "pTransform":
 	    [6.2280237674713135e-2, 0, -0.9970607161521912, -4.015006012819568e8,
              0,1,0,0,
              0.9970607161521912, 0, 6.2280237674713135e-2, -1.5000190631545795e11,
              0,0,0,1],
-	    "pFoc": 200,
-	    "pApt": 50
-	    
-	},
+            "pMouseS": 1,
+            "pKeyboardRS": 1,
+            "pKeyboardTS": 1
+        },
         {
-	    "pTransform":
+            "pApt": 50,
+            "pFoc": 200,
+            "pTransform":
 	    [1,0,0,0,
              0,1,0,0,
              0,0,1,-228033173634,
              0,0,0,1],
-	    "pFoc": 200,
-	    "pApt": 50
-	},
-        {
-	    "pTransform":
-	    [1,0,0,0,
-             0,1,0,0,
-             0,0,1,-108060413789,
-             0,0,0,1],
-	    "pFoc": 200,
-	    "pApt": 50
-	},
-        {
-	    "pTransform":
-	    [1,0,0,0,
-             0,1,0,0,
-             0,0,1,-58025117466,
-             0,0,0,1],
-	    "pFoc": 200,
-	    "pApt": 50
-	},
-        {
-	    "pTransform":
-	    [1,0,0,0,
-             0,1,0,0,
-             0,0,1,-778696453912,
-             0,0,0,1],
-	    "pFoc": 200,
-	    "pApt": 50
-	},
-	{
-	    "pTransform":
-            [1,0,0, 0,
-             0,1,0, 0,
-             0,0,1,-20,
-             0,0,0, 1],
-	    "pFoc": 100,
-	    "pApt": 50
-	}	
+            "pMouseS": 1,
+            "pKeyboardRS": 1,
+            "pKeyboardTS": 1
+        }
     ]
 }

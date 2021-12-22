@@ -4,9 +4,9 @@
     "vertShader": "./mat/intro/src/shader.vert",
     "textures": [
         {
-	    "name": "intro_e1338",
-            "path": "./textures/intro_e1338.jpg",
-            "uuid": "ed7ed808-b2c9-4047-b0b6-d965dce3dac3"
+            "name": "intro_e1338",
+            "uuid": "ed7ed808-b2c9-4047-b0b6-d965dce3dac3",
+            "path": "./textures/intro_e1338.jpg"
         }
     ]
 }

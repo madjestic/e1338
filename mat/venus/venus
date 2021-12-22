@@ -2,5 +2,11 @@
     "name": "venus",
     "fragShader": "./mat/venus/src/shader.frag",
     "vertShader": "./mat/venus/src/shader.vert",
-    "textures": ["textures/venus_1024_512.jpg"]
+    "textures": [
+        {
+            "name": "venus_1024_512",
+            "uuid": "96646d4d-d3c2-4df6-9f8f-a417bc381be8",
+            "path": "textures/venus_1024_512.jpg"
+        }
+    ]
 }

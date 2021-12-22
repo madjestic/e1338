@@ -2,5 +2,11 @@
     "name": "mars",
     "fragShader": "./mat/mars/src/shader.frag",
     "vertShader": "./mat/mars/src/shader.vert",
-    "textures": ["textures/mars_1024_512.jpg"]    
+    "textures": [
+        {
+            "name": "mars_1024_512",
+            "uuid": "2b15bd2f-cd88-4c17-a3c7-6308e7b91bf3",
+            "path": "textures/mars_1024_512.jpg"
+        }
+    ]
 }

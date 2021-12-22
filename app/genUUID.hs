@@ -34,7 +34,7 @@ import Utils                (encodeStringUUID, (<$.>), (<*.>))
 import Debug.Trace as DT
 
 fixMaterialUUIDs :: FilePath -> IO ()
-fixMaterialUUIDs path = M.read path >>= genUUID >>= flip M.write ".uuid"
+fixMaterialUUIDs path = M.read path >>= genUUID >>= flip M.write ".tmp.uuid"
   where
     genUUID mat = do
       let
@@ -47,7 +47,7 @@ fixMaterialUUIDs path = M.read path >>= genUUID >>= flip M.write ".uuid"
 
 fixProjectUUIDs :: FilePath -> IO ()
 fixProjectUUIDs path = do
-  P.read path >>= genUUIDfgr >>= genUUIDbgr >>= flip P.write ".uuid"
+  P.read path >>= genUUIDfgr >>= genUUIDbgr >>= flip P.write ".tmp.uuid"
   where
     genUUIDfgr = traverseOf (objects . traverse . P.uuid) (const nextRandom)
     genUUIDbgr = traverseOf (background . traverse . P.uuid) (const nextRandom)
@@ -63,7 +63,7 @@ main = do
     "-m" -> fixMaterialUUIDs filePath
     "-p" -> fixProjectUUIDs  filePath
     _    -> error $ "wrong input: " ++ show mode
-  copyFile ".uuid" filePath
+  copyFile ".tmp.uuid" filePath
 
 parseArgs :: [String] -> IO String
 parseArgs ["-h"] = help    >> exit

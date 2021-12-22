@@ -2,5 +2,11 @@
     "name": "jupiter",
     "fragShader": "./mat/jupiter/src/shader.frag",
     "vertShader": "./mat/jupiter/src/shader.vert",
-    "textures": ["textures/jupiter_1024_512.jpg"]
+    "textures": [
+        {
+            "name": "jupiter_1024_512",
+            "uuid": "665b40f2-6673-46ad-bad4-14a7f6eaa508",
+            "path": "textures/jupiter_1024_512.jpg"
+        }
+    ]
 }
