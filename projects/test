@@ -5,7 +5,7 @@
     "camMode": "AbsoluteLocation",
     "models": [
         {
-            "path": "models/box.bgeo"
+            "path": "models/gizmo.bgeo"
         }
     ],
     "objects": [

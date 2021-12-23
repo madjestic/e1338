@@ -54,44 +54,20 @@
         },
         {
             "path": "models/jupiter.bgeo"
+        },
+        {
+            "path": "models/gizmo.bgeo"
         }
     ],
     "objects": [
         {
-            "pname": "Venus",
+            "pname": "Moon",
             "modelIDXs": [
-                12
+                14
             ],
             "solvers": [],
             "solverAttrs": [],
-            "uuid": "ce41899a-af2b-4c22-b8a1-2872911f7ea3"
-        },
-        {
-            "pname": "Jupiter",
-            "modelIDXs": [
-                16
-            ],
-            "solvers": [],
-            "solverAttrs": [],
-            "uuid": "bbd862cf-10c8-4402-b7eb-1537aa77a93d"
-        },
-        {
-            "pname": "Sun",
-            "modelIDXs": [
-                10
-            ],
-            "solvers": [],
-            "solverAttrs": [],
-            "uuid": "c9dc5e0b-4055-4a6c-b7c1-b865de41802c"
-        },
-        {
-            "pname": "Mars",
-            "modelIDXs": [
-                15
-            ],
-            "solvers": [],
-            "solverAttrs": [],
-            "uuid": "e59deaef-3bef-4b5f-94fa-0247071da1fc"
+            "uuid": "303b6343-b68f-4636-b1c4-46ecd6f9f035"
         },
         {
             "pname": "Mercury",
@@ -100,16 +76,34 @@
             ],
             "solvers": [],
             "solverAttrs": [],
-            "uuid": "b5244bde-0ffb-4e50-8ef0-8756a0b5fd8a"
+            "uuid": "210a4295-ae0e-48a7-b28c-296532d7b3a9"
         },
         {
-            "pname": "Moon",
+            "pname": "Jupiter",
             "modelIDXs": [
-                14
+                16
             ],
             "solvers": [],
             "solverAttrs": [],
-            "uuid": "8f4bc0fc-f381-4d8d-9307-96e7dee626df"
+            "uuid": "a1cacb33-9df6-45b3-905c-641896b41fe0"
+        },
+        {
+            "pname": "Sun",
+            "modelIDXs": [
+                10
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "9ac8c2f9-f05f-4978-94f5-a082dc2992f2"
+        },
+        {
+            "pname": "Venus",
+            "modelIDXs": [
+                12
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "dc717052-515e-4ebf-8332-479ec6454b9b"
         },
         {
             "pname": "Earth",
@@ -118,7 +112,25 @@
             ],
             "solvers": [],
             "solverAttrs": [],
-            "uuid": "e102fba5-9869-49c0-921a-fa70e627b141"
+            "uuid": "b64125c8-34f2-4434-a5ae-2bcea7553cd6"
+        },
+        {
+            "pname": "Gizmo",
+            "modelIDXs": [
+                17
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "7d3bf573-1743-4ea3-80f7-1262b3e40318"
+        },
+        {
+            "pname": "Mars",
+            "modelIDXs": [
+                15
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "fe1b6516-c9c4-4da8-8477-3cfd75224681"
         }
     ],
     "background": [],
@@ -275,11 +287,24 @@
         {
             "pApt": 50,
             "pFoc": 200,
-            "pTransform":
-	    [1,0,0,0,
-             0,1,0,0,
-             0,0,1,-150063163046,
-             0,0,0,1],
+            "pTransform": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                -150063170000,
+                0,
+                0,
+                0,
+                1
+            ],
             "pMouseS": 1,
             "pKeyboardRS": 1,
             "pKeyboardTS": 1
@@ -287,11 +312,24 @@
         {
             "pApt": 50,
             "pFoc": 200,
-            "pTransform":
-	    [6.2280237674713135e-2, 0, -0.9970607161521912, -4.015006012819568e8,
-             0,1,0,0,
-             0.9970607161521912, 0, 6.2280237674713135e-2, -1.5000190631545795e11,
-             0,0,0,1],
+            "pTransform": [
+                6.2280238e-2,
+                0,
+                -0.9970607,
+                -401500600,
+                0,
+                1,
+                0,
+                0,
+                0.9970607,
+                0,
+                6.2280238e-2,
+                -150001910000,
+                0,
+                0,
+                0,
+                1
+            ],
             "pMouseS": 1,
             "pKeyboardRS": 1,
             "pKeyboardTS": 1
@@ -299,11 +337,24 @@
         {
             "pApt": 50,
             "pFoc": 200,
-            "pTransform":
-	    [1,0,0,0,
-             0,1,0,0,
-             0,0,1,-228033173634,
-             0,0,0,1],
+            "pTransform": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                -228033170000,
+                0,
+                0,
+                0,
+                1
+            ],
             "pMouseS": 1,
             "pKeyboardRS": 1,
             "pKeyboardTS": 1

@@ -1,0 +1,12 @@
+{
+    "name": "graph",
+    "fragShader": "./mat/graph/src/shader.frag",
+    "vertShader": "./mat/graph/src/shader.vert",
+    "textures": [
+        {
+            "name": "Graph 00",
+            "uuid": "00000000-0000-0000-0000-000000000000",
+            "path": "./textures/64x64.jpg"
+        }
+    ]
+}

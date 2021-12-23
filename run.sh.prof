@@ -17,4 +17,4 @@ cabal run +RTS -sstderr -RTS e1338 ./projects/intro_XXII ./projects/solar_system
 
 # Test
 # cabal build exe:e1338
-# cabal run exe:e1338 ./projects/intro ./projects/test
+# cabal run exe:e1338 ./projects/intro_XXII ./projects/test

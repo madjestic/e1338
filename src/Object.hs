@@ -127,15 +127,16 @@ data ObjectClass = Foreground | Background | Font
 data GUI =
      GUI
      {
-       _fonts :: [Object]
-     , _icons :: [Object]
+       _fonts   :: [Object]
+     , _icons   :: [Object]
+--     , _widgets :: [Object] -- TODO: think about a widget set?     
      } deriving Show
 $(makeLenses ''GUI)
 
 data ObjectTree =
   ObjectTree
   {
-    _gui :: GUI
+    _gui        :: GUI
   , _foreground :: [Object]
   , _background :: [Object]
   } deriving Show
