@@ -61,11 +61,6 @@ void main()
 			 , camera[2]
 			 , vec4(0,0,0,1));
 
-	mat3 perspRot =
-		mat3 ( persp[0].xyz
-			 , persp[1].xyz
-			 , persp[2].xyz );
-
 	mat3 xformRot =
 		mat3 ( xform[0].xyz
 			 , xform[1].xyz

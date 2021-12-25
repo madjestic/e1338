@@ -1,7 +1,7 @@
 {
     "name": "The Solar System",
-    "resx": 1280,
-    "resy": 720,
+    "resx": 640,
+    "resy": 360,
     "camMode": "AbsoluteLocation",
     "models": [
         {
@@ -325,6 +325,31 @@
                 0,
                 6.2280238e-2,
                 -150001910000,
+                0,
+                0,
+                0,
+                1
+            ],
+            "pMouseS": 1,
+            "pKeyboardRS": 1,
+            "pKeyboardTS": 1
+        },
+        {
+            "pApt": 50,
+            "pFoc": 100,
+            "pTransform": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                -10,
                 0,
                 0,
                 0,

@@ -138,7 +138,7 @@ main :: IO ()
 main = do
 
   --let argsDebug = return ["./projects/intro", "./projects/view_model"]
-  let argsDebug = return ["./projects/test", "./projects/test"]
+  let argsDebug = return ["./projects/intro_XXII", "./projects/solar_system"]
   args <- if debug then argsDebug else getArgs
 
   introProj <- P.read (unsafeCoerce (args!!0) :: FilePath)

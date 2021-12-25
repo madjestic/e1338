@@ -141,7 +141,7 @@ executable e1338
                 app
               , src
   ghc-options:   -O2 -threaded -fprof-auto -fprof-cafs "-with-rtsopts=-N -p -s -h -i0.1 -xc"
-  -- cpp-options:   -DDEBUG
+  cpp-options:   -DDEBUG
   build-depends:
                        base                ^>= 4.14
                      , aeson               ^>= 1.4.7.1
