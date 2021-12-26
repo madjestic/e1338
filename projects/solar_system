@@ -397,7 +397,7 @@
                 1
             ],
             "pMouseS": 1,
-            "pKeyboardRS": 1,
+            "pKeyboardRS": 5,
             "pKeyboardTS": 1,
             "pcname": "Earth"
         },
