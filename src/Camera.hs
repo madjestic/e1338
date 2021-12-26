@@ -35,7 +35,8 @@ import Debug.Trace as DT
 data Camera =
      Camera
      {
-       _apt        :: Double
+       _name       :: String
+     , _apt        :: Double
      , _foc        :: Double 
      , _controller :: Controllable
      , _mouseS     :: V3 Double -- | mouse    "sensitivity"
@@ -49,6 +50,7 @@ $(makeLenses ''Camera)
 defaultCam :: Camera
 defaultCam =
   Camera
+  "PlayerCamera" -- | Player Camera
   50.0
   100.0
   defaultCamController

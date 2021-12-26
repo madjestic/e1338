@@ -43,16 +43,17 @@ void main()
 			 , vec4(0,0,0,1));
 
 	mat4 xform    = xform1;
+	
 	mat3 xformRot =
 		mat3 ( xform[0].xyz
 			 , xform[1].xyz
 			 , xform[2].xyz );
 
 	mat4 scale44 =
-		mat4 ( vec4 (1,0,0,40)
-			 , vec4 (0,1,0,-35)
+		mat4 ( vec4 (1,0,0,90)
+			 , vec4 (0,1,0,-80)
 			 , vec4 (0,0,1,0)
-			 , vec4 (0,0,0,50) );
+			 , vec4 (0,0,0,100) );
 
 	A  = alpha;
 	N  = normalize(perspRot * viewRot * xformRot * normal);
@@ -64,10 +65,10 @@ void main()
 
 	gl_Position
 		= perspRot4
-		* cameraRot
-		* xform1
+		* inverse(cameraRot)
+		* xform
 		* position
 		* scale44;
 
-	gl_Position.z = -1.0;
+	gl_Position.z = -10.0;
 	} 

@@ -1,7 +1,7 @@
 {
     "name": "The Solar System",
-    "resx": 640,
-    "resy": 360,
+    "resx": 1280,
+    "resy": 720,
     "camMode": "AbsoluteLocation",
     "models": [
         {
@@ -307,7 +307,8 @@
             ],
             "pMouseS": 1,
             "pKeyboardRS": 1,
-            "pKeyboardTS": 1
+            "pKeyboardTS": 1,
+	    "pcname": "Earth"
         },
         {
             "pApt": 50,
@@ -332,7 +333,8 @@
             ],
             "pMouseS": 1,
             "pKeyboardRS": 1,
-            "pKeyboardTS": 1
+            "pKeyboardTS": 1,
+	    "pcname": "Earth1"
         },
         {
             "pApt": 50,
@@ -357,7 +359,8 @@
             ],
             "pMouseS": 1,
             "pKeyboardRS": 1,
-            "pKeyboardTS": 1
+            "pKeyboardTS": 1,
+	    "pcname": "Earth2"	    
         },
         {
             "pApt": 50,
@@ -382,7 +385,8 @@
             ],
             "pMouseS": 1,
             "pKeyboardRS": 1,
-            "pKeyboardTS": 1
+            "pKeyboardTS": 1,
+	    "pcname": "Earth3"
         }
     ]
 }

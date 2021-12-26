@@ -213,7 +213,7 @@ render lastInteraction Rendering.OpenGL opts window application =
 -- | render FPS current
     currentTime <- SDL.time
     dt <- (currentTime -) <$> readMVar lastInteraction
-    drawString (draw txs hmap (opts { primitiveMode = Triangles }) window) fntsDrs $ "fps : " ++ show (round (1/dt))
+    drawString (draw txs hmap (opts { primitiveMode = Triangles }) window) fntsDrs $ "fps:" ++ show (round (1/dt))
 
     SDL.glSwapWindow window
 
@@ -254,10 +254,10 @@ formatting (drw, offset) = drw'
     uns  = view uniforms drw
     rot0 = view _m33 (view (uniforms . u_xform) drw)
     tr0  = view translation (view (uniforms . u_xform) drw)
-    s1    = 0.085   -- scale Offset
-    s2    = 1.0   -- scale Size
-    h     = -0.5 -- horizontal offset
-    v     = 0.9   -- vertical   offset
+    s1    = 0.085  -- scale Offset
+    s2    = 1.0    -- scale Size
+    h     = -0.4   -- horizontal offset
+    v     = 1.1    -- vertical   offset
     offsetM44 =
       mkTransformationMat
       (rot0 * s2)

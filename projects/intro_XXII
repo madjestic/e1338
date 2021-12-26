@@ -172,15 +172,16 @@
     "cameras": [
         {
             "pApt": 50,
-            "pFoc": 50,
+            "pFoc": 200,
             "pTransform":
             [1,0,0, 0,
              0,1,0, 0,
-             0,0,1,-10,
+             0,0,1,-43.15,
              0,0,0, 1],
             "pMouseS": 1,
             "pKeyboardRS": 1,
-            "pKeyboardTS": 1
+            "pKeyboardTS": 1,
+	    "pcname": "IntroCamera"
         }
     ]
 }

@@ -60,8 +60,8 @@ deriveJSON defaultOptions {fieldLabelModifier = drop 1} ''PreObject
 
 data ProjectCamera
   =  ProjectCamera
-     {
-       _pApt        :: Double
+     { _pcname      :: String
+     , _pApt        :: Double
      , _pFoc        :: Double
      , _pTransform  :: [Float]
      , _pMouseS     :: Double -- | mouse    "sensitivity"
@@ -160,6 +160,7 @@ defaultProject =
   ,(Model   "models/fnt_quote.bgeo")  
   ]
   [(ProjectCamera
+    "PlayerCamera" -- | Player Camera
     50.0
     100.0
     [1, 0, 0, 0,

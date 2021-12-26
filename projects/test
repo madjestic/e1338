@@ -5,7 +5,7 @@
     "camMode": "AbsoluteLocation",
     "models": [
         {
-            "path": "models/gizmo.bgeo"
+            "path": "models/box.bgeo"
         }
     ],
     "objects": [
@@ -210,7 +210,8 @@
             ],
             "pMouseS": 1,
             "pKeyboardRS": 1,
-            "pKeyboardTS": 1
+            "pKeyboardTS": 1,
+            "pcname": "PlayerCamera"
         }
     ]
 }
