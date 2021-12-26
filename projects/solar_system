@@ -61,13 +61,13 @@
     ],
     "objects": [
         {
-            "pname": "Moon",
+            "pname": "Venus",
             "modelIDXs": [
-                14
+                12
             ],
             "solvers": [],
             "solverAttrs": [],
-            "uuid": "303b6343-b68f-4636-b1c4-46ecd6f9f035"
+            "uuid": "89eff6c8-b61c-4b45-9ab6-4aa6b1bb27e2"
         },
         {
             "pname": "Mercury",
@@ -76,43 +76,7 @@
             ],
             "solvers": [],
             "solverAttrs": [],
-            "uuid": "210a4295-ae0e-48a7-b28c-296532d7b3a9"
-        },
-        {
-            "pname": "Jupiter",
-            "modelIDXs": [
-                16
-            ],
-            "solvers": [],
-            "solverAttrs": [],
-            "uuid": "a1cacb33-9df6-45b3-905c-641896b41fe0"
-        },
-        {
-            "pname": "Sun",
-            "modelIDXs": [
-                10
-            ],
-            "solvers": [],
-            "solverAttrs": [],
-            "uuid": "9ac8c2f9-f05f-4978-94f5-a082dc2992f2"
-        },
-        {
-            "pname": "Venus",
-            "modelIDXs": [
-                12
-            ],
-            "solvers": [],
-            "solverAttrs": [],
-            "uuid": "dc717052-515e-4ebf-8332-479ec6454b9b"
-        },
-        {
-            "pname": "Earth",
-            "modelIDXs": [
-                13
-            ],
-            "solvers": [],
-            "solverAttrs": [],
-            "uuid": "b64125c8-34f2-4434-a5ae-2bcea7553cd6"
+            "uuid": "9554cdd4-d3dd-44ea-892e-8f71677ea616"
         },
         {
             "pname": "Gizmo",
@@ -121,7 +85,25 @@
             ],
             "solvers": [],
             "solverAttrs": [],
-            "uuid": "7d3bf573-1743-4ea3-80f7-1262b3e40318"
+            "uuid": "bc6188d7-49ed-4e8f-b519-16e9e73cee29"
+        },
+        {
+            "pname": "Sun",
+            "modelIDXs": [
+                10
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "4b4a517f-4a11-44a1-a4a2-4f11bee023d1"
+        },
+        {
+            "pname": "Earth",
+            "modelIDXs": [
+                13
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "9aff376e-88fc-4b7a-9e9c-08524c9f7b98"
         },
         {
             "pname": "Mars",
@@ -130,10 +112,119 @@
             ],
             "solvers": [],
             "solverAttrs": [],
-            "uuid": "fe1b6516-c9c4-4da8-8477-3cfd75224681"
+            "uuid": "43953dbf-de1e-4c84-b784-486ddb740837"
+        },
+        {
+            "pname": "Jupiter",
+            "modelIDXs": [
+                16
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "0bf86ce3-0c66-45df-ac78-4f0c4b322fbb"
+        },
+        {
+            "pname": "Moon",
+            "modelIDXs": [
+                14
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "377ff3e2-e116-4b06-821c-e14d0a67ce26"
         }
     ],
-    "background": [],
+    "background": [
+        {
+            "pname": "Star Sector 01",
+            "modelIDXs": [
+                1
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "80c2871b-84e8-499e-a6ee-880d6393fce4"
+        },
+        {
+            "pname": "Star Sector 00",
+            "modelIDXs": [
+                0
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "d55abb9f-ad5e-4f21-8768-3ac7613e722b"
+        },
+        {
+            "pname": "Star Sector 02",
+            "modelIDXs": [
+                2
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "d32ae7e8-be36-4ae9-a8f2-057606044148"
+        },
+        {
+            "pname": "Star Sector 03",
+            "modelIDXs": [
+                3
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "e9dfdb23-34f6-4b85-a576-bc1cfd103ed9"
+        },
+        {
+            "pname": "Star Sector 04",
+            "modelIDXs": [
+                4
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "ab39f275-a350-4a3c-8c3f-5e520081b916"
+        },
+        {
+            "pname": "Star Sector 05",
+            "modelIDXs": [
+                5
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "f26cdc7d-ea60-4978-b0a5-19b0ae763fd2"
+        },
+        {
+            "pname": "Star Sector 06",
+            "modelIDXs": [
+                6
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "3dd774cb-dd17-4c61-90b2-7176a54cc585"
+        },
+        {
+            "pname": "Star Sector 07",
+            "modelIDXs": [
+                7
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "b9efef7f-31bb-494f-9eae-2bffa274fc99"
+        },
+        {
+            "pname": "Star Sector 08",
+            "modelIDXs": [
+                8
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "4c9d7275-d089-483b-8612-60c174b573be"
+        },
+        {
+            "pname": "Star Sector 09",
+            "modelIDXs": [
+                9
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "uuid": "0332ba65-17e9-4840-a869-8a90a34b0985"
+        }
+    ],
     "fonts": [
         {
             "path": "models/fnt_0.bgeo"
@@ -308,7 +399,7 @@
             "pMouseS": 1,
             "pKeyboardRS": 1,
             "pKeyboardTS": 1,
-	    "pcname": "Earth"
+            "pcname": "Earth"
         },
         {
             "pApt": 50,
@@ -334,33 +425,7 @@
             "pMouseS": 1,
             "pKeyboardRS": 1,
             "pKeyboardTS": 1,
-	    "pcname": "Earth1"
-        },
-        {
-            "pApt": 50,
-            "pFoc": 100,
-            "pTransform": [
-                1,
-                0,
-                0,
-                0,
-                0,
-                1,
-                0,
-                0,
-                0,
-                0,
-                1,
-                -10,
-                0,
-                0,
-                0,
-                1
-            ],
-            "pMouseS": 1,
-            "pKeyboardRS": 1,
-            "pKeyboardTS": 1,
-	    "pcname": "Earth2"	    
+            "pcname": "Moon"
         },
         {
             "pApt": 50,
@@ -386,7 +451,111 @@
             "pMouseS": 1,
             "pKeyboardRS": 1,
             "pKeyboardTS": 1,
-	    "pcname": "Earth3"
+            "pcname": "Mars"
+        },
+        {
+            "pApt": 50,
+            "pFoc": 200,
+            "pTransform": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                -108060410000,
+                0,
+                0,
+                0,
+                1
+            ],
+            "pMouseS": 1,
+            "pKeyboardRS": 1,
+            "pKeyboardTS": 1,
+            "pcname": "Venus"
+        },
+        {
+            "pApt": 50,
+            "pFoc": 200,
+            "pTransform": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                -58025116000,
+                0,
+                0,
+                0,
+                1
+            ],
+            "pMouseS": 1,
+            "pKeyboardRS": 1,
+            "pKeyboardTS": 1,
+            "pcname": "Mercury"
+        },
+        {
+            "pApt": 50,
+            "pFoc": 200,
+            "pTransform": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                -778696460000,
+                0,
+                0,
+                0,
+                1
+            ],
+            "pMouseS": 1,
+            "pKeyboardRS": 1,
+            "pKeyboardTS": 1,
+            "pcname": "Jupiter"
+        },
+        {
+            "pApt": 50,
+            "pFoc": 100,
+            "pTransform": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                -10,
+                0,
+                0,
+                0,
+                1
+            ],
+            "pMouseS": 1,
+            "pKeyboardRS": 1,
+            "pKeyboardTS": 1,
+            "pcname": "TestCam"
         }
     ]
 }

@@ -7,40 +7,45 @@
 
 module Main where 
 
-import Control.Concurrent
-import Control.Lens
-import Data.Set (fromList, toList)
-import Data.Text                 (pack)
-import Foreign.C
-import FRP.Yampa          hiding (identity)
-
-import SDL                hiding ( Point
-                                 , M44
-                                 , M33
-                                 , Event
-                                 , Mouse
-                                 , RenderDrivers
-                                 , (^+^)
-                                 , (*^)
-                                 , _xyz)
-
+import Control.Concurrent ( swapMVar, newMVar )
+import Control.Lens       ( toListOf, view )
+import Data.Set           ( fromList, toList )
+import Data.Text          ( pack)
+import Foreign.C          ( CInt )
+import FRP.Yampa as FRP   ( (>>>), reactimate, Arrow((&&&)), Event(..), SF )
+import SDL
+    ( pollEvent,
+      setMouseLocationMode,
+      time,
+      Event(eventPayload),
+      EventPayload,
+      LocationMode(AbsoluteLocation, RelativeLocation),
+      Window )
 import Graphics.Rendering.OpenGL ( PrimitiveMode(..), Color4 (Color4), pointSize)
-
-import System.Environment       (getArgs)
-import Unsafe.Coerce
+import System.Environment        ( getArgs )
+import Unsafe.Coerce             ( unsafeCoerce )
 
 import Application
-import App
-import Object         as O
+    ( Application(Application, _intro, _main, _hmap),
+      Interface(Intro),
+      appRun )
+import App ( objects, handleExit, initApp )
+import Object as O
+    ( Object, materials, fonts, background, foreground, gui )
 import Project as P ( camMode, resy, resx, name, read )
-import AppInput                 (parseWinInput) 
-import Rendering      as R
-import Utils hiding (fromList)
-
-import Debug.Trace    as DT
+import AppInput                  ( parseWinInput ) 
+import Rendering as R
+    ( BackendOptions(BackendOptions, primitiveMode, bgrColor, ptSize),
+      Backend(OpenGL),
+      openWindow,
+      closeWindow,
+      render,
+      bindTexture,
+      initVAO )
 import qualified Material as M
 import qualified Texture  as T
-import Data.UUID
+
+import Debug.Trace    as DT
 
 #ifdef DEBUG
 debug = True
@@ -49,7 +54,7 @@ debug = False
 #endif
 
 -- -- < Animate > ------------------------------------------------------------
-type WinInput = Event SDL.EventPayload
+type WinInput = FRP.Event SDL.EventPayload
 type WinOutput = (Application, Bool)
 
 animate :: SDL.Window
