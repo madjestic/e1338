@@ -40,6 +40,7 @@ import Rendering as R
       openWindow,
       closeWindow,
       render,
+      initResources,
       bindTexture,
       initVAO )
 import qualified Material as M
@@ -95,50 +96,6 @@ animate window sf =
             return shouldExit
 
 -- < Main Function > -----------------------------------------------------------
--- initResources :: Application -> IO Application
--- initResources app0 =
---   do
---     let
---       objs = introObjs ++ fntObjs ++ fgrObjs ++ bgrObjs
---       txs  = concat $ concatMap (toListOf (materials . traverse . M.textures)) objs -- :: [Texture]
---       uuids = fmap (view T.uuid) txs
---       hmap = zip uuids [0..] -- TODO: reserve 0 for font rendering?
-
---     putStrLn "Initializing Resources..."
---     putStrLn "Loading Textures..."
---     mapM_ (bindTexture hmap) txs
---     putStrLn "Finished loading textures."
-    
---     return app0 { _hmap = hmap }
---       where
---         introObjs = concat $ toListOf (App.objects . O.foreground)  (_intro app0) :: [Object]
---         fntObjs   = concat $ toListOf (App.objects . gui . O.fonts) (_main app0)  :: [Object]
---         fgrObjs   = concat $ toListOf (App.objects . O.foreground)  (_main app0)  :: [Object]
---         bgrObjs   = concat $ toListOf (App.objects . O.background)  (_main app0)  :: [Object]
-
-initApplicationTextures :: Application -> IO Application
-initApplicationTextures app0 =
-  do
-    let
-      objs = introObjs ++ fntObjs ++ fgrObjs ++ bgrObjs
-      txs  = concat $ concatMap (toListOf (materials . traverse . M.textures)) objs -- :: [Texture]
-      uuids = fmap (view T.uuid) txs
-
-      hmap'= zip uuids [0..]
-      hmap = toList . fromList $ hmap'
-
-    putStrLn "Initializing Resources..."
-    putStrLn "Loading Textures..."
-    mapM_ (bindTexture hmap) txs
-    putStrLn "Finished loading textures."
-
-    return app0 { _hmap = hmap }
-      where
-        introObjs = concat $ toListOf (App.objects . O.foreground)  (_intro app0) :: [Object]
-        fntObjs   = concat $ toListOf (App.objects . gui . O.fonts) (_main app0)  :: [Object]
-        fgrObjs   = concat $ toListOf (App.objects . O.foreground)  (_main app0)  :: [Object]
-        bgrObjs   = concat $ toListOf (App.objects . O.background)  (_main app0)  :: [Object]
-
 main :: IO ()
 main = do
 
@@ -179,7 +136,7 @@ main = do
       main
       []
 
-  app <- initApplicationTextures initApp
+  app <- initResources initApp
   
   putStrLn "Starting App."
   animate

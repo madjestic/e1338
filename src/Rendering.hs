@@ -9,16 +9,13 @@ module Rendering
   ( openWindow
   , closeWindow
   , draw
---  , drawGraph
   , initVAO
   , initUniforms
---  , initResources  
---  , bindTexureUniforms
+  , initResources  
   , genTexObject
   , bindTexture
   , bindTextureObject
   , render
---  , pixelGrid
   , loadTex
   , Backend (..)
   , BackendOptions (..)
@@ -32,6 +29,7 @@ import Data.UUID
 import Data.UUID.V4
 import Data.List.Split                        (splitOn)
 import Data.List                              (sort)
+import Data.Set as Set                        (fromList)
 import Foreign.C
 import Foreign.Marshal.Array                  (withArray)
 import Foreign.Ptr                            (plusPtr, nullPtr, Ptr(..))
@@ -131,9 +129,10 @@ openWindow title (sizex,sizey) =
 
     window <- SDL.createWindow
               title
-              SDL.defaultWindow { SDL.windowInitialSize = V2 sizex sizey
-                                , SDL.windowGraphicsContext = OpenGLContext config
-                                }
+              SDL.defaultWindow
+              { SDL.windowInitialSize = V2 sizex sizey
+              , SDL.windowGraphicsContext = OpenGLContext config
+              }
 
     SDL.showWindow window
     _ <- SDL.glCreateContext window
@@ -254,10 +253,10 @@ formatting (drw, offset) = drw'
     uns  = view uniforms drw
     rot0 = view _m33 (view (uniforms . u_xform) drw)
     tr0  = view translation (view (uniforms . u_xform) drw)
-    s1    = 0.085  -- scale Offset
-    s2    = 1.0    -- scale Size
-    h     = -0.4   -- horizontal offset
-    v     = 1.1    -- vertical   offset
+    s1   = 0.085  -- scale Offset
+    s2   = 1.0    -- scale Size
+    h    = -0.4   -- horizontal offset
+    v    = 1.1    -- vertical   offset
     offsetM44 =
       mkTransformationMat
       (rot0 * s2)
@@ -362,6 +361,28 @@ bindTexture hmap tx =
       where
         txid = fromMaybe 0 (lookup (view uuid tx) hmap)
 
+initResources :: Application -> IO Application
+initResources app0 =
+  do
+    let
+      objs = introObjs ++ fntObjs ++ fgrObjs ++ bgrObjs
+      txs  = concat $ concatMap (toListOf (materials . traverse . M.textures)) objs -- :: [Texture]
+      uuids = fmap (view T.uuid) txs
+
+      hmap = toList . Set.fromList $ zip uuids [0..]
+
+    putStrLn "Initializing Resources..."
+    putStrLn "Loading Textures..."
+    mapM_ (bindTexture hmap) txs
+    putStrLn "Finished loading textures."
+
+    return app0 { _hmap = hmap }
+      where
+        introObjs = concat $ toListOf (App.objects . O.foreground)  (_intro app0) :: [Object]
+        fntObjs   = concat $ toListOf (App.objects . gui . O.fonts) (_main app0)  :: [Object]
+        fgrObjs   = concat $ toListOf (App.objects . O.foreground)  (_main app0)  :: [Object]
+        bgrObjs   = concat $ toListOf (App.objects . O.background)  (_main app0)  :: [Object]
+
 initUniforms :: [Texture] -> Uniforms -> [(UUID, GLuint)] -> IO ()
 initUniforms txs unis hmap =
   do
@@ -437,10 +458,6 @@ allocateTextures :: Program -> [(UUID, GLuint)] -> Texture -> IO ()
 allocateTextures program hmap tx =
   do
     location <- get (uniformLocation program (view T.name tx))
-    -- print $ "allocateTextures.hmap : " ++ show hmap
-    -- print $ "allocateTextures.tx   : " ++ show tx
-    -- print $ "allocateTextures.txid : " ++ show txid
-    --uniform location $= TextureUnit txid
     uniform location $= TextureUnit txid
       where
         txid = fromMaybe 0 (lookup (view uuid tx) hmap)

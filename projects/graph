@@ -1,0 +1,202 @@
+{
+    "name": "Graph Project",
+    "resx": 256,
+    "resy": 256,
+    "camMode": "AbsoluteLocation",
+    "models": [
+        {
+            "path": "models/graph.bgeo"
+        }
+    ],
+    "objects": [
+        {
+            "pname": "Graph",
+            "modelIDXs": [
+                0
+            ],
+            "solvers": [
+            ],
+            "solverAttrs": [
+            ],
+            "uuid": "d114e7e9-5bc9-49d1-9d7f-29bf589d72a7"
+        }
+    ],
+    "background": [],
+    "fonts": [
+        {
+            "path": "models/fnt_0.bgeo"
+        },
+        {
+            "path": "models/fnt_1.bgeo"
+        },
+        {
+            "path": "models/fnt_2.bgeo"
+        },
+        {
+            "path": "models/fnt_3.bgeo"
+        },
+        {
+            "path": "models/fnt_4.bgeo"
+        },
+        {
+            "path": "models/fnt_5.bgeo"
+        },
+        {
+            "path": "models/fnt_6.bgeo"
+        },
+        {
+            "path": "models/fnt_7.bgeo"
+        },
+        {
+            "path": "models/fnt_8.bgeo"
+        },
+        {
+            "path": "models/fnt_9.bgeo"
+        },
+        {
+            "path": "models/fnt_a.bgeo"
+        },
+        {
+            "path": "models/fnt_b.bgeo"
+        },
+        {
+            "path": "models/fnt_c.bgeo"
+        },
+        {
+            "path": "models/fnt_d.bgeo"
+        },
+        {
+            "path": "models/fnt_e.bgeo"
+        },
+        {
+            "path": "models/fnt_f.bgeo"
+        },
+        {
+            "path": "models/fnt_g.bgeo"
+        },
+        {
+            "path": "models/fnt_h.bgeo"
+        },
+        {
+            "path": "models/fnt_i.bgeo"
+        },
+        {
+            "path": "models/fnt_j.bgeo"
+        },
+        {
+            "path": "models/fnt_k.bgeo"
+        },
+        {
+            "path": "models/fnt_l.bgeo"
+        },
+        {
+            "path": "models/fnt_m.bgeo"
+        },
+        {
+            "path": "models/fnt_n.bgeo"
+        },
+        {
+            "path": "models/fnt_o.bgeo"
+        },
+        {
+            "path": "models/fnt_p.bgeo"
+        },
+        {
+            "path": "models/fnt_q.bgeo"
+        },
+        {
+            "path": "models/fnt_r.bgeo"
+        },
+        {
+            "path": "models/fnt_s.bgeo"
+        },
+        {
+            "path": "models/fnt_t.bgeo"
+        },
+        {
+            "path": "models/fnt_u.bgeo"
+        },
+        {
+            "path": "models/fnt_v.bgeo"
+        },
+        {
+            "path": "models/fnt_w.bgeo"
+        },
+        {
+            "path": "models/fnt_x.bgeo"
+        },
+        {
+            "path": "models/fnt_y.bgeo"
+        },
+        {
+            "path": "models/fnt_z.bgeo"
+        },
+        {
+            "path": "models/fnt_plus.bgeo"
+        },
+        {
+            "path": "models/fnt_minus.bgeo"
+        },
+        {
+            "path": "models/fnt_equal.bgeo"
+        },
+        {
+            "path": "models/fnt_GT.bgeo"
+        },
+        {
+            "path": "models/fnt_comma.bgeo"
+        },
+        {
+            "path": "models/fnt_dot.bgeo"
+        },
+        {
+            "path": "models/fnt_question.bgeo"
+        },
+        {
+            "path": "models/fnt_exclam.bgeo"
+        },
+        {
+            "path": "models/fnt_space.bgeo"
+        },
+        {
+            "path": "models/fnt_asterics.bgeo"
+        },
+        {
+            "path": "models/fnt_slash.bgeo"
+        },
+        {
+            "path": "models/fnt_semicolon.bgeo"
+        },
+        {
+            "path": "models/fnt_quote.bgeo"
+        }
+    ],
+    "cameras": [
+        {
+            "pApt": 50,
+            "pFoc": 100,
+            "pTransform": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                -10,
+                0,
+                0,
+                0,
+                1
+            ],
+            "pMouseS": 1,
+            "pKeyboardRS": 1,
+            "pKeyboardTS": 1,
+	    "pcname": "PlayerCamera"
+        }
+    ]
+}

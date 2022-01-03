@@ -1,5 +1,5 @@
 name:          e1338
-version:       0.2.0.1
+version:       0.2.0.2
 synopsis:      A re-write of e1337 with BearRiver (and, maybe, MVars)
 description:   Please see the README on GitHub at <https://github.com/madjestic/e1338#readme>
 homepage:      https://github.com/madjestic/e1338

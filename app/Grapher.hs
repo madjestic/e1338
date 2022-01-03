@@ -233,13 +233,6 @@ updateArray :: MArray RealWorld S Ix2 Word8 -> Array S Ix2 Word8 -> IO (Array S 
 updateArray mArr arr = do
   return arr
 
-initGraph :: Sz2 -> Array S Ix2 Word8 -> Array S Ix2 Word8
-initGraph sz arr =
-  -- compute $ makeArrayR D Par sz (const 1)
-  -- compute $ makeArrayR D Par sz (const 1)
-  arr
-
-
 -- Graph is an Object?
 initApplicationGraphTextures :: Application -> [Graph] -> IO Application
 initApplicationGraphTextures app0 gs = do
@@ -258,36 +251,12 @@ initApplicationGraphTextures app0 gs = do
     
     mapM_ (\grph -> putStrLn $ "Generating and binding texture size : " ++ show (view sz grph)) gs
     gtxs <- mapM genTexObject gs
-    --gtxs' <- loadTex "textures/64x64.jpg" -- manual test texture override
     let
       txs' = filter (\tx -> (head . words $ view Texture.name tx) == "Graph") txs :: [Texture.Texture]
       ids  = Prelude.read <$> concatMap (tail . words . view Texture.name) txs'   :: [GLuint] -- TODO: tail is unsafe, replace with Maybe
     mapM_ (uncurry bindTextureObject) (zip ids gtxs)
 
     putStrLn "Finished loading textures."
-    return app0 { _hmap = hmap }
-      where
-        introObjs = concat $ toListOf (App.objects . O.foreground)  (_intro app0) :: [Object]
-        fntObjs   = concat $ toListOf (App.objects . gui . O.fonts) (_main app0)  :: [Object]
-        fgrObjs   = concat $ toListOf (App.objects . O.foreground)  (_main app0)  :: [Object]
-        bgrObjs   = concat $ toListOf (App.objects . O.background)  (_main app0)  :: [Object]
-
-initApplicationTextures :: Application -> IO Application
-initApplicationTextures app0 =
-  do
-    let
-      objs = introObjs ++ fntObjs ++ fgrObjs ++ bgrObjs
-      txs  = concat $ concatMap (toListOf (materials . traverse . M.textures)) objs -- :: [Texture]
-      uuids = fmap (view T.uuid) txs
-
-      hmap'= zip uuids [0..]
-      hmap = toList . fromList $ hmap'
-
-    putStrLn "Initializing Resources..."
-    putStrLn "Loading Textures..."
-    mapM_ (bindTexture hmap) txs
-    putStrLn "Finished loading textures."
-
     return app0 { _hmap = hmap }
       where
         introObjs = concat $ toListOf (App.objects . O.foreground)  (_intro app0) :: [Object]
@@ -334,7 +303,6 @@ main = do
 
   putStrLn "\n Initializing App"
   intro <- initApp initVAO introProj
-  -- print $ intro
   main  <- initApp initVAO mainProj
 
   graph  <- genArray resx resy
@@ -344,32 +312,15 @@ main = do
     gr  = Graph sz graph mArr
     grs = gr:repeat gr :: [Graph]
 
-    -- for every graph gen/bind a textre
-
-    override = traverseOf (App.objects . foreground . traverse . materials . traverse . Material.textures) (const txs)
-    txs      = undefined :: IO [Texture.Texture]
-  --txs' <- mapM_ genTexObject grs -- TODO: Continue :: substitute UUID of the default texture with the UUID of the newely generated texture, the GLuint then should match and we can call the binding at Rendertime.
-  -- fromUUID :: UUID -> GLuint 
-    --txs      = mapM_  :: IO [Texture.Texture]
-
-  --intro' <- override intro
-
-  --mapM_ (\(gr, idx) -> genTexObject idx gr) $ zip grs [0..]
-  -- texObj <- genTexObject 0 gr
-
   let
     initApp =
       Application
       Intro -- interface current state
       intro
-      --(DT.trace ("intro: " ++ show intro) intro)
       main
-      [] -- fill up the hmap with graph object (plane) + texture (array) binding
-         -- just material override the Material.textures
+      []
 
-  -- TODO : need to add the generated graph texture to the (intro) App (use override intro?)
   app <- initApplicationGraphTextures initApp [gr]
-  --app <- initApplicationTextures initApp
 
   putStrLn "Starting App."
   animate
