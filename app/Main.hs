@@ -7,7 +7,7 @@
 
 module Main where 
 
-import Control.Concurrent ( swapMVar, newMVar )
+import Control.Concurrent ( swapMVar, newMVar, MVar )
 import Control.Lens       ( toListOf, view )
 import Data.Set           ( fromList, toList )
 import Data.Text          ( pack)
@@ -17,6 +17,7 @@ import SDL
     ( pollEvent,
       setMouseLocationMode,
       time,
+      glSwapWindow,
       Event(eventPayload),
       EventPayload,
       LocationMode(AbsoluteLocation, RelativeLocation),
@@ -83,18 +84,25 @@ animate window sf =
         renderOutput _ (app, shouldExit) =
           do
             lastInteraction <- newMVar =<< SDL.time
-            
-            R.render
-              lastInteraction
-              R.OpenGL (
-              BackendOptions
-               { primitiveMode = Triangles
-               , bgrColor      = Color4 0.0 0.0 0.0 1.0
-               , ptSize        = 3.0
-               })
-              window
-              app
+
+            output lastInteraction window app
             return shouldExit
+
+output :: MVar Double -> Window -> Application -> IO ()
+output lastInteraction window app = do
+  R.render
+    lastInteraction
+    R.OpenGL (
+    BackendOptions
+      { primitiveMode = Triangles
+      , bgrColor      = Color4 0.0 0.0 0.0 1.0
+      , ptSize        = 1.0
+      })
+    window
+    app
+    
+  glSwapWindow window
+
 
 -- < Main Function > -----------------------------------------------------------
 main :: IO ()

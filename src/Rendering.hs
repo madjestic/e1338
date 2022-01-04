@@ -153,10 +153,10 @@ toDrawable app objs time = drs -- (drs, drs')
     resY = fromEnum $ view (options . resy) app :: Int
     res  = (toEnum resX, toEnum resY) :: (CInt, CInt)
     cam  = view playCam app :: Camera
-    drs  = concatMap (fromObject mpos time res cam) objs :: [Drawable]
+    drs  = concatMap (toDrawable' mpos time res cam) objs :: [Drawable]
 
-fromObject :: (Double, Double) -> Float -> (CInt, CInt) -> Camera -> Object -> [Drawable]
-fromObject mpos time res cam obj = drs
+toDrawable' :: (Double, Double) -> Float -> (CInt, CInt) -> Camera -> Object -> [Drawable]
+toDrawable' mpos time res cam obj = drs
   where
     drs      =
       (\u_mats' u_prog' u_mouse' u_time' u_res' u_cam' u_cam_a' u_cam_f' u_xform' ds' ps' name'
@@ -217,6 +217,59 @@ render lastInteraction Rendering.OpenGL opts window application =
     SDL.glSwapWindow window
 
 render _ Vulkan _ _ _ = undefined
+
+renderText :: MVar Double
+       -> Backend -> BackendOptions
+       -> SDL.Window
+       -> [Drawable]
+       -> [(UUID, GLuint)]
+       -> [ObjectClass]
+       -> IO ()
+renderText = undefined 
+
+-- render' :: MVar Double
+--        -> Backend -> BackendOptions
+--        -> SDL.Window
+--        -> [Drawable]
+--        -> [(UUID, GLuint)]
+--        -> [ObjectClass]
+--        -> IO ()
+-- render' lastInteraction Rendering.OpenGL opts window drs hmap cls=
+--   do
+--     let app = (fromApplication application)
+
+--     GL.clearColor $= bgrColor opts --Color4 0.0 0.0 0.0 1.0
+--     GL.clear [ColorBuffer, DepthBuffer]
+
+--     ticks   <- SDL.ticks
+--     let currentTime = fromInteger (unsafeCoerce ticks :: Integer) :: Float
+
+--         -- fntObjs = concat $ toListOf (objects . gui . fonts) app :: [Object]
+--         -- fgrObjs = concat $ toListOf (objects . foreground)  app :: [Object]
+--         -- bgrObjs = concat $ toListOf (objects . background)  app :: [Object]
+
+--         -- fntsDrs = toDrawable app fntObjs currentTime :: [Drawable]
+--         -- objsDrs = toDrawable app fgrObjs currentTime :: [Drawable]
+--         -- bgrsDrs = toDrawable app bgrObjs currentTime :: [Drawable]
+
+--         txs     = concat $ toListOf ( traverse . materials . traverse . textures) (fgrObjs ++ fntObjs) :: [Texture]
+--         --hmap    = _hmap application
+
+--     --print $ "render.hmap :" ++ show hmap
+
+--     mapM_ (draw txs hmap (opts { primitiveMode = Triangles }) window) objsDrs
+--     --mapM_ (draw txs (DT.trace ("hmap : " ++ show hmap) hmap) (opts { primitiveMode = Triangles }) window) objsDrs
+--     mapM_ (draw txs hmap (opts { primitiveMode = Points }) window) bgrsDrs
+
+-- -- | render FPS current
+--     currentTime <- SDL.time
+--     dt <- (currentTime -) <$> readMVar lastInteraction
+--     drawString (draw txs hmap (opts { primitiveMode = Triangles }) window) fntsDrs $ "fps:" ++ show (round (1/dt))
+
+--     SDL.glSwapWindow window
+
+-- render' _ Vulkan _ _ _ = undefined
+
 
 genTexObject :: Graph -> IO TextureObject
 genTexObject g = do
