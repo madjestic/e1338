@@ -40,7 +40,8 @@ import SDL              hiding  ( Point
                                 , RenderDrivers
                                 , (^+^)
                                 , (*^)
-                                , _xyz)
+                                , _xyz
+                                , Texture )
 
 import Control.Lens             ( traverse
                                 , traverseOf
@@ -56,14 +57,12 @@ import Object as O
 import Project        as P hiding (PreObject)
 import Graph
 
--- for testing like in Main, remove later
-import qualified Texture  as T (uuid)
+import Texture                 (uuid, name, Texture)
 import qualified Material as M (textures)
+import Utils                   (fromUUID)
+import Update                  (handleExit, appRun)
 
 import Debug.Trace as DT
-import qualified Material
-import qualified Texture
-import Utils                   (fromUUID)
 
 #ifdef DEBUG
 debug = True
@@ -71,6 +70,7 @@ debug = True
 debug = False
 #endif
 
+-- < Graph data > -------------------------------------------------------------------------------
 graphRules :: Word8 -> Word8 -> Word8
 graphRules 0 3 = 1
 graphRules 1 2 = 1
@@ -189,6 +189,8 @@ rand m n = r''
     r'' = convert r'     :: Array S Ix2 Word8
     gen = SplitMix.mkSMGen 0
 
+-- < FRP Loop > ---------------------------------------------------------------------------------
+
 type WinInput  = FRP.Event SDL.EventPayload
 type WinOutput = (Application, Bool)
 
@@ -229,19 +231,15 @@ animate window sf =
               app
             return shouldExit
 
-updateArray :: MArray RealWorld S Ix2 Word8 -> Array S Ix2 Word8 -> IO (Array S Ix2 Word8)
-updateArray mArr arr = do
-  return arr
-
 -- Graph is an Object?
-initApplicationGraphTextures :: Application -> [Graph] -> IO Application
-initApplicationGraphTextures app0 gs = do
+initGraphResources :: Application -> [Graph] -> IO Application
+initGraphResources app0 gs = do
     putStrLn "Initializing Resources..."
     uuid <- nextUUID
     let
       objs = introObjs ++ fntObjs ++ fgrObjs ++ bgrObjs
       txs  = concat $ concatMap (toListOf (materials . traverse . M.textures)) objs -- :: [Texture]
-      uuids= fmap (view T.uuid) txs
+      uuids= fmap (view Texture.uuid) txs
       
       hmap'= zip uuids [0..]
       hmap = toList . fromList $ hmap'
@@ -252,8 +250,8 @@ initApplicationGraphTextures app0 gs = do
     mapM_ (\grph -> putStrLn $ "Generating and binding texture size : " ++ show (view sz grph)) gs
     gtxs <- mapM genTexObject gs
     let
-      txs' = filter (\tx -> (head . words $ view Texture.name tx) == "Graph") txs :: [Texture.Texture]
-      ids  = Prelude.read <$> concatMap (tail . words . view Texture.name) txs'   :: [GLuint] -- TODO: tail is unsafe, replace with Maybe
+      txs' = filter (\tx -> (head . words $ view Texture.name tx) == "Graph") txs :: [Texture]
+      ids  = Prelude.read <$> concatMap (tail . words . view (Texture.name)) txs'   :: [GLuint] -- TODO: tail is unsafe, replace with Maybe
     mapM_ (uncurry bindTextureObject) (zip ids gtxs)
 
     putStrLn "Finished loading textures."
@@ -267,8 +265,7 @@ initApplicationGraphTextures app0 gs = do
 
 main :: IO ()
 main = do
-  let argsDebug = return ["./projects/graph", "./projects/view_model"]
-  --let argsDebug = return ["./projects/test", "./projects/test"]
+  let argsDebug = return ["./projects/intro", "./projects/graph"]
   args <- if debug then argsDebug else getArgs
 
   introProj <- P.read (unsafeCoerce (args!!0) :: FilePath)
@@ -311,8 +308,7 @@ main = do
   let
     gr  = Graph sz graph mArr
     grs = gr:repeat gr :: [Graph]
-
-  let
+    
     initApp =
       Application
       Intro -- interface current state
@@ -320,13 +316,10 @@ main = do
       main
       []
 
-  app <- initApplicationGraphTextures initApp [gr]
+  app <- initGraphResources initApp [gr]
 
   putStrLn "Starting App."
   animate
     window
     (parseWinInput >>> appRun app &&& handleExit)
   return ()
-
---updateArray :: Int -> MArray RealWorld S Ix2 Word8 -> Array S Ix2 Word8 -> IO (Array S Ix2 Word8)
---updateArray s mArr arr = do

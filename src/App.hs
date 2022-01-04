@@ -12,9 +12,6 @@ module App
   , App.objects
   , playCam
   , App.cameras
-  , updateApp
-  , handleExit
-  , centerView
   , initApp
   ) where
 
@@ -59,46 +56,6 @@ data Options
 
 $(makeLenses ''Options)
 $(makeLenses ''App)
-
-updateApp :: App -> SF AppInput App
-updateApp app =
-  proc input -> do
-    (cams, cam) <- updateCameras (App._cameras app, App._playCam app) -< (input, App._playCam app)
-
-    objs        <- updateObjects        filteredLinObjs -< ()
-    let objsIntMap = IM.fromList (zip filteredLinObjsIdxs objs)
-    
-    objs'       <- updateObjects' filteredNonLinObjs -< filteredNonLinObjs
-    let objs'IntMap = IM.fromList (zip filteredNonLinObjsIdxs objs')
-
-    let
-      unionObjs = IM.union objs'IntMap objsIntMap
-      objTree = App._objects app
-      result =
-        app { App._objects = (objTree {_foreground = snd <$> IM.toList unionObjs})
-            , App._cameras = cams
-            , _playCam      = cam
-            }
-
-    returnA  -< result
-      where
-        idxObjs    = DL.indexed $ _foreground (App._objects app)
-        intObjMap  = IM.fromList idxObjs :: IntMap Object
-        
-        filterNonLinIntObjMap  = IM.filter (any (\case Gravity {} -> True; _ -> False) . view Object.solvers) intObjMap
-        filteredNonLinObjs     = snd <$> IM.toList filterNonLinIntObjMap
-        filteredNonLinObjsIdxs = fst <$> IM.toList filterNonLinIntObjMap
-
-        filterLinIntObjMap  = IM.filter (any (\case Gravity {} -> False; _ -> True) . view Object.solvers) intObjMap
-        filteredLinObjs     = snd <$> IM.toList filterLinIntObjMap
-        filteredLinObjsIdxs = fst <$> IM.toList filterLinIntObjMap
-
-handleExit :: SF AppInput Bool
-handleExit = quitEvent >>^ isEvent
-
-centerView :: SF AppInput Bool
-centerView = centerEvent >>^ isEvent
-
 
 -- -- < Init App State > ------------------------------------------------------
 

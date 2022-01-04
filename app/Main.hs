@@ -27,9 +27,10 @@ import Unsafe.Coerce             ( unsafeCoerce )
 
 import Application
     ( Application(Application, _intro, _main, _hmap),
-      Interface(Intro),
-      appRun )
-import App ( objects, handleExit, initApp )
+      Interface(Intro))
+import Update (appRun)    
+import App ( objects, initApp )
+import Update (handleExit)
 import Object as O
     ( Object, materials, fonts, background, foreground, gui )
 import Project as P ( camMode, resy, resx, name, read )
