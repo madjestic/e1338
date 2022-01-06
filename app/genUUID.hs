@@ -7,34 +7,24 @@
 
 module Main where
 
-import Control.Applicative ( liftA2 )
-import Control.Lens        ( traverse
-                           , traverseOf
+import Control.Lens        ( traverseOf
                            , toListOf
-                           , view
                            , set)
-import Data.Aeson
-import Data.UUID
 import Data.UUID.V4
-import Graphics.Rendering.OpenGL as GL ( GLfloat
-                                       , GLuint )
-import Data.Locator
 import Data.List (intercalate)
 import System.Directory
 import System.Environment
 import System.Exit
-import System.IO.Unsafe
-import Unsafe.Coerce
 
 import Project as P
 import Material as M
 import Texture  as T
 import Utils                (encodeStringUUID, (<$.>), (<*.>))
 
-import Debug.Trace as DT
+-- import Debug.Trace as DT
 
 fixMaterialUUIDs :: FilePath -> IO ()
-fixMaterialUUIDs path = M.read path >>= genUUID >>= flip M.write ".tmp.uuid"
+fixMaterialUUIDs path' = M.read path' >>= genUUID >>= flip M.write ".tmp.uuid"
   where
     genUUID mat = do
       let
@@ -46,8 +36,8 @@ fixMaterialUUIDs path = M.read path >>= genUUID >>= flip M.write ".tmp.uuid"
       return result
 
 fixProjectUUIDs :: FilePath -> IO ()
-fixProjectUUIDs path = do
-  P.read path >>= genUUIDfgr >>= genUUIDbgr >>= flip P.write ".tmp.uuid"
+fixProjectUUIDs path' = do
+  P.read path' >>= genUUIDfgr >>= genUUIDbgr >>= flip P.write ".tmp.uuid"
   where
     genUUIDfgr = traverseOf (objects . traverse . P.uuid) (const nextRandom)
     genUUIDbgr = traverseOf (background . traverse . P.uuid) (const nextRandom)
@@ -71,7 +61,14 @@ parseArgs ["-v"] = version >> exit
 parseArgs []     = getContents
 parseArgs xs     = putStrLn ("(re)Generating UUIDs for  project file: " ++ show xs) >> return (intercalate " " xs)
 
+help :: IO ()
 help    = putStrLn "Usage: genUUID [-- -vhmp] [file ..]"
+
+version :: IO ()
 version = putStrLn "genUUID 0.1"
+
+exit :: IO String
 exit    = exitWith ExitSuccess
+
+die :: IO String
 die     = exitWith (ExitFailure 1)

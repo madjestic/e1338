@@ -8,21 +8,19 @@
 module Rendering
   ( openWindow
   , closeWindow
-  , draw
-  , drawString  
+  , render
+  , renderString  
   , initVAO
   , bindUniforms
   , genTexObject
   , bindTexture
   , bindTextureObject
---  , render
   , loadTex
   , Backend (..)
   , BackendOptions (..)
   ) where
 
 import Control.Monad
-import Control.Concurrent
 import Data.Maybe                             (fromMaybe)
 import Data.Text                              (Text)
 import Data.UUID
@@ -44,7 +42,6 @@ import Graphics.GLUtil.Textures               (loadTexture, texInfo)
 import Graphics.GLUtil                        (readTexture, texture2DWrap, TexColor(..))
 
 import LoadShaders
-import Object            as O
 import Descriptor
 import Graph
 import Material          as M
@@ -72,32 +69,6 @@ data BackendOptions
      , bgrColor      :: Color4 GLfloat
      , ptSize        :: Float
      } deriving Show
-
--- data Drawable
---   =  Drawable
---      {  name       :: String
---      , _uniforms   :: Uniforms
---      , _descriptor :: Descriptor
---      , _program    :: Program
---      } deriving Show
-
--- data Uniforms
---   =  Uniforms
---      {
---        _u_mats  :: Material
---      , _u_prog  :: Program
---      , _u_mouse :: (Double, Double)
---      , _u_time  :: Float
---      , _u_res   :: (CInt, CInt)
---      --, u_proj  :: M44 Double --GLmatrix GLfloat
---      , _u_cam   :: M44 Double
---      , _u_cam_a :: Double
---      , _u_cam_f :: Double
---      , _u_xform :: M44 Double
---      } deriving Show
-
--- $(makeLenses ''Drawable)
--- $(makeLenses ''Uniforms)
 
 openWindow :: Text -> (CInt, CInt) -> IO SDL.Window
 openWindow title (sizex,sizey) =
@@ -136,115 +107,6 @@ closeWindow window =
     SDL.destroyWindow window
     SDL.quit
 
--- toDrawable :: App -> [Object] -> Double -> [Drawable]
--- toDrawable app objs time0 = drs -- (drs, drs')
---   where
---     mpos = unsafeCoerce $ view (playCam . controller . device' . mouse . pos) app -- :: (Double, Double)
---     resX = fromEnum $ view (options . resx) app :: Int
---     resY = fromEnum $ view (options . resy) app :: Int
---     res  = (toEnum resX, toEnum resY) :: (CInt, CInt)
---     cam  = view playCam app :: Camera
---     drs  = concatMap (toDrawable' mpos time0 res cam) objs :: [Drawable]
-
--- toDrawable' :: (Double, Double) -> Double -> (CInt, CInt) -> Camera -> Object -> [Drawable]
--- toDrawable' mpos time0 res cam obj = drs
---   where
---     drs      =
---       (\u_mats' u_prog' u_mouse' u_time' u_res' u_cam' u_cam_a' u_cam_f' u_xform' ds' ps' name'
---         -> Drawable name' (Uniforms u_mats' u_prog' u_mouse' u_time' u_res' u_cam' u_cam_a' u_cam_f' u_xform') ds' ps')
---       <$.> mats <*.> progs <*.> mpos_ <*.> time_ <*.> res_ <*.> cam_ <*.> cam_a_ <*.> cam_f_ <*.> xforms <*.> ds <*.> progs <*.> names
-
---     n      = length $ view descriptors obj:: Int
---     mpos_  = replicate n mpos :: [(Double, Double)]
---     time_  = replicate n time0 :: [Double]
---     res_   = replicate n res  :: [(CInt, CInt)]
---     cam_   = replicate n $ view (controller . Controllable.transform) cam  :: [M44 Double]
---     cam_a_ = replicate n $ _apt cam :: [Double]
---     cam_f_ = replicate n $ _foc cam :: [Double]
-
---     names  = toListOf (O.materials . traverse . M.name) obj :: [String]
---     mats   = view O.materials   obj :: [Material]
---     progs  = view O.programs    obj :: [Program]
---     xforms = concat $ replicate n $ view O.transforms obj :: [M44 Double]
---     ds     = view O.descriptors obj :: [Descriptor]
-
--- render :: MVar Double
---        -> Backend -> BackendOptions
---        -> SDL.Window
---        -> Application
---        -> IO ()
--- render lastInteraction Rendering.OpenGL opts window application =
---   do
---     let app = (fromApplication application)
-
---     GL.clearColor $= bgrColor opts --Color4 0.0 0.0 0.0 1.0
---     GL.clear [ColorBuffer, DepthBuffer]
-
---     ticks'   <- SDL.ticks
---     let currentTime = fromInteger (unsafeCoerce ticks' :: Integer) :: Double
-
---         fntObjs = concat $ toListOf (objects . gui . fonts) app :: [Object]
---         fgrObjs = concat $ toListOf (objects . foreground)  app :: [Object]
---         bgrObjs = concat $ toListOf (objects . background)  app :: [Object]
-
---         fntsDrs = toDrawable app fntObjs currentTime :: [Drawable]
---         objsDrs = toDrawable app fgrObjs currentTime :: [Drawable]
---         bgrsDrs = toDrawable app bgrObjs currentTime :: [Drawable]
-
---         txs     = concat $ toListOf ( traverse . materials . traverse . textures) (fgrObjs ++ fntObjs) :: [Texture]
---         hmap    = _hmap application
-
---     --print $ "render.hmap :" ++ show hmap
-
---     mapM_ (draw txs hmap (opts { primitiveMode = Triangles })) objsDrs
---     --mapM_ (draw txs (DT.trace ("hmap : " ++ show hmap) hmap) (opts { primitiveMode = Triangles }) window) objsDrs
---     mapM_ (draw txs hmap (opts { primitiveMode = Points })) bgrsDrs
-
--- -- | render FPS current
---     currentTime' <- SDL.time
---     dt <- (currentTime' -) <$> readMVar lastInteraction
---     drawString (draw txs hmap (opts { primitiveMode = Triangles })) fntsDrs $ "fps:" ++ show (round (1/dt) :: Integer)
-
---     SDL.glSwapWindow window
-
--- render _ Vulkan _ _ _ = undefined
-
-renderText :: MVar Double
-       -> Backend -> BackendOptions
-       -> SDL.Window
-       -> [Drawable]
-       -> [(UUID, GLuint)]
-       -> [ObjectClass]
-       -> IO ()
-renderText = undefined 
-
--- render' :: MVar Double
---        -> Backend -> BackendOptions
---        -> SDL.Window
---        -> [Texture]
---        -> [Drawable]
---        -> [(UUID, GLuint)]
---        -> [ObjectClass]
---        -> IO ()
--- render' lastInteraction Rendering.OpenGL opts window txs drs hmap cls =
---   do
---     ticks   <- SDL.ticks
---     let currentTime = fromInteger (unsafeCoerce ticks :: Integer) :: Float
---         -- txs     = concat $ toListOf ( traverse . materials . traverse . textures) drs :: [Texture]
-
---     -- mapM_ (draw txs hmap (opts { primitiveMode = Triangles }) window) objsDrs
---     -- mapM_ (draw txs hmap (opts { primitiveMode = Points }) window) bgrsDrs
---     mapM_ () drs
-
--- -- | render FPS current
---     currentTime <- SDL.time0
---     dt <- (currentTime -) <$> readMVar lastInteraction
---     -- drawString (draw txs hmap (opts { primitiveMode = Triangles }) window) fntsDrs $ "fps:" ++ show (round (1/dt))
-
---     -- SDL.glSwapWindow window
-
--- render' _ Vulkan _ _ _ _ _ _ = undefined
-
 genTexObject :: Graph -> IO TextureObject
 genTexObject g = do
   let --mArr = view marray g
@@ -263,8 +125,8 @@ genTexObject g = do
   --return (fromMaybe nil uuid, t)
   return t
 
-drawString :: (Drawable -> IO ()) -> [Drawable] -> String -> IO ()
-drawString cmds fntsDrs str =
+renderString :: (Drawable -> IO ()) -> [Drawable] -> String -> IO ()
+renderString cmds fntsDrs str =
     --mapM_ cmds $ format $ drawableString fntsDrs "Hello, World!"--str
   mapM_ cmds $ format $ drawableString fntsDrs str
 
@@ -353,11 +215,11 @@ drawableChar drs chr =
     '\'' -> drs!!48
     _   -> head drs
 
-draw :: [Texture] -> [(UUID, GLuint)] ->  BackendOptions -> Drawable -> IO ()
-draw txs hmap opts (Drawable _ unis (Descriptor vao' numIndices') _) =
+render :: [Texture] -> [(UUID, GLuint)] ->  BackendOptions -> Drawable -> IO ()
+render txs hmap opts (Drawable _ unis (Descriptor vao' numIndices') _) =
   do
-    -- print $ "draw.name : " ++ name
-    -- print $ "draw.unis :" ++ show unis ++ "\n draw.txs :" ++ show txs ++ "\n draw.hmap : " ++ show hmap
+    -- print $ "render.name : " ++ name
+    -- print $ "render.unis :" ++ show unis ++ "\n render.txs :" ++ show txs ++ "\n render.hmap : " ++ show hmap
     bindUniforms txs unis hmap
     bindVertexArrayObject $= Just vao'
 

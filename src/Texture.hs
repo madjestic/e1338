@@ -13,7 +13,6 @@ import Data.Aeson
 import Data.Aeson.Encode.Pretty
 import Data.Aeson.TH
 import Data.UUID
-import Data.UUID.V4
 import Data.Text    hiding (drop)
 
 import Utils (encodeStringUUID)
@@ -34,6 +33,7 @@ instance Eq Texture where
 instance Ord Texture where
   compare t0 t1  = compare (view uuid t0) (view uuid t1)
 
+defaultTexture :: Texture
 defaultTexture
   = Texture
     "checkerboard"

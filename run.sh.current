@@ -1,9 +1,15 @@
 #!/bin/sh
 
+# Run Tests
+cabal build exe:e1338
+cabal run +RTS -sstderr -RTS e1338 ./projects/intro_XXII ./projects/solar_system
+cabal build exe:Grapher
+cabal run +RTS -xnc -sstderr -RTS exe:Grapher ./projects/graph ./projects/graph
+
 # Generating a Graph (procedural texture) example.
 # cabal build exe:Grapher
 # cabal run +RTS -xnc -sstderr -RTS exe:Grapher ./projects/graph ./projects/graph
-
+p
 # Checkerboard
 # cabal build exe:e1338
 # cabal run exe:e1338 ./projects/test ./projects/test
@@ -13,8 +19,8 @@
 # cabal run +RTS -sstderr -RTS e1338 ./projects/3body ./projects/3body
 
 # Solar System
-cabal build exe:e1338
-cabal run +RTS -sstderr -RTS e1338 ./projects/intro_XXII ./projects/solar_system
+# cabal build exe:e1338
+# cabal run +RTS -sstderr -RTS e1338 ./projects/intro_XXII ./projects/solar_system
 
 # Test
 # cabal build exe:e1338

@@ -130,7 +130,7 @@ fromPGeo (PGeo idx' as' cs' ns' uvw' ps' mts' mass' vels' xf') = (VGeo idxs st v
   where
     stride = 13 -- TODO: make it more elegant, right now VBO's are hard-coded to be have stride = 13...
     vao = (toVAO idx' as' cs' ns' uvw' ps')
-    (idxs, vaos) = unzip $ fmap (toIdxVAO stride) vao -- that already outputs [[]], but vao, I think,is still a single element list?
+    (idxs, vaos) = unzip $ fmap toIdxVAO vao -- that already outputs [[]], but vao, I think,is still a single element list?
     st           = take (length vaos) $ repeat stride
     vels         = fmap (\(x,y,z)   -> fmap realToFrac [x,y,z]) vels'
 
@@ -139,6 +139,6 @@ fromPGeo' (PGeo idx' as' cs' ns' uvw' ps' mts' mass' vels' xf') = (VGeo idxs st 
   where
     stride = 13 -- TODO: make it more elegant, right now VBO's are hard-coded to be have stride = 13...
     vao = (toVAO idx' as' cs' ns' uvw' ps')
-    (idxs, vaos) = unzip $ fmap (toIdxVAO' stride) vao -- that already outputs [[]], but vao, I think,is still a single element list?
+    (idxs, vaos) = unzip $ fmap toIdxVAO' vao -- that already outputs [[]], but vao, I think,is still a single element list?
     st           = take (length vaos) $ repeat stride
     vels         = fmap (\(x,y,z)   -> fmap realToFrac [x,y,z]) vels'

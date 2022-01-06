@@ -6,29 +6,20 @@
 
 module Main where
 
-import Control.Monad
+import Foreign.C          ( CInt )
+import Data.Text          ( pack)
 import Control.Concurrent
 import Data.Set (fromList, toList)
 import Data.Massiv.Array as A hiding (tail, windowSize, mapM_, mapM, zip, fromList, toList, replicate)
-import Data.Massiv.Array.Unsafe  as AU
-import Data.Massiv.Array.Mutable as AM
+
 import Data.Word                (Word8)
-import System.Exit              (ExitCode(..), exitSuccess, exitWith)
 import System.Environment       (getArgs)
-import Text.Read                (readMaybe)
 import Linear.Matrix
 import System.Random.SplitMix as SplitMix
-import Foreign.C                (CInt(CInt))
-import Data.Text                (Text, pack, chunksOf)
 import Data.List.Split        as DLS (chunksOf)
-import Graphics.GLUtil
 import Graphics.Rendering.OpenGL as GL
 import Unsafe.Coerce
-
 import Control.Lens.Fold        (toListOf)
-import Data.UUID                (nil, UUID(..))
-import Data.UUID.V1             (nextUUID)
-import Data.Maybe               (fromMaybe)
 
 import FRP.Yampa as FRP hiding  (identity)
 import SDL              hiding  ( Point
@@ -42,11 +33,7 @@ import SDL              hiding  ( Point
                                 , _xyz
                                 , Texture )
 
-import Control.Lens             ( traverse
-                                , traverseOf
-                                , toListOf
-                                , view
-                                , set)
+import Control.Lens             ( view )
 
 import Rendering as R
 import Application
@@ -58,16 +45,17 @@ import Graph
 import Texture                 (uuid, name, Texture)
 import Material as M (name)
 import Material (Material, textures)
-import Utils                   (fromUUID, (<$.>), (<*.>))
 import Drawable
 import Camera
 import Controllable
 import Descriptor
 import Mouse
 import Update                  (handleExit, appRun)
+import Utils                   ((<$.>), (<*.>))
 
-import Debug.Trace as DT
+-- import Debug.Trace as DT
 
+debug :: Bool
 #ifdef DEBUG
 debug = True
 #else
@@ -92,13 +80,13 @@ graph :: Array S Ix2 Word8 -> Array S Ix2 Word8
 graph = compute . A.mapStencil Wrap graphStencil
 
 initLife :: Sz2 -> Array S Ix2 Word8 -> Array S Ix2 Word8
-initLife sz arr =
+initLife sz' arr' =
   compute $
   insertWindow
-    (makeArrayR D Par sz (const 0))
-    (Window ix0 (size arr) (index' arr . subtract ix0) Nothing)
+    (makeArrayR D Par sz' (const 0))
+    (Window ix0 (size arr') (index' arr' . subtract ix0) Nothing)
   where
-    ix0 = liftIndex (`div` 2) (unSz (sz - size arr))
+    ix0 = liftIndex (`div` 2) (unSz (sz' - size arr'))
 
 -- blinker :: Array S Ix2 Word8
 -- blinker = [ [0, 1, 0]
@@ -219,25 +207,25 @@ animate window sf =
 
             return (dt, FRP.Event . SDL.eventPayload <$> mEvent)
 
-        renderOutput _ (app, shouldExit) =
+        renderOutput _ (app', shouldExit) =
           do
             lastInteraction <- newMVar =<< SDL.time
 
-            output lastInteraction window app
+            output lastInteraction window app'
             return shouldExit
 
 toDrawable :: App -> [Object] -> Double -> [Drawable]
-toDrawable app objs time = drs -- (drs, drs')
+toDrawable app' objs time' = drs -- (drs, drs')
   where
-    mpos = unsafeCoerce $ view (playCam . controller . device' . mouse . pos) app -- :: (Double, Double)
-    resX = fromEnum $ view (options . App.resx) app :: Int
-    resY = fromEnum $ view (options . App.resy) app :: Int
+    mpos = unsafeCoerce $ view (playCam . controller . device' . mouse . pos) app' -- :: (Double, Double)
+    resX = fromEnum $ view (options . App.resx) app' :: Int
+    resY = fromEnum $ view (options . App.resy) app' :: Int
     res  = (toEnum resX, toEnum resY) :: (CInt, CInt)
-    cam  = view playCam app :: Camera
-    drs  = concatMap (toDrawable' mpos time res cam) objs :: [Drawable]
+    cam  = view playCam app' :: Camera
+    drs  = concatMap (toDrawable' mpos time' res cam) objs :: [Drawable]
 
 toDrawable' :: (Double, Double) -> Double -> (CInt, CInt) -> Camera -> Object -> [Drawable]
-toDrawable' mpos time res cam obj = drs
+toDrawable' mpos time' res cam obj = drs
   where
     drs      =
       (\u_mats' u_prog' u_mouse' u_time' u_res' u_cam' u_cam_a' u_cam_f' u_xform' ds' ps' name'
@@ -246,7 +234,7 @@ toDrawable' mpos time res cam obj = drs
 
     n      = length $ view descriptors obj:: Int
     mpos_  = replicate n mpos :: [(Double, Double)]
-    time_  = replicate n time :: [Double]
+    time_  = replicate n time' :: [Double]
     res_   = replicate n res  :: [(CInt, CInt)]
     cam_   = replicate n $ view (controller . Controllable.transform) cam  :: [M44 Double]
     cam_a_ = replicate n $ _apt cam :: [Double]
@@ -261,23 +249,23 @@ toDrawable' mpos time res cam obj = drs
 output :: MVar Double -> SDL.Window -> Application -> IO ()
 output lastInteraction window application = do
 
-  -- ticks   <- SDL.ticks
-  -- let currentTime = fromInteger (unsafeCoerce ticks :: Integer) :: Float
+  ticks'   <- SDL.ticks
+  let currentTime = fromInteger (unsafeCoerce ticks' :: Integer) :: Double
 
--- | render FPS current
-  currentTime <- SDL.time
-  dt <- (currentTime -) <$> readMVar lastInteraction
+  -- currentTime <- SDL.time
+  -- dt <- (currentTime -) <$> readMVar lastInteraction
 
   let
-    fntObjs = concat $ toListOf (App.objects . gui . O.fonts) app :: [Object]
-    fgrObjs = concat $ toListOf (App.objects . O.foreground)  app :: [Object]
-    bgrObjs = concat $ toListOf (App.objects . O.background)  app :: [Object]
+    app'    = fromApplication application
+    
+    fntObjs = concat $ toListOf (App.objects . gui . O.fonts) app' :: [Object]
+    fgrObjs = concat $ toListOf (App.objects . O.foreground)  app' :: [Object]
+    -- bgrObjs = concat $ toListOf (App.objects . O.background)  app :: [Object]
 
-    fntsDrs = toDrawable app fntObjs currentTime :: [Drawable]
-    objsDrs = toDrawable app fgrObjs currentTime :: [Drawable]
-    bgrsDrs = toDrawable app bgrObjs currentTime :: [Drawable]
+    fntsDrs = toDrawable app' fntObjs currentTime :: [Drawable]
+    objsDrs = toDrawable app' fgrObjs currentTime :: [Drawable]
+    -- bgrsDrs = toDrawable app bgrObjs currentTime :: [Drawable]
 
-    app  = fromApplication application
     txs  = concat $ toListOf ( traverse . materials . traverse . textures) (fgrObjs ++ fntObjs) :: [Texture]
     hmap = _hmap application
 
@@ -289,11 +277,11 @@ output lastInteraction window application = do
     
   clearColor $= bgrColor opts --Color4 0.0 0.0 0.0 1.0
   GL.clear [ColorBuffer, DepthBuffer]
-  mapM_ (draw txs hmap (opts { primitiveMode = Triangles })) objsDrs
+  mapM_ (render txs hmap (opts { primitiveMode = Triangles })) objsDrs
   
   currentTime' <- SDL.time
   dt <- (currentTime' -) <$> readMVar lastInteraction
-  drawString (draw txs hmap (opts { primitiveMode = Triangles })) fntsDrs $ "fps:" ++ show (round (1/dt) :: Integer)
+  renderString (render txs hmap (opts { primitiveMode = Triangles })) fntsDrs $ "fps:" ++ show (round (1/dt) :: Integer)
   
   
   glSwapWindow window
@@ -303,7 +291,7 @@ output lastInteraction window application = do
 initGraphResources :: Application -> [Graph] -> IO Application
 initGraphResources app0 gs = do
     putStrLn "Initializing Resources..."
-    uuid <- nextUUID
+    -- uuid <- nextUUID
     let
       objs = introObjs ++ fntObjs ++ fgrObjs ++ bgrObjs
       txs  = concat $ concatMap (toListOf (materials . traverse . textures)) objs -- :: [Texture]
@@ -342,52 +330,52 @@ main = do
   let
     title = pack $ view P.name mainProj -- "Game of Life" :: String
 
-    resx  = view P.resx mainProj
-    resy  = view P.resy mainProj
-    resX  = unsafeCoerce resx :: CInt -- unsafeCoerce m :: CInt
-    resY  = unsafeCoerce resy :: CInt -- unsafeCoerce n :: CInt
-    opts  = BackendOptions
-            { primitiveMode = Triangles
-            , bgrColor      = Color4 0.0 0.0 0.0 1.0
-            , ptSize        = 3.0
-            }
-    sz     = Sz2 resx resy
+    resx' = view P.resx mainProj
+    resy' = view P.resy mainProj
+    resX  = unsafeCoerce resx' :: CInt -- unsafeCoerce m :: CInt
+    resY  = unsafeCoerce resy' :: CInt -- unsafeCoerce n :: CInt
+    -- opts  = BackendOptions
+    --         { primitiveMode = Triangles
+    --         , bgrColor      = Color4 0.0 0.0 0.0 1.0
+    --         , ptSize        = 3.0
+    --         }
+    sz'     = Sz2 resx' resy'
 
   window <- openWindow
             title
             (resX, resY)
 
   -- | SDL Mouse Options
-  let camMode =
+  let camMode' =
         case view P.camMode mainProj of
           "RelativeLocation" -> RelativeLocation
           "AbsoluteLocation" -> AbsoluteLocation
           _ -> error "wrong mouse mode"
 
-  setMouseLocationMode camMode
+  _ <- setMouseLocationMode camMode'
 
   putStrLn "\n Initializing App"
   intro <- initApp initVAO introProj
-  main  <- initApp initVAO mainProj
+  main'  <- initApp initVAO mainProj
 
-  graph  <- genArray resx resy
-  mArr   <- newMArray sz 1 :: IO (MArray RealWorld S Ix2 Word8)
+  graph'  <- genArray resx' resy'
+  mArr   <- newMArray sz' 1 :: IO (MArray RealWorld S Ix2 Word8)
 
   let
-    gr  = Graph sz graph mArr
-    grs = gr:repeat gr :: [Graph]
+    gr  = Graph sz' graph' mArr
+    -- grs = gr:repeat gr :: [Graph]
     
-    initApp =
+    initApp' =
       Application
       Intro -- interface current state
       intro
-      main
+      main'
       []
 
-  app <- initGraphResources initApp [gr]
+  app' <- initGraphResources initApp' [gr]
 
   putStrLn "Starting App."
   animate
     window
-    (parseWinInput >>> appRun app &&& handleExit)
+    (parseWinInput >>> appRun app' &&& handleExit)
   return ()

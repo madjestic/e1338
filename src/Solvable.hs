@@ -17,12 +17,11 @@ import Linear.Matrix     hiding (identity)
 import Linear.V3
 import Linear.V4
 import Linear.Quaternion hiding (rotate)
-import Control.Lens      hiding (transform, Identity)
 import FRP.Yampa         hiding (identity)
 
 import Utils (toV3)
 
-import Debug.Trace as DT
+-- import Debug.Trace as DT
 
 data Solver =
      Identity
@@ -100,8 +99,9 @@ preTranslate mtx0 v0 = mtx
           rot = view _m33 mtx0
           tr  = v0 + view (_w._xyz) mtx0
 
+-- TODO: preRotate mtx0 _pv0_ ypr0 = mtx -- pv0 - rotation origin
 preRotate :: M44 Double -> V3 Double -> V3 Double -> M44 Double
-preRotate mtx0 pv0 ypr0 = mtx
+preRotate mtx0 _ ypr0 = mtx
     where
       mtx =
           mkTransformationMat
@@ -127,7 +127,7 @@ translate mtx0 v0 =
     returnA -< mtx
 
 rotate :: M44 Double -> V3 Double -> V3 Double -> SF () (M44 Double)
-rotate mtx0 pv0 ypr0 =
+rotate mtx0 _ ypr0 =
   proc () -> do
     ypr' <- (V3 0 0 0 +) ^<< integral -< ypr0
     let mtx =

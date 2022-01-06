@@ -15,19 +15,14 @@ module Material
   ) where  
 
 import Control.Lens hiding ((.=))
-import Control.Monad             (mzero)
 import Data.Aeson
 import Data.Aeson.Encode.Pretty
 import Data.Aeson.TH
 import Data.Maybe                (fromMaybe)
 import qualified Data.ByteString.Lazy as B
-import Data.UUID
-import Data.UUID.V4
 import Data.Text    hiding (drop)
-import Graphics.Rendering.OpenGL (GLuint)
 
 import Texture as T hiding (name, _name)
-import Utils (encodeStringUUID)
 
 data Material
   =  Material
@@ -40,6 +35,7 @@ data Material
 $(makeLenses ''Material)
 deriveJSON defaultOptions {fieldLabelModifier = drop 1} ''Material
 
+defaultMat :: Material
 defaultMat
   = Material
     "default"
@@ -66,8 +62,8 @@ read jsonFile =
         fromEitherDecode = fromMaybe (Material "" "" "" []) . fromEither
         fromEither d =
           case d of
-            Left err -> Nothing
             Right pt -> Just pt
+            _ -> Nothing
 
 write :: Material -> FilePath -> IO ()
 write mat fileOut =

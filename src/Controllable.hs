@@ -21,19 +21,13 @@ module Controllable
 
 import Linear.Matrix
 import Linear.V3
-import Linear.Quaternion
-
 import Control.Lens hiding (transform)
--- import FRP.Yampa    hiding (identity)
-import SDL.Input.Keyboard.Codes as SDL
-import Data.Functor              (($>))
 
 import Keyboard
 import Mouse
--- import AppInput
 import Utils ()
 
-import Debug.Trace as DT
+-- import Debug.Trace as DT
 
 data Controllable
   =  Controller
@@ -65,7 +59,7 @@ data Device
 -- transform' = lens _transform (\controllable newTransform -> Solver { _transform = newTransform })
 
 device'    :: Lens' Controllable Device
-device'    = lens _device    (\controllable newDevice    -> Controller { _device    = newDevice })
+device'    = lens _device (\controllable newDevice    -> controllable { _device    = newDevice })
 
 $(makeLenses ''Device)
 $(makeLenses ''Controllable)

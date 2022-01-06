@@ -13,34 +13,25 @@ module Camera
   ) where
 
 import Control.Lens
-import Linear                    (V3(..), V4 (..))
-import Linear.Matrix
+import Linear                    (V4 (..))
 import Linear.V3
-import Linear.Quaternion
-import FRP.Yampa
-import Data.Functor              (($>))
-import SDL.Input.Keyboard.Codes as SDL
 
 import Controllable
 import Keyboard
-import Mouse
-import AppInput
 import Utils
 import Project
 
-import Debug.Trace as DT
+-- import Debug.Trace as DT
 
 data Camera =
      Camera
-     {
-       _name       :: String
+     { _name       :: String
      , _apt        :: Double
      , _foc        :: Double 
      , _controller :: Controllable
      , _mouseS     :: V3 Double -- | mouse    "sensitivity"
      , _keyboardRS :: V3 Double -- | keyboard "rotation sensitivity"
      , _keyboardTS :: V3 Double -- | keyboard "translation sensitivity"
--- TODO: move sensitivity parms here     
      } deriving Show
 
 $(makeLenses ''Camera)

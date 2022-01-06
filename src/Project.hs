@@ -40,10 +40,9 @@ import Data.Sort                        (sortOn)
 import Data.Text                 hiding (drop)
 import Data.UUID
 
-import Texture hiding (name, _name, uuid, _uuid)
 import Model
 
-import Debug.Trace as DT
+-- import Debug.Trace as DT
 
 data PreObject
   =  PreObject
@@ -211,5 +210,5 @@ read filePath =
         fromEitherDecode = fromMaybe emptyProject . fromEither
         fromEither d =
           case d of
-            Left err -> Nothing
             Right pt -> Just pt            
+            _ -> Nothing

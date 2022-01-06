@@ -3,6 +3,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Utils
   ( toIdxVAO
@@ -17,19 +18,15 @@ module Utils
   , encodeStringUUID
   ) where
 
-import Control.Lens ( view
-                    , over
-                    , traverse)
+import Control.Lens ( view )
 import Graphics.Rendering.OpenGL as GL (GLfloat)
 import Data.ByteString.Char8           (pack
                                        ,unpack)
 import Data.Set                  as DS (fromList, toList)
-import Data.List                 as DL (transpose)
 import Data.List.Index                 (indexed)
 import Data.List                       (elemIndex)
 import Data.Locator
 import Data.UUID                 as U
-import Data.UUID.V4
 import Data.Vector               as DV (fromList, (!), map, toList)
 import Data.VectorSpace          as DV
 import Graphics.Rendering.OpenGL (GLuint)
@@ -37,11 +34,9 @@ import Linear.V3
 import Linear.V4
 import Linear.Matrix
 import Linear.Metric             as LM
-import System.IO.Unsafe
 import System.Random
-import Unsafe.Coerce
 
-import Debug.Trace as DT
+-- import Debug.Trace as DT
 
 instance VectorSpace (V3 Double) Double where
   zeroVector                   = (V3 0 0 0)
@@ -67,20 +62,20 @@ instance VectorSpace (V4 (V4 Double)) Double where
 
 -- | [Float]  ~= vertex
 --  [[Float]] ~= VAO
-toIdxVAO :: Int -> [[Float]] -> ([Int],[Float])
-toIdxVAO stride vao = (idx, idxVAO)
+toIdxVAO :: [[Float]] -> ([Int],[Float])
+toIdxVAO vao = (idx, idxVAO)
   where
     iListSet = indexed $ DS.toList $ DS.fromList $ vao                       :: [(Int,[Float])]
     iList    = indexed vao                                                   :: [(Int, [GLfloat])]
-    idx      = fmap (\(i,_) -> (fromIntegral i)) (matchLists iListSet iList) :: [Int]
+    idx      = fmap fst (matchLists iListSet iList) :: [Int]
     idxVAO   = concat $ fmap (\x -> snd x) iListSet                          :: [Float]
 
-toIdxVAO' :: Int -> [[Float]] -> ([Int],[Float])
-toIdxVAO' stride vao = (idx, idxVAO)
+toIdxVAO' :: [[Float]] -> ([Int],[Float])
+toIdxVAO' vao = (idx, idxVAO)
   where
     --iListSet = indexed $ DS.toList $ DS.fromList $ vao                       :: [(Int,[Float])]
     iList    = indexed vao                             :: [(Int, [GLfloat])]
-    idx      = fmap (\(i,_) -> (fromIntegral i)) iList :: [Int]
+    idx      = fmap fst iList :: [Int]
     idxVAO   = concat $ fmap (\x -> snd x) iList       :: [Float]
 
 -- | matchLists - cross-match 2 listst, replacing the elements of list2 with matching
@@ -88,18 +83,18 @@ toIdxVAO' stride vao = (idx, idxVAO)
 -- |   il - indexed list
 -- |  nil - non-indexed list
 matchLists :: [(Int, [GLfloat])] -> [(Int, [GLfloat])] -> [(Int, [GLfloat])]
-matchLists il nil =
-  fmap (mFunc il ) nil -- | mFunc - matching function
+matchLists il nil' =
+  fmap (mFunc il) nil' -- | mFunc - matching function
   where
     -- | il      - indexed list
     -- | nile    - non indexed list element
     -- | Replaces the target element with the first match from the matching list il
     il' = DV.fromList il
-    cxs'  = DV.map (\(i,s) -> s) il'
-    mFunc il nile@(iy, cy) =
-      (\x -> case x of
-               Just idx -> il' ! idx
-               Nothing  -> (-iy, cy) ) nili -- | if a unique index idx found - flip the sign
+    cxs'  = DV.map snd il'
+    mFunc _ (iy, cy) =
+      (\case
+          Just idx -> il' ! idx
+          Nothing  -> (-iy, cy) ) nili -- | if a unique index idx found - flip the sign
                                             -- | the idea idx to separate normal indexes
                                             -- | and unique indexes -> [idx:uidx] later
       where
@@ -137,7 +132,7 @@ rotateList' (_, []) = []
 rotateList' (n, xs) = zipWith const (drop n (cycle xs)) xs
 
 fromUUID :: UUID -> GLuint
-fromUUID x = read $ concatMap show $ (\ (x,y,z,w)-> fmap toInteger [x,y,z,w]) $ toWords x
+fromUUID = read . concatMap show . (\ (x,y,z,w)-> fmap toInteger [x,y,z,w]) . toWords
 
 -- | Generate a UUID, based on FilePath
 -- | e.g. fromUUID $ encodeStringUUID "./projects/.temp1"
@@ -151,7 +146,7 @@ encodeStringInteger x = fromBase62 . unpack . hashStringToBase62 1 $ pack x
 genSeedUUID :: Int -> UUID
 genSeedUUID seed =
   let
-      g0 = mkStdGen seed -- RNG from seed
-      (u1, g1) = random g0
+      g0      = mkStdGen seed -- RNG from seed
+      (u1, _) = random g0
   in u1
 

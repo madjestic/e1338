@@ -87,17 +87,17 @@ animate window sf =
             return shouldExit
 
 toDrawable :: App -> [Object] -> Double -> [Drawable]
-toDrawable app objs time = drs -- (drs, drs')
+toDrawable app objs time0 = drs -- (drs, drs')
   where
     mpos = unsafeCoerce $ view (playCam . controller . device' . mouse . pos) app -- :: (Double, Double)
     resX = fromEnum $ view (options . App.resx) app :: Int
     resY = fromEnum $ view (options . App.resy) app :: Int
     res  = (toEnum resX, toEnum resY) :: (CInt, CInt)
     cam  = view playCam app :: Camera
-    drs  = concatMap (toDrawable' mpos time res cam) objs :: [Drawable]
+    drs  = concatMap (toDrawable' mpos time0 res cam) objs :: [Drawable]
 
 toDrawable' :: (Double, Double) -> Double -> (CInt, CInt) -> Camera -> Object -> [Drawable]
-toDrawable' mpos time res cam obj = drs
+toDrawable' mpos time0 res cam obj = drs
   where
     drs      =
       (\u_mats' u_prog' u_mouse' u_time' u_res' u_cam' u_cam_a' u_cam_f' u_xform' ds' ps' name'
@@ -105,9 +105,9 @@ toDrawable' mpos time res cam obj = drs
       <$.> mats <*.> progs <*.> mpos_ <*.> time_ <*.> res_ <*.> cam_ <*.> cam_a_ <*.> cam_f_ <*.> xforms <*.> ds <*.> progs <*.> names
 
     n      = length $ view descriptors obj:: Int
-    mpos_  = replicate n mpos :: [(Double, Double)]
-    time_  = replicate n time :: [Double]
-    res_   = replicate n res  :: [(CInt, CInt)]
+    mpos_  = replicate n mpos  :: [(Double, Double)]
+    time_  = replicate n time0 :: [Double]
+    res_   = replicate n res   :: [(CInt, CInt)]
     cam_   = replicate n $ view (controller . Controllable.transform) cam  :: [M44 Double]
     cam_a_ = replicate n $ _apt cam :: [Double]
     cam_f_ = replicate n $ _foc cam :: [Double]
@@ -126,7 +126,7 @@ output lastInteraction window application = do
 
 -- | render FPS current
   currentTime <- SDL.time
-  dt <- (currentTime -) <$> readMVar lastInteraction
+  -- dt <- (currentTime -) <$> readMVar lastInteraction
 
   let
     fntObjs = concat $ toListOf (objects . gui . fonts) app :: [Object]
@@ -150,12 +150,12 @@ output lastInteraction window application = do
   clearColor $= bgrColor opts --Color4 0.0 0.0 0.0 1.0
   clear [ColorBuffer, DepthBuffer]
 
-  mapM_ (draw txs hmap (opts { primitiveMode = Triangles })) objsDrs
-  mapM_ (draw txs hmap (opts { primitiveMode = Points })) bgrsDrs
+  mapM_ (render txs hmap (opts { primitiveMode = Triangles })) objsDrs
+  mapM_ (render txs hmap (opts { primitiveMode = Points })) bgrsDrs
 
   currentTime' <- SDL.time
   dt <- (currentTime' -) <$> readMVar lastInteraction
-  drawString (draw txs hmap (opts { primitiveMode = Triangles })) fntsDrs $ "fps:" ++ show (round (1/dt) :: Integer)
+  renderString (render txs hmap (opts { primitiveMode = Triangles })) fntsDrs $ "fps:" ++ show (round (1/dt) :: Integer)
   
   -- TODO:
   -- render' front
@@ -210,27 +210,27 @@ main = do
                (resX, resY)
 
   -- | SDL Mouse Options
-  let camMode =
+  let camMode' =
         case view P.camMode mainProj of
           "RelativeLocation" -> RelativeLocation
           "AbsoluteLocation" -> AbsoluteLocation
           _ -> error "wrong mouse mode"
 
-  setMouseLocationMode camMode
+  _ <- setMouseLocationMode camMode'
 
   putStrLn "\n Initializing App"
   intro <- initApp initVAO introProj
-  main  <- initApp initVAO mainProj
+  main' <- initApp initVAO mainProj
 
   let
-    initApp =
+    initApp' =
       Application
       Intro
       intro
-      main
+      main'
       []
 
-  app <- initResources initApp
+  app <- initResources initApp'
   
   putStrLn "Starting App."
   animate

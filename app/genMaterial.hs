@@ -1,15 +1,13 @@
 module Main where
 
-import Data.Aeson
 import System.Directory
 import Unsafe.Coerce
 import System.Environment        (getArgs)
-import Data.Char (toUpper)
 import Data.List.Split
 
 import Material
 
-import Debug.Trace as DT
+-- import Debug.Trace as DT
 
 -- | This script generates a file structure for a material
 --   example:
@@ -29,8 +27,6 @@ main =
       matName    = cmdArgs!!1
     putStrLn $ "dirName: " ++ show dirName
     putStrLn $ "matName: " ++ show  matName
-    let
-      capitalize = (\x -> (toUpper . head $ x):[] ++ (tail x))
 
     -- | create a shader dir in ./mat/mymatdir
     putStrLn "Generating dirs..."
