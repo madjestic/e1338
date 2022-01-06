@@ -26,21 +26,13 @@ import SDL
 import Graphics.Rendering.OpenGL ( PrimitiveMode(..), Color4 (Color4), clear, clearColor, ($=), Program, ClearBuffer (..))
 import System.Environment        ( getArgs )
 import Unsafe.Coerce             ( unsafeCoerce )
-import Linear.Matrix    
+import Linear.Matrix
     
 import Application
 import Update (handleExit, appRun)
 import Project as P ( camMode, resy, resx, name, read )
 import AppInput                  ( parseWinInput ) 
 import Rendering as R
-    ( BackendOptions(BackendOptions, primitiveMode, bgrColor, ptSize),
-      Backend(OpenGL),
-      openWindow,
-      closeWindow,
-      render,
-      bindTexture,
-      initVAO,
-      draw )
 import Material as M
 import qualified Texture  as T
 import Drawable
@@ -49,9 +41,9 @@ import Controllable
 import Object             as O
 import Descriptor
 import Texture
-import App
 import Mouse
 import Utils ((<$.>), (<*.>))
+import App
 
 -- import Debug.Trace    as DT
 
@@ -159,13 +151,12 @@ output lastInteraction window application = do
   clear [ColorBuffer, DepthBuffer]
 
   mapM_ (draw txs hmap (opts { primitiveMode = Triangles })) objsDrs
-  
-  R.render
-    lastInteraction
-    R.OpenGL opts
-    window
-    application
+  mapM_ (draw txs hmap (opts { primitiveMode = Points })) bgrsDrs
 
+  currentTime' <- SDL.time
+  dt <- (currentTime' -) <$> readMVar lastInteraction
+  drawString (draw txs hmap (opts { primitiveMode = Triangles })) fntsDrs $ "fps:" ++ show (round (1/dt) :: Integer)
+  
   -- TODO:
   -- render' front
   -- render' backs

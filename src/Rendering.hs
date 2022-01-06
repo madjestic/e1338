@@ -9,12 +9,13 @@ module Rendering
   ( openWindow
   , closeWindow
   , draw
+  , drawString  
   , initVAO
   , bindUniforms
   , genTexObject
   , bindTexture
   , bindTextureObject
-  , render
+--  , render
   , loadTex
   , Backend (..)
   , BackendOptions (..)
@@ -43,17 +44,11 @@ import Graphics.GLUtil.Textures               (loadTexture, texInfo)
 import Graphics.GLUtil                        (readTexture, texture2DWrap, TexColor(..))
 
 import LoadShaders
-import App
-import Application
 import Object            as O
-import Camera            as C
-import Controllable
 import Descriptor
 import Graph
 import Material          as M
-import Mouse
 import Texture           as T
-import Utils
 import Drawable
 
 -- import Debug.Trace as DT
@@ -141,78 +136,78 @@ closeWindow window =
     SDL.destroyWindow window
     SDL.quit
 
-toDrawable :: App -> [Object] -> Double -> [Drawable]
-toDrawable app objs time0 = drs -- (drs, drs')
-  where
-    mpos = unsafeCoerce $ view (playCam . controller . device' . mouse . pos) app -- :: (Double, Double)
-    resX = fromEnum $ view (options . resx) app :: Int
-    resY = fromEnum $ view (options . resy) app :: Int
-    res  = (toEnum resX, toEnum resY) :: (CInt, CInt)
-    cam  = view playCam app :: Camera
-    drs  = concatMap (toDrawable' mpos time0 res cam) objs :: [Drawable]
+-- toDrawable :: App -> [Object] -> Double -> [Drawable]
+-- toDrawable app objs time0 = drs -- (drs, drs')
+--   where
+--     mpos = unsafeCoerce $ view (playCam . controller . device' . mouse . pos) app -- :: (Double, Double)
+--     resX = fromEnum $ view (options . resx) app :: Int
+--     resY = fromEnum $ view (options . resy) app :: Int
+--     res  = (toEnum resX, toEnum resY) :: (CInt, CInt)
+--     cam  = view playCam app :: Camera
+--     drs  = concatMap (toDrawable' mpos time0 res cam) objs :: [Drawable]
 
-toDrawable' :: (Double, Double) -> Double -> (CInt, CInt) -> Camera -> Object -> [Drawable]
-toDrawable' mpos time0 res cam obj = drs
-  where
-    drs      =
-      (\u_mats' u_prog' u_mouse' u_time' u_res' u_cam' u_cam_a' u_cam_f' u_xform' ds' ps' name'
-        -> Drawable name' (Uniforms u_mats' u_prog' u_mouse' u_time' u_res' u_cam' u_cam_a' u_cam_f' u_xform') ds' ps')
-      <$.> mats <*.> progs <*.> mpos_ <*.> time_ <*.> res_ <*.> cam_ <*.> cam_a_ <*.> cam_f_ <*.> xforms <*.> ds <*.> progs <*.> names
+-- toDrawable' :: (Double, Double) -> Double -> (CInt, CInt) -> Camera -> Object -> [Drawable]
+-- toDrawable' mpos time0 res cam obj = drs
+--   where
+--     drs      =
+--       (\u_mats' u_prog' u_mouse' u_time' u_res' u_cam' u_cam_a' u_cam_f' u_xform' ds' ps' name'
+--         -> Drawable name' (Uniforms u_mats' u_prog' u_mouse' u_time' u_res' u_cam' u_cam_a' u_cam_f' u_xform') ds' ps')
+--       <$.> mats <*.> progs <*.> mpos_ <*.> time_ <*.> res_ <*.> cam_ <*.> cam_a_ <*.> cam_f_ <*.> xforms <*.> ds <*.> progs <*.> names
 
-    n      = length $ view descriptors obj:: Int
-    mpos_  = replicate n mpos :: [(Double, Double)]
-    time_  = replicate n time0 :: [Double]
-    res_   = replicate n res  :: [(CInt, CInt)]
-    cam_   = replicate n $ view (controller . Controllable.transform) cam  :: [M44 Double]
-    cam_a_ = replicate n $ _apt cam :: [Double]
-    cam_f_ = replicate n $ _foc cam :: [Double]
+--     n      = length $ view descriptors obj:: Int
+--     mpos_  = replicate n mpos :: [(Double, Double)]
+--     time_  = replicate n time0 :: [Double]
+--     res_   = replicate n res  :: [(CInt, CInt)]
+--     cam_   = replicate n $ view (controller . Controllable.transform) cam  :: [M44 Double]
+--     cam_a_ = replicate n $ _apt cam :: [Double]
+--     cam_f_ = replicate n $ _foc cam :: [Double]
 
-    names  = toListOf (O.materials . traverse . M.name) obj :: [String]
-    mats   = view O.materials   obj :: [Material]
-    progs  = view O.programs    obj :: [Program]
-    xforms = concat $ replicate n $ view O.transforms obj :: [M44 Double]
-    ds     = view O.descriptors obj :: [Descriptor]
+--     names  = toListOf (O.materials . traverse . M.name) obj :: [String]
+--     mats   = view O.materials   obj :: [Material]
+--     progs  = view O.programs    obj :: [Program]
+--     xforms = concat $ replicate n $ view O.transforms obj :: [M44 Double]
+--     ds     = view O.descriptors obj :: [Descriptor]
 
-render :: MVar Double
-       -> Backend -> BackendOptions
-       -> SDL.Window
-       -> Application
-       -> IO ()
-render lastInteraction Rendering.OpenGL opts window application =
-  do
-    let app = (fromApplication application)
+-- render :: MVar Double
+--        -> Backend -> BackendOptions
+--        -> SDL.Window
+--        -> Application
+--        -> IO ()
+-- render lastInteraction Rendering.OpenGL opts window application =
+--   do
+--     let app = (fromApplication application)
 
-    GL.clearColor $= bgrColor opts --Color4 0.0 0.0 0.0 1.0
-    GL.clear [ColorBuffer, DepthBuffer]
+--     GL.clearColor $= bgrColor opts --Color4 0.0 0.0 0.0 1.0
+--     GL.clear [ColorBuffer, DepthBuffer]
 
-    ticks'   <- SDL.ticks
-    let currentTime = fromInteger (unsafeCoerce ticks' :: Integer) :: Double
+--     ticks'   <- SDL.ticks
+--     let currentTime = fromInteger (unsafeCoerce ticks' :: Integer) :: Double
 
-        fntObjs = concat $ toListOf (objects . gui . fonts) app :: [Object]
-        fgrObjs = concat $ toListOf (objects . foreground)  app :: [Object]
-        bgrObjs = concat $ toListOf (objects . background)  app :: [Object]
+--         fntObjs = concat $ toListOf (objects . gui . fonts) app :: [Object]
+--         fgrObjs = concat $ toListOf (objects . foreground)  app :: [Object]
+--         bgrObjs = concat $ toListOf (objects . background)  app :: [Object]
 
-        fntsDrs = toDrawable app fntObjs currentTime :: [Drawable]
-        objsDrs = toDrawable app fgrObjs currentTime :: [Drawable]
-        bgrsDrs = toDrawable app bgrObjs currentTime :: [Drawable]
+--         fntsDrs = toDrawable app fntObjs currentTime :: [Drawable]
+--         objsDrs = toDrawable app fgrObjs currentTime :: [Drawable]
+--         bgrsDrs = toDrawable app bgrObjs currentTime :: [Drawable]
 
-        txs     = concat $ toListOf ( traverse . materials . traverse . textures) (fgrObjs ++ fntObjs) :: [Texture]
-        hmap    = _hmap application
+--         txs     = concat $ toListOf ( traverse . materials . traverse . textures) (fgrObjs ++ fntObjs) :: [Texture]
+--         hmap    = _hmap application
 
-    --print $ "render.hmap :" ++ show hmap
+--     --print $ "render.hmap :" ++ show hmap
 
-    mapM_ (draw txs hmap (opts { primitiveMode = Triangles })) objsDrs
-    --mapM_ (draw txs (DT.trace ("hmap : " ++ show hmap) hmap) (opts { primitiveMode = Triangles }) window) objsDrs
-    mapM_ (draw txs hmap (opts { primitiveMode = Points })) bgrsDrs
+--     mapM_ (draw txs hmap (opts { primitiveMode = Triangles })) objsDrs
+--     --mapM_ (draw txs (DT.trace ("hmap : " ++ show hmap) hmap) (opts { primitiveMode = Triangles }) window) objsDrs
+--     mapM_ (draw txs hmap (opts { primitiveMode = Points })) bgrsDrs
 
--- | render FPS current
-    currentTime' <- SDL.time
-    dt <- (currentTime' -) <$> readMVar lastInteraction
-    drawString (draw txs hmap (opts { primitiveMode = Triangles })) fntsDrs $ "fps:" ++ show (round (1/dt) :: Integer)
+-- -- | render FPS current
+--     currentTime' <- SDL.time
+--     dt <- (currentTime' -) <$> readMVar lastInteraction
+--     drawString (draw txs hmap (opts { primitiveMode = Triangles })) fntsDrs $ "fps:" ++ show (round (1/dt) :: Integer)
 
-    SDL.glSwapWindow window
+--     SDL.glSwapWindow window
 
-render _ Vulkan _ _ _ = undefined
+-- render _ Vulkan _ _ _ = undefined
 
 renderText :: MVar Double
        -> Backend -> BackendOptions
