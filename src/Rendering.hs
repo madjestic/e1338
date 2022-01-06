@@ -12,7 +12,6 @@ module Rendering
   , renderString  
   , initVAO
   , bindUniforms
-  , genTexObject
   , bindTexture
   , bindTextureObject
   , loadTex
@@ -36,14 +35,10 @@ import Data.Foldable     as DF (toList)
 import Linear.Projection as LP (infinitePerspective)
 import Unsafe.Coerce
 import Control.Lens       hiding (indexed)
-import Data.Massiv.Array as A                 (Sz (Sz2))
-import Data.Massiv.Array.Manifest as AM'      (toByteString)
-import Graphics.GLUtil.Textures               (loadTexture, texInfo)
-import Graphics.GLUtil                        (readTexture, texture2DWrap, TexColor(..))
+import Graphics.GLUtil                        (readTexture, texture2DWrap)
 
 import LoadShaders
 import Descriptor
-import Graph
 import Material          as M
 import Texture           as T
 import Drawable
@@ -106,24 +101,6 @@ closeWindow window =
   do
     SDL.destroyWindow window
     SDL.quit
-
-genTexObject :: Graph -> IO TextureObject
-genTexObject g = do
-  let --mArr = view marray g
-      arr  = view array g
-      arr' = AM'.toByteString arr
-      Sz2 resx' resy' = view sz g
-      --txInfo = texInfo 512 512 TexRGBA arr'
-      txInfo = texInfo resx' resy' TexRGBA arr'
-  t    <- loadTexture txInfo -- :: IO TextureObject
-  --uuid <- nextUUID
-  texture2DWrap            $= (Repeated, ClampToEdge)
-  textureFilter  Texture2D $= ((Linear', Just Nearest), Linear')
-  blend                    $= Enabled
-  blendFunc                $= (SrcAlpha, OneMinusSrcAlpha)
-  generateMipmap' Texture2D
-  --return (fromMaybe nil uuid, t)
-  return t
 
 renderString :: (Drawable -> IO ()) -> [Drawable] -> String -> IO ()
 renderString cmds fntsDrs str =

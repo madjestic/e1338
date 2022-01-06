@@ -10,6 +10,7 @@ import Foreign.C          ( CInt )
 import Data.Text          ( pack)
 import Control.Concurrent
 import Data.Set (fromList, toList)
+import Data.Massiv.Array.Manifest as AM (toByteString)
 import Data.Massiv.Array as A hiding (tail, windowSize, mapM_, mapM, zip, fromList, toList, replicate)
 
 import Data.Word                (Word8)
@@ -34,6 +35,7 @@ import SDL              hiding  ( Point
                                 , Texture )
 
 import Control.Lens             ( view )
+import Graphics.GLUtil.Textures               (loadTexture, texInfo, texture2DWrap, TexColor(TexRGBA))
 
 import Rendering as R
 import Application
@@ -286,6 +288,23 @@ output lastInteraction window application = do
   
   glSwapWindow window
             
+genTexObject :: Graph -> IO TextureObject
+genTexObject g = do
+  let --mArr = view marray g
+      arr'  = view array g
+      arr'' = AM.toByteString arr'
+      Sz2 resx' resy' = view sz g
+      --txInfo = texInfo 512 512 TexRGBA arr'
+      txInfo = texInfo resx' resy' TexRGBA arr''
+  t    <- loadTexture txInfo -- :: IO TextureObject
+  --uuid <- nextUUID
+  texture2DWrap            $= (Repeated, ClampToEdge)
+  textureFilter  Texture2D $= ((Linear', Just Nearest), Linear')
+  blend                    $= Enabled
+  blendFunc                $= (SrcAlpha, OneMinusSrcAlpha)
+  generateMipmap' Texture2D
+  --return (fromMaybe nil uuid, t)
+  return t
 
 -- Graph is an Object?
 initGraphResources :: Application -> [Graph] -> IO Application
