@@ -27,25 +27,18 @@ module Object
   , initObject
   , updateObjects'
   , updateObjects
-  , objectCompose
+--  , objectCompose
   ) where
 
 import Control.Lens hiding (transform, pre)
-import Data.Bifunctor  as BF (second)
 import Data.List       as DL (transpose)
-import Data.Functor              (($>))
-import qualified Data.IntMap.Lazy as IM
 import Data.List.Index as DL (indexed)
 import FRP.Yampa    hiding (identity)
 import GHC.Float
-import Graphics.Rendering.OpenGL (Program (..), ShaderType (..))
+import Graphics.Rendering.OpenGL (Program, ShaderType (..))
 import Linear.V4
 import Linear.Matrix as LM -- (M44, M33, identity, translation, fromQuaternion, (!*!), mkTransformationMat)
 import Linear (V3(..))
-
-import Data.Massiv.Array (Array, MArray, S, Ix2, RealWorld, Sz2)
-import Data.Word (Word8)
-import Control.Lens
 
 import LoadShaders
 import Material
@@ -55,9 +48,8 @@ import PGeo
 import Project
 import Model
 import Utils          as U
---import GUI
 
-import Debug.Trace    as DT
+--import Debug.Trace    as DT
 
 --------------------------------------------------------------------------------
 -- < Object > ------------------------------------------------------------------
@@ -167,11 +159,11 @@ modelPaths cls project = modelList
         Background -> (modelSet!!) <$> (concat $ toListOf ( Project.background . traverse . modelIDXs ) project)
         Font       -> (toListOf (Project.fonts . traverse . Model.path) project)
 
-initObjectTree :: (([Int], Int, [Float], Material) -> IO Descriptor) -> Project -> IO ObjectTree
+initObjectTree :: (([Int], Int, [Float]) -> IO Descriptor) -> Project -> IO ObjectTree
 initObjectTree initVAO project =
   do
     -- _ <- Dt.trace ("project :" ++ show project) $ return ()
-    print "Loading Models..."
+    putStrLn "Loading Models..."
 
     fgrVGeos  <-
       mapM (\modelPath -> (readBGeo modelPath :: IO VGeo)
@@ -195,12 +187,12 @@ initObjectTree initVAO project =
           objs
           bgrs
 
-    print "Finished loading models."
+    putStrLn "Finished loading models."
     return result
 
 
 initObject :: Project
-           -> (([Int], Int, [Float], Material) -> IO Descriptor)
+           -> (([Int], Int, [Float]) -> IO Descriptor)
            -> ObjectClass
            -> (VGeo, Int)
            -> IO Object
@@ -209,14 +201,13 @@ initObject project
            cls
            (vgeo, idx) =
   do
-    mats  <- mapM Material.read $ mts vgeo :: IO [Material]
+    mats'  <- mapM Material.read $ mts vgeo :: IO [Material]
 
-    let (VGeo is_ st_ vs_ mts_ ms_ vels_ xf_) = vgeo
-        vaoArgs       = (\idx' st' vao' mat' -> (idx', st', vao', mat'))
-                        <$.> is_ <*.> st_ <*.> vs_ <*.> mats
-        offset        = fmap (view _w . U.fromList) xf_
+    let (VGeo is_ st_ vs_ _ ms_ vels_ xf_) = vgeo
+        vaoArgs       = (\idx' st' vao' -> (idx', st', vao'))
+                        <$.> is_ <*.> st_ <*.> vs_
         vel           = toV3 (fmap float2Double (head vels_)) :: V3 Double -- TODO: this can be a list of vels, representing animated series, could be used later to create animations
-        m             = realToFrac (head ms_):: Double      -- TODO: same here
+        m'            = realToFrac (head ms_):: Double      -- TODO: same here
 
         solversF      = case solvers' of
                           [] -> [""]
@@ -235,13 +226,13 @@ initObject project
 
     progs <- mapM (\mat -> loadShaders
                            [ ShaderInfo VertexShader   (FileSource (_vertShader mat ))
-                           , ShaderInfo FragmentShader (FileSource (_fragShader mat )) ]) mats
+                           , ShaderInfo FragmentShader (FileSource (_fragShader mat )) ]) mats'
     let result =
           case cls of
             Font ->
               Object.Sprite
               { _descriptors = ds
-              , _materials   = mats
+              , _materials   = mats'
               , _programs    = progs
               , _transforms  = preTransforms
               , _time        = 0.1
@@ -249,11 +240,11 @@ initObject project
             _ -> 
               defaultObj
               { _descriptors = ds
-              , _materials   = mats
+              , _materials   = mats'
               , _programs    = progs
               , _transforms  = preTransforms
               , _velocity    = vel
-              , _mass        = m
+              , _mass        = m'
               , Object._solvers = solvs
               } :: Object
 
@@ -271,19 +262,18 @@ initObject project
             Font       -> []            
 
 fromVGeo :: (([Int], Int, [Float], Material) -> IO Descriptor) -> VGeo -> IO Object
-fromVGeo initVAO (VGeo idxs st vaos matPaths mass vels xform) =
+fromVGeo initVAO (VGeo idxs st' vaos matPaths _ _ _) =
   do
-    mats <- mapM Material.read matPaths -- (ms vgeo)
+    mats' <- mapM Material.read matPaths -- (ms vgeo)
     let
-      vaoargs         = (\idx' st' vao' mat' ->  (idx', st', vao', mat')) <$.> idxs <*.> st <*.> vaos <*.> mats
-      offset = view _w (U.fromList (head xform) :: M44 Double) -- xform!!0 - at conversion stage, there can be only a single element in a list of transforms, therefore I don't want to overcomplicate it at the moment and keep it adhoc.
+      vaoargs         = (\idx' st'' vao' mat' ->  (idx', st'', vao', mat')) <$.> idxs <*.> st' <*.> vaos <*.> mats'
 
     ds   <- mapM initVAO vaoargs
 
     let object =
           defaultObj
           { _descriptors = ds
-          , _materials   = mats
+          , _materials   = mats'
           }
 
     return object
@@ -307,13 +297,13 @@ transform :: Object -> Solver -> SF () ([M44 Double])
 transform obj0 slv0 =
   proc () ->
     do
-      mtxs <- (parB . fmap (transform' obj0 slv0)) mtxs0 -< () -- TODO: pass object as arg to transformer
+      mtxs <- (parB . fmap (transform' slv0)) mtxs0 -< () -- TODO: pass object as arg to transformer
       returnA -< mtxs
         where
           mtxs0 = view transforms obj0 :: [M44 Double]
 
-transform' :: Object -> Solver -> M44 Double -> SF () (M44 Double)
-transform' obj0 solver mtx0 =
+transform' :: Solver -> M44 Double -> SF () (M44 Double)
+transform' solver mtx0 =
   proc () -> do
     state <- case solver of
       Rotate _ _ ->
@@ -335,12 +325,12 @@ transform' obj0 solver mtx0 =
       where
         Rotate     pv0 ypr0 = solver
         Translate  txyz     = solver
-        Gravity    idxs     = solver
+        -- Gravity    idxs     = solver
 
 -- | Objects that evolve over iterations, i.e. non-Linear
 updateObjects' :: [Object] -> SF [Object] [Object]
 updateObjects' objs0 =
-  proc objs -> do
+  proc _ -> do
     rec objs   <- iPre objs0 -< objs'
         objs'  <- gravitySolver -< objs
     returnA -< objs
@@ -359,11 +349,11 @@ gravitySolver' (obj0, objs0) = obj
     xform0 = (head . _transforms) obj0 :: M44 Double
     p0     = ( view (_w._xyz) . LM.transpose ) xform0  :: V3 Double
 
-    ms     = fmap _mass objs0          :: [Double]
+    ms'    = fmap _mass objs0          :: [Double]
     xforms = fmap (head . _transforms) objs0              :: [M44 Double]
-    ps     = fmap ( view (_w._xyz) . LM.transpose) xforms :: [V3 Double]
+    ps'    = fmap ( view (_w._xyz) . LM.transpose) xforms :: [V3 Double]
 
-    acc = sum $ fmap (gravity p0 m0) (zip ps ms) :: V3 Double
+    acc = sum $ fmap (gravity p0 m0) (zip ps' ms') :: V3 Double
     -- acc = sum $ fmap (gravity (DT.trace ("p0 :" ++ show p0) p0)
     --                           (DT.trace ("m0 :" ++ show m0 ++ "\n") m0)) (zip (DT.trace ("\n\n ps :" ++ show ps) ps)
     --                                                                   (DT.trace ("ms :" ++ show ms) ms)) :: V3 Double
@@ -385,9 +375,8 @@ gravitySolver' (obj0, objs0) = obj
 
     obj = obj0 { _transforms = [mtx]
                , _velocity   = vel }
-
+g :: Double
 g = 6.673**(-11.0) :: Double
---g = 6.673 :: Double
 
 gravity :: V3 Double -> Double -> (V3 Double, Double) -> V3 Double
 gravity p0 m0 (p1, m1) = acc --(DT.trace ("gravity.acc :" ++ show (norm (1000000000000.0*acc)) ++ "\n") acc)
@@ -420,5 +409,5 @@ vectorizedCompose = fmap (foldr1 (^*^)) . DL.transpose
     rot = view _m33 mtx0 !*! view _m33 mtx1 :: M33 Double
     tr  = view translation mtx0 ^+^ view translation mtx1
 
-objectCompose :: ObjectFeature -> (Double, Double) -> [Object] -> [Object] -> [Object]
-objectCompose f ratios objs0 objs1 = undefined
+-- objectCompose :: ObjectFeature -> (Double, Double) -> [Object] -> [Object] -> [Object]
+-- objectCompose f ratios objs0 objs1 = undefined

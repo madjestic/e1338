@@ -12,17 +12,12 @@ module Application
   ) where
 
 import Control.Lens
-import Data.Functor              (($>))
 import Data.UUID
-import Data.UUID.V4
-import FRP.Yampa
 import Graphics.Rendering.OpenGL as GL    (GLuint)
-import SDL.Input.Keyboard.Codes as SDL
 
 import App
-import AppInput
 
-import Debug.Trace as DT
+-- import Debug.Trace as DT
 
 data Main = Default
   deriving Show
@@ -51,3 +46,4 @@ fromApplication app =
   --case (view interface (DT.trace ("fromApplication.app :" ++ show app) app)) of
     Intro        -> view intro app
     Main Default -> view main  app
+    _ -> view main app

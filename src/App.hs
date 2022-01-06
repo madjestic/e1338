@@ -16,26 +16,15 @@ module App
   ) where
 
 import Control.Lens
-import Data.Functor              (($>))
-import FRP.Yampa
 import Foreign.C                 (CInt)
-import Linear.Matrix
-import SDL.Input.Keyboard.Codes as SDL
 import Unsafe.Coerce
-import Data.List.Index          as DL     (indexed)
-import Data.IntMap.Lazy         as IM
 
-import AppInput
 import Camera
-import Controllable
 import Descriptor
-import Material
 import Object
 import Project     as P
-import Utils
-import Solvable
 
-import Debug.Trace as DT
+-- import Debug.Trace as DT
 
 data App
   = App
@@ -60,7 +49,7 @@ $(makeLenses ''App)
 -- -- < Init App State > ------------------------------------------------------
 
 initApp ::
-     (([Int], Int, [Float], Material) -> IO Descriptor)
+     (([Int], Int, [Float]) -> IO Descriptor)
   -> Project
   -> IO App
 initApp initVAO project =
@@ -72,8 +61,8 @@ initApp initVAO project =
     let
       cams = fromProjectCamera <$> view P.cameras project
       pCam = head cams
-      camerasP = Utils.fromList <$> toListOf (P.cameras . traverse . pTransform) project
-      playCamP = head camerasP --fromList $ camerasP!!0
+      -- camerasP = Utils.fromList <$> toListOf (P.cameras . traverse . pTransform) project
+      -- playCamP = head camerasP --fromList $ camerasP!!0
     --pc <- fromVGeo $ fromPGeo pCloud  -- PCloud Point Cloud
     --let objTree = [pc]
     let app =

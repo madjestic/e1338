@@ -10,8 +10,7 @@ module Rendering
   , closeWindow
   , draw
   , initVAO
-  , initUniforms
-  , initResources  
+  , bindUniforms
   , genTexObject
   , bindTexture
   , bindTextureObject
@@ -26,22 +25,22 @@ import Control.Concurrent
 import Data.Maybe                             (fromMaybe)
 import Data.Text                              (Text)
 import Data.UUID
-import Data.UUID.V4
 import Data.List.Split                        (splitOn)
-import Data.List                              (sort)
-import Data.Set as Set                        (fromList)
 import Foreign.C
 import Foreign.Marshal.Array                  (withArray)
-import Foreign.Ptr                            (plusPtr, nullPtr, Ptr(..))
+import Foreign.Ptr                            (plusPtr, nullPtr)
 import Foreign.Storable                       (sizeOf)
 import Graphics.Rendering.OpenGL as GL hiding (color, normal, Size)
 import SDL                             hiding (Point, Event, Timer, (^+^), (*^), (^-^), dot, project, Texture)
 import Linear.Vector
-import Linear.Matrix
 import Data.Foldable     as DF (toList)
-import Linear.Projection as LP (perspective, infinitePerspective)
+import Linear.Projection as LP (infinitePerspective)
 import Unsafe.Coerce
-import Control.Lens       hiding (xform, indexed)
+import Control.Lens       hiding (indexed)
+import Data.Massiv.Array as A                 (Sz (Sz2))
+import Data.Massiv.Array.Manifest as AM'      (toByteString)
+import Graphics.GLUtil.Textures               (loadTexture, texInfo)
+import Graphics.GLUtil                        (readTexture, texture2DWrap, TexColor(..))
 
 import LoadShaders
 import App
@@ -53,21 +52,18 @@ import Descriptor
 import Graph
 import Material          as M
 import Mouse
-import Project                 (Project)
 import Texture           as T
 import Utils
+import Drawable
 
-import Data.Massiv.Array.Mutable as AM
-import Data.Massiv.Array as A                 (getComp, makeArray, withPtr, size, D, S, Ix2 ((:.)), Array, Sz2(..), Sz (Sz2, Sz))
-import Data.Massiv.Array.Manifest as AM'      (toByteString)
-import Data.Word                              (Word8)
-import Graphics.GLUtil.Textures               (loadTexture, texInfo, TexInfo)
-import Graphics.GLUtil                        (readTexture, texture2DWrap, TexColor(..))
+-- import Debug.Trace as DT
 
-import Debug.Trace as DT
-import Data.UUID.V1 (nextUUID)
-
+debug :: Bool
+#ifdef DEBUG
 debug = True
+#else
+debug = False
+#endif
 
 
 data Backend
@@ -82,31 +78,31 @@ data BackendOptions
      , ptSize        :: Float
      } deriving Show
 
-data Drawable
-  =  Drawable
-     {  name       :: String
-     , _uniforms   :: Uniforms
-     , _descriptor :: Descriptor
-     , _program    :: Program
-     } deriving Show
+-- data Drawable
+--   =  Drawable
+--      {  name       :: String
+--      , _uniforms   :: Uniforms
+--      , _descriptor :: Descriptor
+--      , _program    :: Program
+--      } deriving Show
 
-data Uniforms
-  =  Uniforms
-     {
-       _u_mats  :: Material
-     , _u_prog  :: Program
-     , _u_mouse :: (Double, Double)
-     , _u_time  :: Float
-     , _u_res   :: (CInt, CInt)
-     --, u_proj  :: M44 Double --GLmatrix GLfloat
-     , _u_cam   :: M44 Double
-     , _u_cam_a :: Double
-     , _u_cam_f :: Double
-     , _u_xform :: M44 Double
-     } deriving Show
+-- data Uniforms
+--   =  Uniforms
+--      {
+--        _u_mats  :: Material
+--      , _u_prog  :: Program
+--      , _u_mouse :: (Double, Double)
+--      , _u_time  :: Float
+--      , _u_res   :: (CInt, CInt)
+--      --, u_proj  :: M44 Double --GLmatrix GLfloat
+--      , _u_cam   :: M44 Double
+--      , _u_cam_a :: Double
+--      , _u_cam_f :: Double
+--      , _u_xform :: M44 Double
+--      } deriving Show
 
-$(makeLenses ''Drawable)
-$(makeLenses ''Uniforms)
+-- $(makeLenses ''Drawable)
+-- $(makeLenses ''Uniforms)
 
 openWindow :: Text -> (CInt, CInt) -> IO SDL.Window
 openWindow title (sizex,sizey) =
@@ -145,18 +141,18 @@ closeWindow window =
     SDL.destroyWindow window
     SDL.quit
 
-toDrawable :: App -> [Object] -> Float -> [Drawable]
-toDrawable app objs time = drs -- (drs, drs')
+toDrawable :: App -> [Object] -> Double -> [Drawable]
+toDrawable app objs time0 = drs -- (drs, drs')
   where
     mpos = unsafeCoerce $ view (playCam . controller . device' . mouse . pos) app -- :: (Double, Double)
     resX = fromEnum $ view (options . resx) app :: Int
     resY = fromEnum $ view (options . resy) app :: Int
     res  = (toEnum resX, toEnum resY) :: (CInt, CInt)
     cam  = view playCam app :: Camera
-    drs  = concatMap (toDrawable' mpos time res cam) objs :: [Drawable]
+    drs  = concatMap (toDrawable' mpos time0 res cam) objs :: [Drawable]
 
-toDrawable' :: (Double, Double) -> Float -> (CInt, CInt) -> Camera -> Object -> [Drawable]
-toDrawable' mpos time res cam obj = drs
+toDrawable' :: (Double, Double) -> Double -> (CInt, CInt) -> Camera -> Object -> [Drawable]
+toDrawable' mpos time0 res cam obj = drs
   where
     drs      =
       (\u_mats' u_prog' u_mouse' u_time' u_res' u_cam' u_cam_a' u_cam_f' u_xform' ds' ps' name'
@@ -165,7 +161,7 @@ toDrawable' mpos time res cam obj = drs
 
     n      = length $ view descriptors obj:: Int
     mpos_  = replicate n mpos :: [(Double, Double)]
-    time_  = replicate n time :: [Float]
+    time_  = replicate n time0 :: [Double]
     res_   = replicate n res  :: [(CInt, CInt)]
     cam_   = replicate n $ view (controller . Controllable.transform) cam  :: [M44 Double]
     cam_a_ = replicate n $ _apt cam :: [Double]
@@ -189,8 +185,8 @@ render lastInteraction Rendering.OpenGL opts window application =
     GL.clearColor $= bgrColor opts --Color4 0.0 0.0 0.0 1.0
     GL.clear [ColorBuffer, DepthBuffer]
 
-    ticks   <- SDL.ticks
-    let currentTime = fromInteger (unsafeCoerce ticks :: Integer) :: Float
+    ticks'   <- SDL.ticks
+    let currentTime = fromInteger (unsafeCoerce ticks' :: Integer) :: Double
 
         fntObjs = concat $ toListOf (objects . gui . fonts) app :: [Object]
         fgrObjs = concat $ toListOf (objects . foreground)  app :: [Object]
@@ -205,14 +201,14 @@ render lastInteraction Rendering.OpenGL opts window application =
 
     --print $ "render.hmap :" ++ show hmap
 
-    mapM_ (draw txs hmap (opts { primitiveMode = Triangles }) window) objsDrs
+    mapM_ (draw txs hmap (opts { primitiveMode = Triangles })) objsDrs
     --mapM_ (draw txs (DT.trace ("hmap : " ++ show hmap) hmap) (opts { primitiveMode = Triangles }) window) objsDrs
-    mapM_ (draw txs hmap (opts { primitiveMode = Points }) window) bgrsDrs
+    mapM_ (draw txs hmap (opts { primitiveMode = Points })) bgrsDrs
 
 -- | render FPS current
-    currentTime <- SDL.time
-    dt <- (currentTime -) <$> readMVar lastInteraction
-    drawString (draw txs hmap (opts { primitiveMode = Triangles }) window) fntsDrs $ "fps:" ++ show (round (1/dt))
+    currentTime' <- SDL.time
+    dt <- (currentTime' -) <$> readMVar lastInteraction
+    drawString (draw txs hmap (opts { primitiveMode = Triangles })) fntsDrs $ "fps:" ++ show (round (1/dt) :: Integer)
 
     SDL.glSwapWindow window
 
@@ -230,55 +226,38 @@ renderText = undefined
 -- render' :: MVar Double
 --        -> Backend -> BackendOptions
 --        -> SDL.Window
+--        -> [Texture]
 --        -> [Drawable]
 --        -> [(UUID, GLuint)]
 --        -> [ObjectClass]
 --        -> IO ()
--- render' lastInteraction Rendering.OpenGL opts window drs hmap cls=
+-- render' lastInteraction Rendering.OpenGL opts window txs drs hmap cls =
 --   do
---     let app = (fromApplication application)
-
---     GL.clearColor $= bgrColor opts --Color4 0.0 0.0 0.0 1.0
---     GL.clear [ColorBuffer, DepthBuffer]
-
 --     ticks   <- SDL.ticks
 --     let currentTime = fromInteger (unsafeCoerce ticks :: Integer) :: Float
+--         -- txs     = concat $ toListOf ( traverse . materials . traverse . textures) drs :: [Texture]
 
---         -- fntObjs = concat $ toListOf (objects . gui . fonts) app :: [Object]
---         -- fgrObjs = concat $ toListOf (objects . foreground)  app :: [Object]
---         -- bgrObjs = concat $ toListOf (objects . background)  app :: [Object]
-
---         -- fntsDrs = toDrawable app fntObjs currentTime :: [Drawable]
---         -- objsDrs = toDrawable app fgrObjs currentTime :: [Drawable]
---         -- bgrsDrs = toDrawable app bgrObjs currentTime :: [Drawable]
-
---         txs     = concat $ toListOf ( traverse . materials . traverse . textures) (fgrObjs ++ fntObjs) :: [Texture]
---         --hmap    = _hmap application
-
---     --print $ "render.hmap :" ++ show hmap
-
---     mapM_ (draw txs hmap (opts { primitiveMode = Triangles }) window) objsDrs
---     --mapM_ (draw txs (DT.trace ("hmap : " ++ show hmap) hmap) (opts { primitiveMode = Triangles }) window) objsDrs
---     mapM_ (draw txs hmap (opts { primitiveMode = Points }) window) bgrsDrs
+--     -- mapM_ (draw txs hmap (opts { primitiveMode = Triangles }) window) objsDrs
+--     -- mapM_ (draw txs hmap (opts { primitiveMode = Points }) window) bgrsDrs
+--     mapM_ () drs
 
 -- -- | render FPS current
---     currentTime <- SDL.time
+--     currentTime <- SDL.time0
 --     dt <- (currentTime -) <$> readMVar lastInteraction
---     drawString (draw txs hmap (opts { primitiveMode = Triangles }) window) fntsDrs $ "fps:" ++ show (round (1/dt))
+--     -- drawString (draw txs hmap (opts { primitiveMode = Triangles }) window) fntsDrs $ "fps:" ++ show (round (1/dt))
 
---     SDL.glSwapWindow window
+--     -- SDL.glSwapWindow window
 
--- render' _ Vulkan _ _ _ = undefined
-
+-- render' _ Vulkan _ _ _ _ _ _ = undefined
 
 genTexObject :: Graph -> IO TextureObject
 genTexObject g = do
-  let mArr = view marray g
+  let --mArr = view marray g
       arr  = view array g
       arr' = AM'.toByteString arr
-      Sz2 resx resy = view sz g
+      Sz2 resx' resy' = view sz g
       --txInfo = texInfo 512 512 TexRGBA arr'
-      txInfo = texInfo resx resy TexRGBA arr'
+      txInfo = texInfo resx' resy' TexRGBA arr'
   t    <- loadTexture txInfo -- :: IO TextureObject
   --uuid <- nextUUID
   texture2DWrap            $= (Repeated, ClampToEdge)
@@ -303,7 +282,7 @@ format drs = drw
 formatting :: (Drawable, Int) -> Drawable
 formatting (drw, offset) = drw'
   where
-    uns  = view uniforms drw
+    -- uns  = view uniforms drw
     rot0 = view _m33 (view (uniforms . u_xform) drw)
     tr0  = view translation (view (uniforms . u_xform) drw)
     s1   = 0.085  -- scale Offset
@@ -379,12 +358,12 @@ drawableChar drs chr =
     '\'' -> drs!!48
     _   -> head drs
 
-draw :: [Texture] -> [(UUID, GLuint)] ->  BackendOptions -> SDL.Window -> Drawable -> IO ()
-draw txs hmap opts window (Drawable name unis (Descriptor vao' numIndices') prog) =
+draw :: [Texture] -> [(UUID, GLuint)] ->  BackendOptions -> Drawable -> IO ()
+draw txs hmap opts (Drawable _ unis (Descriptor vao' numIndices') _) =
   do
     -- print $ "draw.name : " ++ name
     -- print $ "draw.unis :" ++ show unis ++ "\n draw.txs :" ++ show txs ++ "\n draw.hmap : " ++ show hmap
-    initUniforms txs unis hmap
+    bindUniforms txs unis hmap
     bindVertexArrayObject $= Just vao'
 
     GL.pointSize $= ptSize opts --0.001
@@ -414,50 +393,28 @@ bindTexture hmap tx =
       where
         txid = fromMaybe 0 (lookup (view uuid tx) hmap)
 
-initResources :: Application -> IO Application
-initResources app0 =
-  do
-    let
-      objs = introObjs ++ fntObjs ++ fgrObjs ++ bgrObjs
-      txs  = concat $ concatMap (toListOf (materials . traverse . M.textures)) objs -- :: [Texture]
-      uuids = fmap (view T.uuid) txs
-
-      hmap = toList . Set.fromList $ zip uuids [0..]
-
-    putStrLn "Initializing Resources..."
-    putStrLn "Loading Textures..."
-    mapM_ (bindTexture hmap) txs
-    putStrLn "Finished loading textures."
-
-    return app0 { _hmap = hmap }
-      where
-        introObjs = concat $ toListOf (App.objects . O.foreground)  (_intro app0) :: [Object]
-        fntObjs   = concat $ toListOf (App.objects . gui . O.fonts) (_main app0)  :: [Object]
-        fgrObjs   = concat $ toListOf (App.objects . O.foreground)  (_main app0)  :: [Object]
-        bgrObjs   = concat $ toListOf (App.objects . O.background)  (_main app0)  :: [Object]
-
-initUniforms :: [Texture] -> Uniforms -> [(UUID, GLuint)] -> IO ()
-initUniforms txs unis hmap =
+bindUniforms :: [Texture] -> Uniforms -> [(UUID, GLuint)] -> IO ()
+bindUniforms txs unis hmap =
   do
     let programDebug = loadShaders
                        [ ShaderInfo VertexShader   (FileSource (_vertShader u_mat' ))   -- u_mat is only used for debug
                        , ShaderInfo FragmentShader (FileSource (_fragShader u_mat' )) ]
-    program <- if debug then programDebug else pure u_prog'
-    currentProgram $= Just program
+    program0 <- if debug then programDebug else pure u_prog'
+    currentProgram $= Just program0
 
-    let u_mouse       = Vector2 (realToFrac $ fst u_mouse') (realToFrac $ snd u_mouse') :: Vector2 GLfloat
-    location0         <- get (uniformLocation program "u_mouse'")
-    uniform location0 $= u_mouse
+    let u_mouse0      = Vector2 (realToFrac $ fst u_mouse') (realToFrac $ snd u_mouse') :: Vector2 GLfloat
+    location0         <- get (uniformLocation program0 "u_mouse'")
+    uniform location0 $= u_mouse0
 
     let resX          = fromIntegral $ fromEnum $ fst u_res' :: Double
         resY          = fromIntegral $ fromEnum $ snd u_res' :: Double
-        u_res         = Vector2 (realToFrac resX) (realToFrac resY) :: Vector2 GLfloat
+        u_res0         = Vector2 (realToFrac resX) (realToFrac resY) :: Vector2 GLfloat
 
-    location1         <- get (uniformLocation program "u_resolution")
-    uniform location1 $= u_res
+    location1         <- get (uniformLocation program0 "u_resolution")
+    uniform location1 $= u_res0
 
-    location2         <- get (uniformLocation program "u_time'")
-    uniform location2 $= (u_time' :: GLfloat)
+    location2         <- get (uniformLocation program0 "u_time'")
+    uniform location2 $= (u_time' :: GLdouble)
 
     let apt = u_cam_a' -- aperture
         foc = u_cam_f' -- focal length
@@ -468,32 +425,32 @@ initUniforms txs unis hmap =
           0.01                           -- | Near
 
     persp             <- GL.newMatrix RowMajor $ toList' proj   :: IO (GLmatrix GLfloat)
-    location3         <- get (uniformLocation program "persp")
+    location3         <- get (uniformLocation program0 "persp")
     uniform location3 $= persp
 
     --print $ show u_cam'
     camera            <- GL.newMatrix RowMajor $ toList' u_cam' :: IO (GLmatrix GLfloat)
-    location4         <- get (uniformLocation program "camera")
+    location4         <- get (uniformLocation program0 "camera")
     uniform location4 $= camera
 
     xform             <- GL.newMatrix RowMajor $ toList' xform' :: IO (GLmatrix GLfloat)
-    location5         <- get (uniformLocation program "xform")
+    location5         <- get (uniformLocation program0 "xform")
     uniform location5 $= xform
 
     xform1            <- GL.newMatrix RowMajor $ toList' u_xform' :: IO (GLmatrix GLfloat)
-    location6         <- get (uniformLocation program "xform1")
+    location6         <- get (uniformLocation program0 "xform1")
     uniform location6 $= xform1
 
     let sunP = GL.Vector3 299999999999.0 0.0 0.0 :: GL.Vector3 GLfloat
-    location7 <- get (uniformLocation program "sunP")
+    location7 <- get (uniformLocation program0 "sunP")
     uniform location7 $= sunP
 
     -- | Allocate Textures
 
-    -- putStrLn $ "initUniforms.txNames : "  ++ show txNames
-    -- putStrLn $ "initUniforms.txuids   : " ++ show txuids
-    mapM_ (allocateTextures program hmap) txs
-    --mapM_ (allocateTextures program (DT.trace ("initUniforms.hmap : " ++ show hmap) hmap)) txs
+    -- putStrLn $ "bindUniforms.txNames : "  ++ show txNames
+    -- putStrLn $ "bindUniforms.txuids   : " ++ show txuids
+    mapM_ (allocateTextures program0 hmap) txs
+    --mapM_ (allocateTextures program0 (DT.trace ("bindUniforms.hmap : " ++ show hmap) hmap)) txs
 
     -- | Unload buffers
     --bindVertexArrayObject         $= Nothing
@@ -508,9 +465,9 @@ initUniforms txs unis hmap =
           ( fromV3V4 (transpose u_xform' ^._w._xyz + transpose u_cam' ^._w._xyz) 1.0 ) :: M44 Double
 
 allocateTextures :: Program -> [(UUID, GLuint)] -> Texture -> IO ()
-allocateTextures program hmap tx =
+allocateTextures program0 hmap tx =
   do
-    location <- get (uniformLocation program (view T.name tx))
+    location <- get (uniformLocation program0 (view T.name tx))
     uniform location $= TextureUnit txid
       where
         txid = fromMaybe 0 (lookup (view uuid tx) hmap)
@@ -532,8 +489,8 @@ nameFromPath :: FilePath -> String
 nameFromPath f = head (splitOn "." $ splitOn "/" f!!1)
 
        -- | Indices -> Stride -> ListOfFloats -> Material -> Descriptor
-initVAO :: ([Int], Int, [Float], Material) -> IO Descriptor
-initVAO (idx', st', vs', matPath) =
+initVAO :: ([Int], Int, [Float]) -> IO Descriptor
+initVAO (idx', st', vs') =
   do
     let
       idx = unsafeCoerce <$> idx' :: [GLuint]
