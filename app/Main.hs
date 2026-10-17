@@ -70,6 +70,7 @@ animate window sf =
     closeWindow window
     
       where
+        --senseInput :: _
         senseInput _ =
           do
             lastInteraction <- newMVar =<< SDL.time

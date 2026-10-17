@@ -1,1 +1,392 @@
-e1338.cabal.current
+name:          e1338
+version:       0.2.0.3
+synopsis:      A re-write of e1337 with BearRiver (and, maybe, MVars)
+description:   Please see the README on GitHub at <https://github.com/madjestic/e1338#readme>
+homepage:      https://github.com/madjestic/e1338
+license:       BSD3
+license-file:  LICENSE
+author:        madjestic
+maintainer:    madjestic13@gmail.com
+copyright:     Vladimir Lopatin
+category:      App
+build-type:    Simple
+cabal-version: >=2.0
+
+extra-source-files:
+                ChangeLog.md
+                README.md
+                LICENSE
+
+source-repository head
+  type:         git
+  location:     https://github.com/madjestic/e1338
+
+library
+  hs-source-dirs:
+                src
+  ghc-options: -O2 -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans -Wno-x-partial -Wno-incomplete-record-updates -Wno-incomplete-uni-patterns -Wno-unused-imports -Wno-incomplete-patterns -Wno-missing-fields
+  build-depends:
+                base                
+              , aeson               
+              , aeson-pretty        
+              , bearriver           
+              , bytestring          
+              , containers          
+              , GLUtil              
+              , ilist               
+              , lens                
+              , linear              
+              , locators                        
+              , massiv              
+              , OpenGL              
+              , random                        
+              , sdl2                
+              , simple-affine-space 
+              , sort                
+              , split               
+              , store               
+              , text                
+              --, Yampa             
+              , vector              
+              , uuid                
+  
+  exposed-modules:
+                AppInput
+              , Camera
+              , Controllable
+              , Descriptor
+              , Application
+              , App
+              , Keyboard
+              , Material
+              , Model
+              , Object
+              , PGeo
+              , Project
+              , Rendering
+              , Solvable
+              , Texture
+              , Utils
+              , VAO
+              , Update
+              , Graph
+              , Drawable            
+              
+  other-modules:
+                Paths_e1338
+              , LoadShaders
+              , FromVector
+              , Mouse
+  default-language:
+                Haskell2010
+
+executable Grapher
+  main-is:             Grapher.hs
+  hs-source-dirs:
+                       app
+                     , src
+  ghc-options:   -O2 -threaded -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans -Wno-x-partial -Wno-incomplete-record-updates -Wno-incomplete-uni-patterns -Wno-unused-imports -Wno-incomplete-patterns -Wno-missing-fields
+  -- cpp-options:   -DDEBUG  
+  build-depends:
+                 base                
+               , aeson               
+               , aeson-pretty                         
+               , bearriver           
+               , bytestring          
+               , containers                             
+               , ilist                                  
+               , lens                
+               , linear              
+               , locators                               
+               , massiv              
+               , random              
+               , vector
+               , GLUT
+               , GLUtil
+               , OpenGL
+               , sdl2
+               , simple-affine-space                  
+               , splitmix
+               , split                                  
+               , sort                                   
+               , store                                 
+               , text                
+               , uuid                
+  other-modules:
+                Paths_e1338
+              , App
+              , AppInput
+              , Application
+              , Camera
+              , Controllable
+              , Descriptor
+              , FromVector
+              , Graph
+              , Keyboard
+              , LoadShaders
+              , Material
+              , Model
+              , Mouse
+              , Object
+              , PGeo
+              , Project
+              , Rendering
+              , Solvable
+              , Texture
+              , Utils
+              , VAO
+              , Update
+              , Drawable         
+
+  default-language:    Haskell2010
+                
+                                                                           
+executable e1338
+  main-is:      Main.hs
+  hs-source-dirs:
+                app
+              , src
+  ghc-options:   -O2 -threaded -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans -Wno-x-partial -Wno-incomplete-record-updates -Wno-incomplete-uni-patterns -Wno-unused-imports -Wno-incomplete-patterns -Wno-missing-fields
+  --cpp-options:   -DDEBUG
+  build-depends:
+                 base                
+               , aeson               
+               , aeson-pretty        
+               , bearriver           
+               , bytestring          
+               , containers          
+               , GLUtil              
+               , ilist               
+               , lens                
+               , linear              
+               , locators            
+               , massiv              
+               , OpenGL              
+               , random                        
+               , sdl2                
+               , split               
+               , store               
+               , text                
+               --, Yampa             
+               , simple-affine-space 
+               , sort                
+               , vector              
+               , uuid                
+
+  other-modules:
+                Paths_e1338
+              , Rendering
+              , LoadShaders
+              , Project
+              , Model
+              , Texture
+              , Object
+              , Camera
+              , Controllable
+              , Descriptor
+              , FromVector
+              , Application
+              , App
+              , PGeo
+              , AppInput
+              , Keyboard
+              , Mouse
+              , Material
+              , Solvable
+              , Utils
+              , VAO
+              , Update
+              , Graph
+              , Drawable
+              
+  default-language:
+                Haskell2010
+
+executable genMaterial
+  main-is:      genMaterial.hs
+  hs-source-dirs:
+                app
+              , src
+
+  ghc-options:   -O2 -threaded -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans -Wno-x-partial -Wno-incomplete-record-updates -Wno-incomplete-uni-patterns -Wno-unused-imports -Wno-incomplete-patterns -Wno-missing-fields
+  --cpp-options:   -DDEBUG
+  build-depends:
+                base                
+              , aeson               
+              , aeson-pretty        
+              , bytestring          
+              , containers                      
+              , directory           
+              , ilist                                                       
+              , lens                
+              , linear                         
+              , locators            
+              , OpenGL              
+              , random              
+              , simple-affine-space           
+              , split               
+              , text                
+              , uuid                
+              , vector                         
+
+  other-modules:
+                Paths_e1338
+              , Material
+              , FromVector
+              , Utils
+              , Texture
+
+  default-language:
+                Haskell2010
+
+executable genProject
+  main-is:      genProject.hs
+  hs-source-dirs:
+                app
+              , src
+  ghc-options:         -threaded -O2 -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans -Wno-x-partial -Wno-incomplete-record-updates -Wno-incomplete-uni-patterns -Wno-unused-imports -Wno-incomplete-patterns -Wno-missing-fields
+  --cpp-options:         -DDEBUG
+  build-depends:
+                base                
+              , aeson               
+              , aeson-pretty        
+              , bytestring          
+              , containers          
+              , ilist                                         
+              , lens                
+              , linear              
+              , locators                        
+              , OpenGL              
+              , random                        
+              , simple-affine-space           
+              , text                
+              , sort                
+              , uuid                
+              , vector                           
+
+  other-modules:
+                Paths_e1338
+              , Model
+              , Project
+              , Texture
+              , Utils
+
+  default-language:
+                Haskell2010
+
+executable genUUID
+  main-is:      genUUID.hs
+  hs-source-dirs:
+                app
+              , src
+  ghc-options:         -threaded -O2 -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans -Wno-x-partial -Wno-incomplete-record-updates -Wno-incomplete-uni-patterns -Wno-unused-imports -Wno-incomplete-patterns -Wno-missing-fields
+  --cpp-options:         -DDEBUG
+  build-depends:
+                base                
+              , aeson               
+              , aeson-pretty        
+              , bytestring          
+              , containers          
+              , directory           
+              , ilist               
+              , lens                
+              , linear              
+              , locators            
+              , OpenGL              
+              , simple-affine-space                         
+              , sort                
+              , text                
+              , uuid                
+              , random              
+              , vector              
+              
+  other-modules:
+                Paths_e1338
+              , Model
+              , Project
+              , Texture
+              , Material
+              , Utils
+
+  default-language:
+                Haskell2010
+                
+executable geoIndexer
+  main-is:       geoIndexer.hs
+  hs-source-dirs:
+                app
+              , src
+  ghc-options:         -threaded -O2 -with-rtsopts=-N -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans -Wno-x-partial -Wno-incomplete-record-updates -Wno-incomplete-uni-patterns -Wno-unused-imports -Wno-incomplete-patterns -Wno-missing-fields
+  --cpp-options:         -DDEBUG
+  build-depends:
+                base                 
+              , OpenGL               
+              , aeson                
+              , aeson-pretty         
+              , bytestring           
+              , containers           
+              , ilist                
+              , lens                 
+              , linear               
+              , locators                          
+              , massiv               
+              , optparse-applicative 
+              , random                                        
+              , store                
+              , text                 
+              , simple-affine-space  
+              , time-compat          
+              , time                 
+              , uuid                 
+              , vector               
+              
+  other-modules:
+                Paths_e1338
+              , FromVector
+              , Material
+              , Texture
+              , PGeo
+              , Utils
+              , VAO
+
+  default-language:
+                   Haskell2010
+
+executable rpcShuffler
+  main-is:       rpcShuffler.hs
+  hs-source-dirs:
+                app
+              , src
+  ghc-options:         -threaded -O2 -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans -Wno-x-partial -Wno-incomplete-record-updates -Wno-incomplete-uni-patterns -Wno-unused-imports -Wno-incomplete-patterns -Wno-missing-fields
+  --cpp-options:         -DDEBUG
+  build-depends:
+                base                 
+              , aeson                
+              , aeson-pretty         
+              , bytestring           
+              , containers           
+              , text                 
+              , OpenGL               
+              , ilist                
+              , extra                
+              , lens                 
+              , locators                         
+              , random                                       
+              , store                
+              , simple-affine-space  
+              , linear               
+              , massiv               
+              , vector               
+              , uuid                 
+              
+  other-modules:
+                Paths_e1338
+              , FromVector
+              , Material
+              , PGeo
+              , Utils
+              , VAO
+              , Texture
+              
+  default-language:
+                Haskell2010                   

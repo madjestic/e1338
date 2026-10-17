@@ -1,7 +1,7 @@
 module Main where
 
 import Data.Aeson                (decodeFileStrict)
-import Data.Text.Lazy            (Text)
+--import Data.Text.Lazy            (Text)
 import Data.Aeson.Text           (encodeToLazyText)
 import Data.Text.Lazy.IO as IO
 import Data.List.Extra           (sortOn, groupOn)
@@ -18,8 +18,8 @@ shuffle x =
 readTempFile :: FilePath -> IO [Int]
 readTempFile file = 
   do
-    d <- decodeFileStrict file :: IO (Maybe ([Int]))
-    return $ case d of
+    d' <- decodeFileStrict file :: IO (Maybe ([Int]))
+    return $ case d' of
                Just d  -> d
                Nothing -> []
 
